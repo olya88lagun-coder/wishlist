@@ -2,3 +2,4 @@ export * as schema from "./schema";
 export * from "./schema";
 export type { Database } from "./types";
 export { createDb } from "./client";
+export * from "./users";
