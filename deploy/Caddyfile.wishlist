@@ -1,0 +1,4 @@
+my-wish-list.online {
+	encode gzip
+	reverse_proxy wishlist-web:3000
+}

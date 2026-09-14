@@ -1,0 +1,23 @@
+name: wishlist
+
+services:
+  web:
+    image: ghcr.io/${GHCR_OWNER}/wishlist-web:latest
+    env_file: .env
+    restart: unless-stopped
+    mem_limit: 300m
+    networks:
+      shared:
+        aliases: [wishlist-web]
+
+  migrate:
+    image: ghcr.io/${GHCR_OWNER}/wishlist-migrate:latest
+    env_file: .env
+    profiles: ["tools"]
+    mem_limit: 200m
+    networks: [shared]
+
+networks:
+  shared:
+    external: true
+    name: food-tracker-bot_default
