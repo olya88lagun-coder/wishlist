@@ -1,0 +1,13 @@
+:root {
+  --cream: #f6f1e7;
+  --graphite: #2c2c2a;
+  --pink: #d4537e;
+  --yellow: #ffe66d;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--cream); color: var(--graphite); font-family: var(--font-manrope), system-ui, sans-serif; }
+.page { max-width: 480px; margin: 0 auto; padding: 32px 20px; }
+.display { font-family: var(--font-playfair), Georgia, serif; font-size: 40px; line-height: 1.05; margin: 0 0 24px; }
+.button { display: block; width: 100%; padding: 14px; border-radius: 999px; border: 0; background: var(--graphite); color: var(--cream); font: inherit; text-align: center; text-decoration: none; cursor: pointer; }
+.muted { color: #5f5e5a; font-size: 14px; }
+.error { color: var(--pink); font-size: 14px; }
