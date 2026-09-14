@@ -1,5 +1,7 @@
 # План 1 — Фундамент: монорепо, база, правила броней, вход Telegram + VK, деплой
 
+> **Статус: выполнен 2026-09-15.** Прод: https://my-wish-list.online (вход Telegram, VK ID, привязка аккаунтов и Mini App проверены вручную).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Рабочий каркас продукта: пользователь входит на сайт через Telegram или VK ID (и автоматически в Mini App), видит свою страницу `/me`; схема БД и бизнес-правила броней покрыты тестами; приложение задеплоено на общий VPS за общим Caddy.
@@ -113,7 +115,7 @@ deploy/
 **Interfaces:**
 - Produces: команды `pnpm test`, `pnpm typecheck`; пакет `@wishlist/core` (исходники TS, `exports: "./src/index.ts"`).
 
-- [ ] **Step 1: Корневые файлы**
+- [x] **Step 1: Корневые файлы**
 
 `package.json`:
 ```json
@@ -218,7 +220,7 @@ docs
 coverage
 ```
 
-- [ ] **Step 2: Пакет core**
+- [x] **Step 2: Пакет core**
 
 `packages/core/package.json`:
 ```json
@@ -264,12 +266,12 @@ test("test runner works", () => {
 });
 ```
 
-- [ ] **Step 3: Установить и прогнать**
+- [x] **Step 3: Установить и прогнать**
 
 Run: `pnpm install && pnpm test && pnpm typecheck`
 Expected: `1 passed`, typecheck без ошибок.
 
-- [ ] **Step 4: Удалить smoke-тест и закоммитить**
+- [x] **Step 4: Удалить smoke-тест и закоммитить**
 
 Удалить `packages/core/src/smoke.test.ts` (его заменят реальные тесты в Task 2).
 
@@ -301,7 +303,7 @@ git commit -m "chore: scaffold pnpm monorepo with core package"
   const GUEST_NAME_MAX_LENGTH = 40;
   ```
 
-- [ ] **Step 1: Написать падающие тесты**
+- [x] **Step 1: Написать падающие тесты**
 
 `packages/core/src/reservations.test.ts`:
 ```ts
@@ -396,12 +398,12 @@ describe("guestReservationView", () => {
 });
 ```
 
-- [ ] **Step 2: Убедиться, что тесты падают**
+- [x] **Step 2: Убедиться, что тесты падают**
 
 Run: `pnpm vitest run packages/core/src/reservations.test.ts`
 Expected: FAIL — `Failed to resolve import "./reservations"`.
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `packages/core/src/reservations.ts`:
 ```ts
@@ -463,12 +465,12 @@ export function guestReservationView(
 export * from "./reservations";
 ```
 
-- [ ] **Step 4: Тесты проходят**
+- [x] **Step 4: Тесты проходят**
 
 Run: `pnpm vitest run packages/core && pnpm typecheck`
 Expected: PASS (13 тестов), typecheck без ошибок.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/core
@@ -500,7 +502,7 @@ git commit -m "feat(core): reservation and visibility rules"
   const OAUTH_STATE_TTL_SECONDS = 600;
   ```
 
-- [ ] **Step 1: Падающие тесты Telegram**
+- [x] **Step 1: Падающие тесты Telegram**
 
 `packages/core/src/auth/telegram.test.ts`:
 ```ts
@@ -582,7 +584,7 @@ describe("verifyTelegramLoginWidget", () => {
 });
 ```
 
-- [ ] **Step 2: Падающие тесты сессий**
+- [x] **Step 2: Падающие тесты сессий**
 
 `packages/core/src/auth/session.test.ts`:
 ```ts
@@ -626,12 +628,12 @@ describe("oauth state tokens", () => {
 });
 ```
 
-- [ ] **Step 3: Тесты падают**
+- [x] **Step 3: Тесты падают**
 
 Run: `pnpm vitest run packages/core/src/auth`
 Expected: FAIL — `Failed to resolve import "./telegram"` и `"./session"`.
 
-- [ ] **Step 4: Реализация Telegram**
+- [x] **Step 4: Реализация Telegram**
 
 `packages/core/src/auth/telegram.ts`:
 ```ts
@@ -708,7 +710,7 @@ export function verifyTelegramLoginWidget(
 }
 ```
 
-- [ ] **Step 5: Реализация сессий**
+- [x] **Step 5: Реализация сессий**
 
 `packages/core/src/auth/session.ts`:
 ```ts
@@ -771,12 +773,12 @@ export * from "./auth/telegram";
 export * from "./auth/session";
 ```
 
-- [ ] **Step 6: Тесты проходят**
+- [x] **Step 6: Тесты проходят**
 
 Run: `pnpm install && pnpm vitest run packages/core && pnpm typecheck`
 Expected: PASS (все тесты core), typecheck чистый.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/core pnpm-lock.yaml
@@ -805,7 +807,7 @@ git commit -m "feat(core): telegram signature verification and session tokens"
   function fetchVkUser(p: { clientId: string; accessToken: string; fetchFn: FetchFn }): Promise<{ ok: true; user: VkUser } | { ok: false; error: string }>;
   ```
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `packages/core/src/auth/vk.test.ts`:
 ```ts
@@ -889,12 +891,12 @@ describe("fetchVkUser", () => {
 });
 ```
 
-- [ ] **Step 2: Тесты падают**
+- [x] **Step 2: Тесты падают**
 
 Run: `pnpm vitest run packages/core/src/auth/vk.test.ts`
 Expected: FAIL — `Failed to resolve import "./vk"`.
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `packages/core/src/auth/vk.ts`:
 ```ts
@@ -977,12 +979,12 @@ export * from "./auth/session";
 export * from "./auth/vk";
 ```
 
-- [ ] **Step 4: Тесты проходят**
+- [x] **Step 4: Тесты проходят**
 
 Run: `pnpm vitest run packages/core && pnpm typecheck`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/core
@@ -1014,7 +1016,7 @@ git commit -m "feat(core): VK ID OAuth 2.1 PKCE helpers"
   function createTestDb(): Promise<Database>;   // PGlite + все миграции
   ```
 
-- [ ] **Step 1: Пакет и конфиги**
+- [x] **Step 1: Пакет и конфиги**
 
 `packages/db/package.json`:
 ```json
@@ -1071,7 +1073,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 2: Схема**
+- [x] **Step 2: Схема**
 
 `packages/db/src/schema.ts`:
 ```ts
@@ -1213,12 +1215,12 @@ export type { Database } from "./types";
 export { createDb } from "./client";
 ```
 
-- [ ] **Step 3: Сгенерировать миграцию**
+- [x] **Step 3: Сгенерировать миграцию**
 
 Run: `pnpm install && pnpm --filter @wishlist/db db:generate`
 Expected: в `packages/db/drizzle/` появилась папка миграции с `migration.sql`, содержащим `CREATE UNIQUE INDEX "reservations_one_active_per_item_uq" ... WHERE "status" = 'active'`. Если `WHERE` отсутствует — остановиться и сообщить (не править SQL вручную без согласования).
 
-- [ ] **Step 4: Написать тест ограничений схемы**
+- [x] **Step 4: Написать тест ограничений схемы**
 
 `packages/db/src/schema.test.ts`:
 ```ts
@@ -1266,12 +1268,12 @@ describe("auth identity constraints", () => {
 });
 ```
 
-- [ ] **Step 5: Тесты проходят**
+- [x] **Step 5: Тесты проходят**
 
 Run: `pnpm vitest run packages/db && pnpm typecheck`
 Expected: PASS (3 теста). Если тест «second active reservation» не падает на вставке — миграция сгенерирована без `WHERE`/индекса: вернуться к Step 3.
 
-- [ ] **Step 6: Скрипт миграций для прода**
+- [x] **Step 6: Скрипт миграций для прода**
 
 `packages/db/scripts/migrate.mjs`:
 ```js
@@ -1295,7 +1297,7 @@ try {
 }
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add packages/db pnpm-lock.yaml
@@ -1323,7 +1325,7 @@ git commit -m "feat(db): schema, migrations and PGlite test harness"
   function getUserWithIdentities(db: Database, userId: string): Promise<UserWithIdentities | null>;
   ```
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `packages/db/src/users.test.ts`:
 ```ts
@@ -1394,12 +1396,12 @@ describe("getUserWithIdentities", () => {
 });
 ```
 
-- [ ] **Step 2: Тесты падают**
+- [x] **Step 2: Тесты падают**
 
 Run: `pnpm vitest run packages/db/src/users.test.ts`
 Expected: FAIL — `Failed to resolve import "./users"`.
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `packages/db/src/users.ts`:
 ```ts
@@ -1496,12 +1498,12 @@ export { createDb } from "./client";
 export * from "./users";
 ```
 
-- [ ] **Step 4: Тесты проходят**
+- [x] **Step 4: Тесты проходят**
 
 Run: `pnpm vitest run packages/db && pnpm typecheck`
 Expected: PASS (12 тестов в db).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/db
@@ -1541,7 +1543,7 @@ git commit -m "feat(db): user upsert and account linking"
   function getCurrentUser(deps: Pick<AuthDeps, "db" | "env">, sessionToken: string | null): Promise<UserWithIdentities | null>;
   ```
 
-- [ ] **Step 1: Пакет и конфиги**
+- [x] **Step 1: Пакет и конфиги**
 
 `apps/web/package.json`:
 ```json
@@ -1617,7 +1619,7 @@ export default defineProject({
 
 `apps/web/public/.gitkeep` — пустой файл.
 
-- [ ] **Step 2: env, db, http**
+- [x] **Step 2: env, db, http**
 
 `apps/web/src/server/env.ts`:
 ```ts
@@ -1684,7 +1686,7 @@ export function isSameOrigin(request: Request, appUrl: string): boolean {
 }
 ```
 
-- [ ] **Step 3: Падающие тесты сервиса**
+- [x] **Step 3: Падающие тесты сервиса**
 
 `apps/web/src/server/auth-service.test.ts`:
 ```ts
@@ -1825,12 +1827,12 @@ describe("getCurrentUser", () => {
 });
 ```
 
-- [ ] **Step 4: Тесты падают**
+- [x] **Step 4: Тесты падают**
 
 Run: `pnpm install && pnpm vitest run apps/web`
 Expected: FAIL — `Failed to resolve import "./auth-service"`.
 
-- [ ] **Step 5: Реализация сервиса**
+- [x] **Step 5: Реализация сервиса**
 
 `apps/web/src/server/auth-service.ts`:
 ```ts
@@ -1951,12 +1953,12 @@ export async function getCurrentUser(
 }
 ```
 
-- [ ] **Step 6: Тесты проходят**
+- [x] **Step 6: Тесты проходят**
 
 Run: `pnpm vitest run && pnpm typecheck`
 Expected: PASS все проекты (core, db, web: 10 тестов), typecheck чистый.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/web pnpm-lock.yaml
@@ -1987,7 +1989,7 @@ git commit -m "feat(web): auth service for telegram and VK login with account li
 
 Этот слой — тонкие адаптеры без логики; логика протестирована в Task 7. Проверка — сборкой и ручным smoke-тестом в Task 10.
 
-- [ ] **Step 1: deps и route handlers**
+- [x] **Step 1: deps и route handlers**
 
 `apps/web/src/server/deps.ts`:
 ```ts
@@ -2113,7 +2115,7 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-- [ ] **Step 2: Страницы**
+- [x] **Step 2: Страницы**
 
 `apps/web/src/app/globals.css`:
 ```css
@@ -2329,7 +2331,7 @@ export function TelegramAutoLogin() {
 }
 ```
 
-- [ ] **Step 3: Сборка проходит локально**
+- [x] **Step 3: Сборка проходит локально**
 
 Run: `pnpm --filter @wishlist/web build`
 Expected: `✓ Compiled successfully`, в `apps/web/.next/standalone/apps/web/server.js` есть файл. Сборке нужны переменные окружения только в рантайме; если `next build` пытается пререндерить `/login` — страница помечена `force-dynamic`, ошибок быть не должно.
@@ -2337,7 +2339,7 @@ Expected: `✓ Compiled successfully`, в `apps/web/.next/standalone/apps/web/se
 Run: `pnpm test && pnpm typecheck`
 Expected: PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add apps/web
@@ -2356,7 +2358,7 @@ git commit -m "feat(web): auth routes and minimal login, profile and mini app pa
 - Consumes: `pnpm test`, `pnpm typecheck`, `pnpm --filter @wishlist/web build`, `packages/db/scripts/migrate.mjs`.
 - Produces: образы `ghcr.io/<owner>/wishlist-web:latest` (target `web`) и `ghcr.io/<owner>/wishlist-migrate:latest` (target `migrate`), теги также `sha-<короткий sha>`.
 
-- [ ] **Step 1: Dockerfile**
+- [x] **Step 1: Dockerfile**
 
 `apps/web/Dockerfile` (контекст — корень репозитория):
 ```dockerfile
@@ -2393,12 +2395,12 @@ CMD ["node", "apps/web/server.js"]
 
 Примечание для `migrate`: pnpm кладёт зависимости пакета в `packages/db/node_modules` (симлинки в `/repo/node_modules/.pnpm`), поэтому копируются и корневой `node_modules`, и весь `packages/db`.
 
-- [ ] **Step 2: Локальная проверка образов (если на машине есть Docker)**
+- [x] **Step 2: Локальная проверка образов (если на машине есть Docker)**
 
 Run: `docker build -f apps/web/Dockerfile --target web -t wishlist-web:local . && docker build -f apps/web/Dockerfile --target migrate -t wishlist-migrate:local .`
 Expected: оба образа собираются. Если Docker локально нет — пропустить, проверка произойдёт в CI (Step 4).
 
-- [ ] **Step 3: Workflows**
+- [x] **Step 3: Workflows**
 
 `.github/workflows/ci.yml`:
 ```yaml
@@ -2462,7 +2464,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.target }}
 ```
 
-- [ ] **Step 4: Запушить и проверить CI**
+- [x] **Step 4: Запушить и проверить CI**
 
 ```bash
 git add apps/web/Dockerfile .github
@@ -2485,7 +2487,7 @@ Expected: `ci` и `images` — success; в GitHub → Packages появилис�
 
 **Правило:** каждый блок команд ниже агент показывает пользователю и выполняет по SSH **только после явного «да»**. Секреты генерируются на сервере и не печатаются.
 
-- [ ] **Step 1: Файлы деплоя**
+- [x] **Step 1: Файлы деплоя**
 
 `deploy/docker-compose.yml`:
 ```yaml
@@ -2530,7 +2532,7 @@ git commit -m "chore(deploy): compose, caddy block and server runbook"
 git push
 ```
 
-- [ ] **Step 2: Swap 2 ГБ (с подтверждения)**
+- [x] **Step 2: Swap 2 ГБ (с подтверждения)**
 
 ```bash
 ssh root@200.169.178.231 '
@@ -2547,7 +2549,7 @@ free -h'
 ```
 Expected: `Swap: 2.0Gi`.
 
-- [ ] **Step 3: БД и роль `wishlist` в общем Postgres (с подтверждения)**
+- [x] **Step 3: БД и роль `wishlist` в общем Postgres (с подтверждения)**
 
 SQL лежит в репозитории, чтобы не экранировать кавычки через SSH. `deploy/create-db.sql`:
 ```sql
@@ -2569,7 +2571,7 @@ ssh root@200.169.178.231 'set -e; cd /opt/wishlist; [ -f .db_password ] || { ope
 ```
 Expected: последняя строка вывода `wishlist`. Повторный запуск безопасен (идемпотентно).
 
-- [ ] **Step 4: `.env` и compose на сервере (с подтверждения)**
+- [x] **Step 4: `.env` и compose на сервере (с подтверждения)**
 
 Агент копирует compose, затем создаёт `.env`, **не выводя секретов**. Значения без секретов (домен, username бота, VK client_id, GHCR owner) пользователь сообщил заранее. Токен бота пользователь вписывает сам.
 
@@ -2595,7 +2597,7 @@ grep -c "=" .env'
 ```
 Затем **пользователь сам** выполняет на сервере: `nano /opt/wishlist/.env` (вписать `TELEGRAM_BOT_TOKEN`) и `docker login ghcr.io` (PAT со scope `read:packages`).
 
-- [ ] **Step 5: Миграции и запуск (с подтверждения)**
+- [x] **Step 5: Миграции и запуск (с подтверждения)**
 
 ```bash
 ssh root@200.169.178.231 '
@@ -2610,7 +2612,7 @@ docker stats --no-stream --format "{{.Name}} {{.MemUsage}}"'
 ```
 Expected: `migrations applied`; `wishlist-web-1` в статусе `healthy`; память `web` < 300MiB; контейнеры трекера по-прежнему `Up`.
 
-- [ ] **Step 6: Блок в Caddyfile трекера (с подтверждения)**
+- [x] **Step 6: Блок в Caddyfile трекера (с подтверждения)**
 
 Файл смонтирован как один файл — **нельзя** использовать `sed -i`/редакторы, заменяющие inode; только дописывание `>>`.
 
@@ -2627,7 +2629,7 @@ curl -fsS https://APP_DOMAIN/api/health && curl -fsS -o /dev/null -w "trackermea
 ```
 Expected: `{"ok":true}` и `trackermeal 200` (или прежний код ответа трекера). Если `validate` упал — **не** делать reload, восстановить из `Caddyfile.bak-*` и сообщить пользователю.
 
-- [ ] **Step 7: Smoke-тест входа (вместе с пользователем)**
+- [x] **Step 7: Smoke-тест входа (вместе с пользователем)**
 
 1. Открыть `https://APP_DOMAIN/login` → нажать виджет Telegram → попадаем на `/me` с именем, «Вход через: telegram».
 2. На `/me` нажать «Привязать VK ID» → после VK попадаем на `/me`, «Вход через: telegram, vk».
@@ -2637,7 +2639,7 @@ Expected: `{"ok":true}` и `trackermeal 200` (или прежний код от�
 
 Если шаг 4 падает с `telegram_BAD_HASH` при корректном токене — проверить, что Telegram не добавил в `initData` поле, требующее исключения из data-check-string (в текущей реализации исключается только `hash`); зафиксировать реальный `initData` (без публикации) и добавить регрессионный тест в `telegram.test.ts`.
 
-- [ ] **Step 8: Commit runbook-правок (если были)**
+- [x] **Step 8: Commit runbook-правок (если были)**
 
 ```bash
 git add deploy docs
@@ -2650,6 +2652,8 @@ git push
 ## Что дальше
 
 План 2 — «Списки, подарки, бронирование + UI Журнала» — опирается на: `@wishlist/core` (`decideReserve`, `decideCancel`, `ownerReservationView`, `guestReservationView`), `@wishlist/db` (`wishlists`, `items`, `reservations`, `createTestDb`), `getCurrentUser`, cookie `wl_session`, деплой из Task 10. В нём же — локальный dev-сервер БД (PGlite socket или Docker Desktop) для `next dev`.
+
+**Добавить в план 2 по итогам проверки на проде:** автоматическое объединение профилей. Если залогиненный пользователь привязывает аккаунт (Telegram/VK), который уже принадлежит **пустому** профилю (нет списков и броней), — перенести identity и удалить пустой профиль вместо ошибки `link_IDENTITY_TAKEN`. Сценарий: человек сначала вошёл через VK, потом через Telegram и пытается связать их. Если чужой профиль не пустой — оставить текущую ошибку.
 
 Сознательно **не** входит в план 1 (YAGNI, появится там, где нужно):
 - таблицы `ParseCache` и очередь pg-boss, приложение `apps/worker` — план 3 (парсер);

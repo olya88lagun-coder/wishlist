@@ -72,6 +72,16 @@ curl -fsS -o /dev/null -w "trackermeal %{http_code}\n" https://trackermeal.ru
 ```
 Если `validate` падает — не перезагружать, восстановить `Caddyfile` из `Caddyfile.bak-*`.
 
+**Важно (обнаружено 2026-09-14):** контейнер Caddy трекера может видеть **старую версию** `Caddyfile`, если файл на хосте когда-то заменили новым (git pull, scp, редактор) после старта контейнера — bind-mount одного файла держится за старый inode. Признак: `caddy reload` пишет `config is unchanged`. Проверка: `docker exec food-tracker-bot-caddy-1 cat /etc/caddy/Caddyfile` отличается от файла на хосте.
+
+Применение без перезапуска трекера:
+```bash
+docker exec -i food-tracker-bot-caddy-1 sh -c "cat > /tmp/Caddyfile" < /opt/food-tracker-bot/Caddyfile
+docker exec food-tracker-bot-caddy-1 caddy validate --config /tmp/Caddyfile --adapter caddyfile \
+  && docker exec food-tracker-bot-caddy-1 caddy reload --config /tmp/Caddyfile --adapter caddyfile
+```
+При следующем перезапуске контейнера Caddy перечитает актуальный файл с хоста, где блок уже есть.
+
 ## Обновление приложения
 
 После мержа в `master` GitHub Actions публикует новые образы. На сервере:
