@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- **Значения проекта:** `APP_DOMAIN` = `my-wish-list.online` (A-запись на `200.169.178.231` уже настроена, DNS reg.ru); `APP_URL` = `https://my-wish-list.online`; `TELEGRAM_BOT_USERNAME` = `my_wish_list1_bot`; путь проекта на машине разработчика — `C:\dev\wishlist`. Во всех шагах ниже `APP_DOMAIN` заменяется на `my-wish-list.online`.
+- **Значения проекта:** `APP_DOMAIN` = `my-wish-list.online` (A-запись на `200.169.178.231` уже настроена, DNS reg.ru); `APP_URL` = `https://my-wish-list.online`; `TELEGRAM_BOT_USERNAME` = `my_wish_list1_bot`; `VK_CLIENT_ID` = `54771492`; `GHCR_OWNER` = `olya88lagun-coder`; git remote = `https://github.com/olya88lagun-coder/wishlist.git`; путь проекта на машине разработчика — `C:\dev\wishlist`. Во всех шагах ниже `APP_DOMAIN` заменяется на `my-wish-list.online`.
 
 - Сервер общий с трекером питания: **никаких изменений** в контейнерах `food-tracker-bot-*` кроме (а) добавления БД/роли `wishlist` в `food-tracker-bot-db-1` и (б) дописывания блока в `/opt/food-tracker-bot/Caddyfile`. Каждая команда на сервере — только после явного «да» пользователя.
 - Лимит памяти контейнера `web` — `300m`. Никакого Redis, Playwright, сборки образов на сервере.
