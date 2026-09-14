@@ -3,3 +3,5 @@ packages:
   - "apps/*"
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - zod@4.6.5
