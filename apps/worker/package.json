@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && node --env-file-if-exists=../web/.env.development.local dist/main.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1131.0",

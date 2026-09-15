@@ -10,6 +10,14 @@ services:
       shared:
         aliases: [wishlist-web]
 
+  worker:
+    image: ghcr.io/${GHCR_OWNER}/wishlist-worker:latest
+    env_file: .env
+    restart: unless-stopped
+    mem_limit: 200m
+    stop_grace_period: 30s
+    networks: [shared]
+
   migrate:
     image: ghcr.io/${GHCR_OWNER}/wishlist-migrate:latest
     env_file: .env

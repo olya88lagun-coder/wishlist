@@ -11,7 +11,8 @@ const migrationsFolder = fileURLToPath(new URL("../drizzle", import.meta.url));
 
 const db = await PGlite.create(dataDir);
 await migrate(drizzle(db), { migrationsFolder });
-const server = new PGLiteSocketServer({ db, port: DEV_DB_PORT, host: "127.0.0.1" });
+// web (postgres.js + отправка в pg-boss) и воркер (postgres.js + pg-boss) держат до ~8 соединений; PGlite выполняет запросы по очереди
+const server = new PGLiteSocketServer({ db, port: DEV_DB_PORT, host: "127.0.0.1", maxConnections: 10 });
 await server.start();
 console.log(`dev db ready: postgres://postgres:postgres@127.0.0.1:${DEV_DB_PORT}/postgres`);
 
