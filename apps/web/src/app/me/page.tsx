@@ -1,34 +1,27 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/server/auth-service";
-import { getDb } from "@/server/db";
-import { getEnv } from "@/server/env";
-import { SESSION_COOKIE } from "@/server/http";
+import Link from "next/link";
+import { requireUser } from "@/server/viewer";
+import { SurpriseModeForm } from "./SurpriseModeForm";
 
 export const dynamic = "force-dynamic";
 
+const PROVIDER_LABEL: Record<string, string> = { telegram: "Telegram", vk: "VK ID" };
+
 export default async function MePage() {
-  const cookieStore = await cookies();
-  const user = await getCurrentUser({ db: getDb(), env: getEnv() }, cookieStore.get(SESSION_COOKIE)?.value ?? null);
-  if (!user) redirect("/login");
+  const user = await requireUser();
   const hasVk = user.providers.includes("vk");
   const hasTelegram = user.providers.includes("telegram");
   return (
-    <main className="page">
-      <h1 className="display">
-        Привет, <i>{user.displayName}</i>
+    <main className="page stack">
+      <Link className="eyebrow" href="/lists">← Мои списки</Link>
+      <h1 className="display" style={{ marginBottom: 0 }}>
+        {user.displayName.split(" ")[0]}, <i>это вы</i>
       </h1>
-      <p className="muted">Вход через: {user.providers.join(", ")}</p>
-      {!hasVk && (
-        <a className="button" href="/api/auth/vk/start" style={{ marginBottom: 12 }}>
-          Привязать VK ID
-        </a>
-      )}
-      {!hasTelegram && <p className="muted">Чтобы привязать Telegram, войдите через Telegram на странице входа, не выходя из профиля.</p>}
+      <p className="muted">Вход через: {user.providers.map((p) => PROVIDER_LABEL[p] ?? p).join(", ")}</p>
+      {!hasVk && <a className="button button--ghost button--block" href="/api/auth/vk/start">Привязать VK ID</a>}
+      {!hasTelegram && <p className="muted">Чтобы привязать Telegram, нажмите «Войти через Telegram» на странице входа, не выходя из профиля.</p>}
+      <SurpriseModeForm enabled={user.surpriseMode} />
       <form action="/api/auth/logout" method="post">
-        <button className="button" type="submit">
-          Выйти
-        </button>
+        <button className="button button--ghost button--block" type="submit">Выйти</button>
       </form>
     </main>
   );
