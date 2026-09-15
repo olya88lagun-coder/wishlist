@@ -39,7 +39,7 @@ function itemValues(input: ItemInput) {
   };
 }
 
-async function ownedItemId(db: Database, ownerId: string, itemId: string): Promise<string | null> {
+export async function ownedItemId(db: Database, ownerId: string, itemId: string): Promise<string | null> {
   if (!isUuid(itemId)) return null;
   const [row] = await db
     .select({ id: items.id })
