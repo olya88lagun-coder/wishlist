@@ -23,7 +23,7 @@
 - `sourceUrl` приходит уже нормализованным (`normalizeProductUrl` в форме, Task 6); `store` = `detectStore(sourceUrl).id` или `null`.
 - Порядок подарков: сначала «очень хочу», затем новые сверху.
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `packages/db/src/items.test.ts`:
 ```ts
@@ -162,7 +162,7 @@ describe("getOwnerWishlistView", () => {
 Run: `pnpm vitest run packages/db/src/items.test.ts`
 Expected: FAIL — `Cannot find module './items'`.
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 `packages/db/src/items.ts`:
 ```ts
@@ -290,12 +290,12 @@ export async function getOwnerWishlistView(db: Database, ownerId: string, wishli
 export * from "./items";
 ```
 
-- [ ] **Step 3: Тесты проходят**
+- [x] **Step 3: Тесты проходят**
 
 Run: `pnpm vitest run packages/db && pnpm typecheck`
 Expected: PASS. Если `exists(...)` возвращается из PGlite строкой `"t"`/`"f"` вместо boolean — заменить в select на `sql<boolean>\`(exists (...))::boolean\`` и при необходимости маппить `hasActiveReservation === true || hasActiveReservation === "t"`; зафиксировать в комментарии, какой драйвер как отдаёт.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add packages/db

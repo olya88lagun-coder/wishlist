@@ -15,7 +15,7 @@
   function setSurpriseMode(db: Database, userId: string, enabled: boolean): Promise<void>;
   ```
 
-- [ ] **Step 1: Обновить существующий тест и добавить падающие**
+- [x] **Step 1: Обновить существующий тест и добавить падающие**
 
 В `packages/db/src/users.test.ts`:
 
@@ -120,7 +120,7 @@ describe("setSurpriseMode", () => {
 Run: `pnpm vitest run packages/db/src/users.test.ts apps/web`
 Expected: FAIL — `isProfileEmpty`/`setSurpriseMode` не экспортируются; тест merge падает с `IDENTITY_TAKEN`.
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 В `packages/db/src/users.ts`:
 
@@ -180,12 +180,12 @@ export async function setSurpriseMode(db: Database, userId: string, enabled: boo
 
 Порядок проверок поменялся по сравнению с планом 1: `PROVIDER_ALREADY_LINKED` проверяется раньше, чем `IDENTITY_TAKEN`. Существующий тест `"refuses a second account of the same provider"` остаётся зелёным.
 
-- [ ] **Step 3: Тесты проходят**
+- [x] **Step 3: Тесты проходят**
 
 Run: `pnpm test && pnpm typecheck`
 Expected: PASS все проекты.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add packages/db apps/web

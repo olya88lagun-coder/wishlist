@@ -29,7 +29,7 @@
 - Когда владелец смотрит свою публичную страницу (`isOwner = true`), статусы строятся по правилам владельца: `reserved_by_other`, если бронь есть и режим сюрприза выключен, иначе `free`. Кнопки брони UI для владельца не показывает.
 - `cancel_token` генерируется и сохраняется для будущей отмены по ссылке из бота (план 4); в этом плане наружу не отдаётся.
 
-- [ ] **Step 1: Падающие тесты публичного вида**
+- [x] **Step 1: Падающие тесты публичного вида**
 
 `packages/db/src/public-view.test.ts`:
 ```ts
@@ -111,7 +111,7 @@ describe("getPublicWishlist", () => {
 });
 ```
 
-- [ ] **Step 2: Падающие тесты броней**
+- [x] **Step 2: Падающие тесты броней**
 
 `packages/db/src/reservations.test.ts`:
 ```ts
@@ -209,7 +209,7 @@ describe("cancelReservation", () => {
 Run: `pnpm vitest run packages/db/src/public-view.test.ts packages/db/src/reservations.test.ts`
 Expected: FAIL — `Cannot find module './public-view'` и `'./reservations'`.
 
-- [ ] **Step 3: Реализация публичного вида**
+- [x] **Step 3: Реализация публичного вида**
 
 `packages/db/src/public-view.ts`:
 ```ts
@@ -308,7 +308,7 @@ export async function getPublicWishlist(db: Database, slug: string, viewer: View
 }
 ```
 
-- [ ] **Step 4: Реализация броней**
+- [x] **Step 4: Реализация броней**
 
 `packages/db/src/reservations.ts`:
 ```ts
@@ -388,12 +388,12 @@ export * from "./public-view";
 export * from "./reservations";
 ```
 
-- [ ] **Step 5: Тесты проходят**
+- [x] **Step 5: Тесты проходят**
 
 Run: `pnpm vitest run packages/db && pnpm typecheck`
 Expected: PASS. Тест «two simultaneous reservations» на PGlite выполняется в одном соединении последовательно, поэтому второй запрос отсекается уже `decideReserve`, а не индексом; ветку с индексом покрывает тест схемы из плана 1 (`schema.test.ts`). Оба пути возвращают `ALREADY_RESERVED`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/db

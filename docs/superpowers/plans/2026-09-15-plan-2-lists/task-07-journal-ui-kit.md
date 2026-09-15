@@ -24,7 +24,7 @@
   ```
 - **Важно:** `@wishlist/core` использует `node:crypto`, поэтому импортировать его можно только в серверных компонентах и server actions. Клиентские компоненты (`"use client"`) получают уже готовые строки через props.
 
-- [ ] **Step 1: Падающий тест модели карточки**
+- [x] **Step 1: Падающий тест модели карточки**
 
 `apps/web/src/components/item-card-model.test.ts`:
 ```ts
@@ -60,7 +60,7 @@ describe("toCardModel", () => {
 Run: `pnpm vitest run apps/web/src/components`
 Expected: FAIL — `Cannot find module './item-card-model'`.
 
-- [ ] **Step 2: Модель карточки**
+- [x] **Step 2: Модель карточки**
 
 `apps/web/src/components/item-card-model.ts`:
 ```ts
@@ -93,7 +93,7 @@ export function toCardModel(item: CardItem): CardModel {
 Run: `pnpm vitest run apps/web/src/components`
 Expected: PASS.
 
-- [ ] **Step 3: Стили**
+- [x] **Step 3: Стили**
 
 `apps/web/src/app/globals.css` (заменить целиком):
 ```css
@@ -194,7 +194,7 @@ a { color: inherit; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 ```
 
-- [ ] **Step 4: Компоненты**
+- [x] **Step 4: Компоненты**
 
 `apps/web/src/components/StoreTile.tsx`:
 ```tsx
@@ -289,12 +289,12 @@ export function SubmitButton({ children, pendingText, variant = "primary" }: { c
 }
 ```
 
-- [ ] **Step 5: Проверка**
+- [x] **Step 5: Проверка**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS, сборка успешна (компоненты пока не используются страницами — это нормально).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/web

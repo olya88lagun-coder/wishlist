@@ -12,7 +12,7 @@
   function saveSurpriseModeAction(prev: FormState, form: FormData): Promise<FormState>;
   ```
 
-- [ ] **Step 1: Действие и форма режима сюрприза**
+- [x] **Step 1: Действие и форма режима сюрприза**
 
 `apps/web/src/app/me/actions.ts`:
 ```ts
@@ -60,7 +60,7 @@ export function SurpriseModeForm({ enabled }: { enabled: boolean }) {
 }
 ```
 
-- [ ] **Step 2: Страница профиля**
+- [x] **Step 2: Страница профиля**
 
 `apps/web/src/app/me/page.tsx` (заменить целиком):
 ```tsx
@@ -94,14 +94,14 @@ export default async function MePage() {
 }
 ```
 
-- [ ] **Step 3: Полная проверка локально**
+- [x] **Step 3: Полная проверка локально**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS все проекты.
 
 Ручная проверка (`pnpm dev:db` + `pnpm dev:web`): войти dev-входом, забронировать подарок из инкогнито, затем в `/me` включить «Полный сюрприз» → на странице списка стикер «забронировано» исчез; выключить → вернулся.
 
-- [ ] **Step 4: Commit, push ветки, CI**
+- [x] **Step 4: Commit, push ветки, CI**
 
 ```bash
 git add apps/web
@@ -110,7 +110,7 @@ git push -u origin feat/lists
 ```
 Попросить пользователя проверить вкладку Actions: запуск `ci` на `feat/lists` — зелёный. При красном — получить текст ошибки и исправить до мержа.
 
-- [ ] **Step 5: Мерж в master (с согласия пользователя)**
+- [x] **Step 5: Мерж в master (с согласия пользователя)**
 
 ```bash
 git checkout master
@@ -119,7 +119,7 @@ git push
 ```
 Дождаться зелёного `images` (web, migrate).
 
-- [ ] **Step 6: Деплой (с явного «да» пользователя)**
+- [x] **Step 6: Деплой (с явного «да» пользователя)**
 
 ```bash
 ssh root@200.169.178.231 '
@@ -135,7 +135,7 @@ curl -fsS https://my-wish-list.online/api/health'
 ```
 Expected: `migrations applied` (новых миграций нет — команда проходит без изменений), `wishlist-web-1 … (healthy)`, память < 300MiB, `{"ok":true}`.
 
-- [ ] **Step 7: Проверка на проде вместе с пользователем**
+- [x] **Step 7: Проверка на проде вместе с пользователем**
 
 1. Открыть бота → кнопка меню → Mini App открывает «Мои списки».
 2. Создать список «Тест», повод ДР, дата через неделю → стикер «ДР через 7 дней».
@@ -153,7 +153,7 @@ ssh root@200.169.178.231 'docker logs --since 30m wishlist-web-1 2>&1 | grep -iE
 ```
 Expected: нет ошибок нашего приложения (строки сканеров `Server Reference ID` отфильтрованы).
 
-- [ ] **Step 8: Статус плана**
+- [x] **Step 8: Статус плана**
 
 В `docs/superpowers/plans/2026-09-15-plan-2-lists/00-overview.md` под заголовком добавить строку:
 ```

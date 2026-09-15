@@ -24,7 +24,7 @@
 - GET-страница cookie не создаёт (серверный компонент не может ставить cookie); `wl_guest` появляется при первой брони в Server Action.
 - Страница: `robots: noindex`, заголовок вкладки — название списка.
 
-- [ ] **Step 1: Тексты ошибок (тест → реализация)**
+- [x] **Step 1: Тексты ошибок (тест → реализация)**
 
 `apps/web/src/app/[slug]/reserve-messages.test.ts`:
 ```ts
@@ -81,7 +81,7 @@ export function cancelErrorMessage(reason: CancelFailure): string {
 Run: `pnpm vitest run "apps/web/src/app/\[slug\]"`
 Expected: PASS.
 
-- [ ] **Step 2: Server Actions**
+- [x] **Step 2: Server Actions**
 
 `apps/web/src/app/[slug]/actions.ts`:
 ```ts
@@ -117,7 +117,7 @@ export async function cancelAction(slug: string, itemId: string): Promise<void> 
 }
 ```
 
-- [ ] **Step 3: Клиентские компоненты**
+- [x] **Step 3: Клиентские компоненты**
 
 `apps/web/src/components/ShareBar.tsx`:
 ```tsx
@@ -238,7 +238,7 @@ export function CancelReservationButton({ slug, itemId }: { slug: string; itemId
 }
 ```
 
-- [ ] **Step 4: Публичная страница**
+- [x] **Step 4: Публичная страница**
 
 `apps/web/src/app/[slug]/page.tsx`:
 ```tsx
@@ -330,7 +330,7 @@ export default async function PublicWishlistPage({ params }: Props) {
 
 Порядок маршрутов: статические сегменты (`/login`, `/me`, `/tg`, `/lists`, `/api`) имеют приоритет над `/[slug]`; `getPublicWishlist` отбрасывает всё, что не похоже на slug из 10 символов, поэтому `/favicon.ico` и прочие адреса дают 404 без запроса к БД.
 
-- [ ] **Step 5: ShareBar на странице владельца**
+- [x] **Step 5: ShareBar на странице владельца**
 
 В `apps/web/src/app/lists/[id]/page.tsx`:
 1. Добавить импорты `import { ShareBar } from "@/components/ShareBar";` и `import { getEnv } from "@/server/env";`.
@@ -345,7 +345,7 @@ export default async function PublicWishlistPage({ params }: Props) {
       </div>
 ```
 
-- [ ] **Step 6: Проверка**
+- [x] **Step 6: Проверка**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS, в маршрутах есть `ƒ /[slug]`.
@@ -359,7 +359,7 @@ Expected: PASS, в маршрутах есть `ƒ /[slug]`.
 6. В первом инкогнито «Снять бронь» → подтверждение → подарок снова свободен.
 7. Маша открывает свою публичную ссылку → плашка «Это ваш список», кнопок брони нет.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/web

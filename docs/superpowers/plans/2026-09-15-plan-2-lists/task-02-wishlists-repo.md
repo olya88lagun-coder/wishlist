@@ -31,14 +31,14 @@
 
 Входные данные в репозиторий приходят уже провалидированными (zod в Task 6); репозиторий отвечает за владение, лимиты и уникальность slug.
 
-- [ ] **Step 1: Зависимость db → core**
+- [x] **Step 1: Зависимость db → core**
 
 В `packages/db/package.json` в `dependencies` добавить `"@wishlist/core": "workspace:*"`.
 
 Run: `pnpm install`
 Expected: `Done`, lock-файл обновлён.
 
-- [ ] **Step 2: Лимиты, ошибки, фикстуры**
+- [x] **Step 2: Лимиты, ошибки, фикстуры**
 
 `packages/db/src/limits.ts`:
 ```ts
@@ -82,7 +82,7 @@ export async function createUserFixture(db: Database, displayName = "Маша"):
 }
 ```
 
-- [ ] **Step 3: Падающие тесты**
+- [x] **Step 3: Падающие тесты**
 
 `packages/db/src/wishlists.test.ts`:
 ```ts
@@ -170,7 +170,7 @@ describe("ownership", () => {
 Run: `pnpm vitest run packages/db/src/wishlists.test.ts`
 Expected: FAIL — `Cannot find module './wishlists'`.
 
-- [ ] **Step 4: Реализация**
+- [x] **Step 4: Реализация**
 
 `packages/db/src/wishlists.ts`:
 ```ts
@@ -274,12 +274,12 @@ export { isUuid } from "./errors";
 export * from "./wishlists";
 ```
 
-- [ ] **Step 5: Тесты проходят**
+- [x] **Step 5: Тесты проходят**
 
 Run: `pnpm vitest run packages/db && pnpm typecheck`
 Expected: PASS (все тесты db, включая 5 новых).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/db pnpm-lock.yaml

@@ -33,7 +33,7 @@
   function createDb(databaseUrl: string, options?: { maxConnections?: number }): Database;
   ```
 
-- [ ] **Step 1: Падающие тесты форм, лимитера и dev-входа**
+- [x] **Step 1: Падающие тесты форм, лимитера и dev-входа**
 
 `apps/web/src/server/forms.test.ts`:
 ```ts
@@ -132,7 +132,7 @@ test("dev login is only available outside production with an explicit flag", () 
 Run: `pnpm vitest run apps/web`
 Expected: FAIL — `Cannot find module './forms'`, `'./rate-limit'`, `'./dev-login'`.
 
-- [ ] **Step 2: Реализация форм**
+- [x] **Step 2: Реализация форм**
 
 `apps/web/src/server/forms.ts`:
 ```ts
@@ -206,7 +206,7 @@ export function parseItemForm(form: FormData): FormResult<ItemInput> {
 
 Если zod 4 не принимает `{ error: "..." }` в `z.enum` — использовать `z.enum([...], { message: "Выберите повод" })`; проверить по ошибке typecheck.
 
-- [ ] **Step 3: Реализация лимитера и dev-входа**
+- [x] **Step 3: Реализация лимитера и dev-входа**
 
 `apps/web/src/server/rate-limit.ts`:
 ```ts
@@ -245,7 +245,7 @@ export function isDevLoginEnabled(env: Record<string, string | undefined>): bool
 }
 ```
 
-- [ ] **Step 4: viewer и пул соединений**
+- [x] **Step 4: viewer и пул соединений**
 
 `packages/db/src/client.ts`:
 ```ts
@@ -330,7 +330,7 @@ export async function clientKey(viewer: Viewer): Promise<string> {
 }
 ```
 
-- [ ] **Step 5: Локальная БД и dev-вход**
+- [x] **Step 5: Локальная БД и dev-вход**
 
 В `packages/db/package.json` → `devDependencies` добавить `"@electric-sql/pglite-socket": "0.2.11"`.
 
@@ -404,7 +404,7 @@ export async function GET(request: NextRequest) {
 
 В продакшене `NODE_ENV=production` (задан в Dockerfile), поэтому роут отвечает 404 даже при случайно выставленном `DEV_LOGIN`.
 
-- [ ] **Step 6: Тесты и ручная проверка локального запуска**
+- [x] **Step 6: Тесты и ручная проверка локального запуска**
 
 Run: `pnpm install && pnpm test && pnpm typecheck`
 Expected: PASS.
@@ -419,7 +419,7 @@ cp apps/web/.env.development.example apps/web/.env.development.local && pnpm dev
 ```
 Открыть `http://localhost:3000/api/health` → `{"ok":true}`; `http://localhost:3000/api/dev/login?name=Маша` → редирект на `/lists` (страница появится в Task 8; до этого 404 — ожидаемо). Остановить оба процесса `Ctrl+C`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/web packages/db package.json .gitignore pnpm-lock.yaml

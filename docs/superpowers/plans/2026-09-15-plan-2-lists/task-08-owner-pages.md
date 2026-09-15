@@ -27,7 +27,7 @@
   ```
 - Маршруты: `/` → `/lists` (вошёл) или `/login`; после входа (виджет, VK, Mini App) → `/lists`.
 
-- [ ] **Step 1: Состояние форм (тест → реализация)**
+- [x] **Step 1: Состояние форм (тест → реализация)**
 
 `apps/web/src/app/lists/form-state.test.ts`:
 ```ts
@@ -72,7 +72,7 @@ export const LIMIT_MESSAGES = {
 Run: `pnpm vitest run apps/web/src/app/lists`
 Expected: PASS.
 
-- [ ] **Step 2: Действия «Мои списки»**
+- [x] **Step 2: Действия «Мои списки»**
 
 `apps/web/src/app/lists/actions.ts`:
 ```ts
@@ -97,7 +97,7 @@ export async function createListAction(_prev: FormState, form: FormData): Promis
 }
 ```
 
-- [ ] **Step 3: Страница «Мои списки» и форма создания**
+- [x] **Step 3: Страница «Мои списки» и форма создания**
 
 `apps/web/src/app/lists/CreateListForm.tsx`:
 ```tsx
@@ -185,7 +185,7 @@ export default async function ListsPage() {
 }
 ```
 
-- [ ] **Step 4: Действия страницы списка**
+- [x] **Step 4: Действия страницы списка**
 
 `apps/web/src/app/lists/[id]/actions.ts`:
 ```ts
@@ -251,7 +251,7 @@ export async function deleteItemAction(wishlistId: string, itemId: string): Prom
 }
 ```
 
-- [ ] **Step 5: Клиентские формы страницы списка**
+- [x] **Step 5: Клиентские формы страницы списка**
 
 `apps/web/src/app/lists/[id]/ItemFields.tsx` — общий набор полей для добавления и редактирования:
 ```tsx
@@ -419,7 +419,7 @@ export function ListSettings({ wishlist }: { wishlist: Pick<WishlistSummary, "id
 
 Если typecheck ругается на импорт типа `WishlistSummary` из `@wishlist/db` в клиентском компоненте — это только тип (`import type`), в бандл он не попадает; при необходимости заменить на локальный тип `{ id: string; title: string; occasion: "birthday" | "new_year" | "other"; eventDate: string | null }`.
 
-- [ ] **Step 6: Страница списка владельца**
+- [x] **Step 6: Страница списка владельца**
 
 `apps/web/src/app/lists/[id]/page.tsx`:
 ```tsx
@@ -495,7 +495,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
 
 Примечание к `editorDefaults`: `formatKopecks` возвращает «24 990 ₽» с неразрывными пробелами; для поля ввода отрезаем « ₽», а неразрывные пробелы парсер цены (`parseRublesToKopecks`) принимает.
 
-- [ ] **Step 7: Перенаправления после входа**
+- [x] **Step 7: Перенаправления после входа**
 
 `apps/web/src/app/page.tsx`:
 ```tsx
@@ -516,7 +516,7 @@ export default async function Home() {
 
 В `apps/web/src/app/api/auth/vk/callback/route.ts` заменить `const target = result.ok ? "/me" : ...` на `const target = result.ok ? "/lists" : ...`.
 
-- [ ] **Step 8: Проверка локально**
+- [x] **Step 8: Проверка локально**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS, сборка успешна, в таблице маршрутов есть `ƒ /lists` и `ƒ /lists/[id]`.
@@ -529,7 +529,7 @@ Expected: PASS, сборка успешна, в таблице маршруто�
 5. «Изменить» → поменять цену → «Сохранено»; «Удалить» → подтверждение → карточка исчезла.
 6. «Настройки списка» → переименовать → заголовок обновился.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add apps/web

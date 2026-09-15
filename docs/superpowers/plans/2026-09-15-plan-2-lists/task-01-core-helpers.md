@@ -32,7 +32,7 @@
   function detectStore(url: string): StoreInfo;
   ```
 
-- [ ] **Step 1: Падающие тесты**
+- [x] **Step 1: Падающие тесты**
 
 `packages/core/src/slug.test.ts`:
 ```ts
@@ -191,12 +191,12 @@ describe("detectStore", () => {
 });
 ```
 
-- [ ] **Step 2: Тесты падают**
+- [x] **Step 2: Тесты падают**
 
 Run: `pnpm vitest run packages/core/src/slug.test.ts packages/core/src/countdown.test.ts packages/core/src/money.test.ts packages/core/src/store.test.ts`
 Expected: FAIL — `Cannot find module './slug'` (и остальные).
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `packages/core/src/slug.ts`:
 ```ts
@@ -342,12 +342,12 @@ export * from "./money";
 export * from "./store";
 ```
 
-- [ ] **Step 4: Тесты проходят**
+- [x] **Step 4: Тесты проходят**
 
 Run: `pnpm vitest run packages/core && pnpm typecheck`
 Expected: PASS. Если тест `formatKopecks` падает только на разделителе — вывести фактическую строку через `JSON.stringify` и сверить код символа (Node может отдавать U+00A0 или U+202F; реализация нормализует к U+00A0).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/core
