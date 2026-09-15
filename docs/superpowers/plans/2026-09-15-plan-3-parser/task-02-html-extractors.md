@@ -26,7 +26,7 @@
   ```
 - Приоритет источников задаёт порядок `parts`: для каждого поля берётся первое непустое значение.
 
-- [ ] **Step 1: Цена (тест → реализация)**
+- [x] **Step 1: Цена (тест → реализация)**
 
 `packages/parser/src/price.test.ts`:
 ```ts
@@ -75,7 +75,7 @@ export function toKopecks(value: unknown): number | null {
 Run: `pnpm vitest run packages/parser/src/price.test.ts`
 Expected: PASS.
 
-- [ ] **Step 2: Экстракторы (тест)**
+- [x] **Step 2: Экстракторы (тест)**
 
 `packages/parser/src/extract/extract.test.ts`:
 ```ts
@@ -169,7 +169,7 @@ describe("extractMicrodata", () => {
 Run: `pnpm vitest run packages/parser/src/extract`
 Expected: FAIL — `Cannot find module '../html'`.
 
-- [ ] **Step 3: Экстракторы (реализация)**
+- [x] **Step 3: Экстракторы (реализация)**
 
 `packages/parser/src/html.ts`:
 ```ts
@@ -297,7 +297,7 @@ export function extractMicrodata(root: HtmlRoot): Partial<ParsedProduct> {
 Run: `pnpm vitest run packages/parser/src/extract`
 Expected: PASS (7 тестов). Если падает декодирование `&quot;` в `getAttribute` — в node-html-parser 9 атрибуты должны приходить декодированными; при расхождении обернуть значения в `decode` из `node-html-parser` (`import { parse, decode } ...`) и повторить.
 
-- [ ] **Step 4: Слияние и статус (тест)**
+- [x] **Step 4: Слияние и статус (тест)**
 
 `packages/parser/src/merge.test.ts`:
 ```ts
@@ -357,7 +357,7 @@ describe("statusFor", () => {
 Run: `pnpm vitest run packages/parser/src/merge.test.ts`
 Expected: FAIL — `Cannot find module './merge'`.
 
-- [ ] **Step 5: Слияние и статус (реализация)**
+- [x] **Step 5: Слияние и статус (реализация)**
 
 `packages/parser/src/merge.ts`:
 ```ts
@@ -412,7 +412,7 @@ export function statusFor(product: Pick<ParsedProduct, "title" | "priceKopecks">
 Run: `pnpm vitest run packages/parser/src/merge.test.ts`
 Expected: PASS (5 тестов).
 
-- [ ] **Step 6: Настоящие страницы (тест → проверка)**
+- [x] **Step 6: Настоящие страницы (тест → проверка)**
 
 `packages/parser/src/real-fixtures.test.ts`:
 ```ts
@@ -456,7 +456,7 @@ describe("real store pages", () => {
 Run: `pnpm vitest run packages/parser/src/real-fixtures.test.ts`
 Expected: PASS. Если какой-то магазин не отдаёт поле, которое обещал спайк, — не подгонять тест под пустоту: посмотреть, где данные лежат в фикстуре (`grep -o '"price[A-Za-z]*":[^,]*' packages/parser/fixtures/<файл> | head`), добавить поддержку этого места в экстрактор с отдельным синтетическим тестом в `extract.test.ts`, затем повторить.
 
-- [ ] **Step 7: Экспорт, проверка, commit**
+- [x] **Step 7: Экспорт, проверка, commit**
 
 `packages/parser/src/index.ts`:
 ```ts

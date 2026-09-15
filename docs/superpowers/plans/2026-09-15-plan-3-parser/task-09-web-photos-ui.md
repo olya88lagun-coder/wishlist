@@ -23,7 +23,7 @@
   ```
 - Опрос — `router.refresh()` раз в 2 с, пока на странице есть `pending`, не дольше 90 с (спека 3.2). Отдельного API статуса нет: серверный компонент перечитывает список.
 
-- [ ] **Step 1: URL фото (тест → реализация)**
+- [x] **Step 1: URL фото (тест → реализация)**
 
 `apps/web/src/components/item-image.test.ts`:
 ```ts
@@ -61,7 +61,7 @@ Expected: PASS.
   S3_PUBLIC_BASE_URL: z.url().optional(),
 ```
 
-- [ ] **Step 2: Модель карточки (тест → реализация)**
+- [x] **Step 2: Модель карточки (тест → реализация)**
 
 `apps/web/src/components/item-card-model.test.ts` заменить целиком:
 ```ts
@@ -177,7 +177,7 @@ export function toCardModel(item: CardItem): CardModel {
 Run: `pnpm vitest run apps/web/src/components/item-card-model.test.ts`
 Expected: PASS.
 
-- [ ] **Step 3: Подсказка «впишите недостающее» (тест → реализация)**
+- [x] **Step 3: Подсказка «впишите недостающее» (тест → реализация)**
 
 `apps/web/src/app/lists/[id]/parse-hint.test.ts`:
 ```ts
@@ -222,7 +222,7 @@ export function parseHint(item: HintItem): string | null {
 Run: `pnpm vitest run "apps/web/src/app/lists/\[id\]/parse-hint.test.ts"`
 Expected: PASS.
 
-- [ ] **Step 4: Фото и скелетон в карточке**
+- [x] **Step 4: Фото и скелетон в карточке**
 
 `apps/web/src/components/StoreTile.tsx` заменить целиком:
 ```tsx
@@ -274,7 +274,7 @@ export function StoreTile({ monogram, storeLabel, isMustHave, imageUrl, pending 
 .quick-link__row .button { flex: 0 0 auto; width: auto; }
 ```
 
-- [ ] **Step 5: Опрос, пока есть незаполненные карточки**
+- [x] **Step 5: Опрос, пока есть незаполненные карточки**
 
 `apps/web/src/app/lists/[id]/PendingRefresher.tsx`:
 ```tsx
@@ -313,7 +313,7 @@ export function PendingRefresher({ pendingCount }: { pendingCount: number }) {
 }
 ```
 
-- [ ] **Step 6: Страница списка владельца**
+- [x] **Step 6: Страница списка владельца**
 
 В `apps/web/src/app/lists/[id]/page.tsx`:
 
@@ -359,14 +359,14 @@ import { QuickLinkForm } from "./QuickLinkForm";
 
 В `apps/web/src/app/lists/[id]/AddItemForm.tsx` текст `summary` «Добавить подарок» заменить на «Добавить без ссылки или со всеми полями».
 
-- [ ] **Step 7: Публичная страница**
+- [x] **Step 7: Публичная страница**
 
 В `apps/web/src/app/[slug]/page.tsx`:
 1. Импорт `import { imageUrlFor } from "@/components/item-image";`.
 2. После `const shareUrl = ...` добавить `const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;`.
 3. В `<ItemCard key={item.id} item={item} ...>` заменить `item={item}` на `item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl) }}`.
 
-- [ ] **Step 8: Проверка локально**
+- [x] **Step 8: Проверка локально**
 
 `apps/web/.env.development.example` не меняется (без S3 карточки показывают монограмму).
 
@@ -384,7 +384,7 @@ Expected: PASS.
 
 Магазины из РФ (WB, Золотое Яблоко) с машины разработчика отдают антибот — их проверка только на проде (Task 11).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add apps/web

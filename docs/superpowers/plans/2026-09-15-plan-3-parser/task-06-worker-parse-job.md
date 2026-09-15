@@ -29,7 +29,7 @@
   function runParseItem(itemId: string, deps: ParseItemDeps): Promise<"applied" | "skipped">;
   ```
 
-- [ ] **Step 1: Имена очередей в core**
+- [x] **Step 1: Имена очередей в core**
 
 `packages/core/src/queues.ts`:
 ```ts
@@ -44,7 +44,7 @@ export const PARSE_JOB_OPTIONS = { retryLimit: 1, retryDelay: 30, expireInSecond
 
 В `packages/core/src/index.ts` добавить `export * from "./queues";`.
 
-- [ ] **Step 2: Каркас приложения**
+- [x] **Step 2: Каркас приложения**
 
 `apps/worker/package.json`:
 ```json
@@ -93,7 +93,7 @@ export default defineProject({
 Run: `pnpm install`
 Expected: зависимости установлены без ошибок `minimumReleaseAge`. Предупреждение pnpm о пропущенных build-скриптах `sharp` допустимо: sharp 0.35 берёт готовые бинарники из `@img/sharp-*`.
 
-- [ ] **Step 3: Логгер и хранилище**
+- [x] **Step 3: Логгер и хранилище**
 
 `apps/worker/src/log.ts`:
 ```ts
@@ -154,7 +154,7 @@ export function createS3Storage(config: S3Config): ObjectStorage {
 }
 ```
 
-- [ ] **Step 4: Обработка фото (тест → реализация)**
+- [x] **Step 4: Обработка фото (тест → реализация)**
 
 `apps/worker/src/images.test.ts`:
 ```ts
@@ -225,7 +225,7 @@ export function itemImageKey(itemId: string, random: string = randomUUID()): str
 Run: `pnpm vitest run apps/worker/src/images.test.ts`
 Expected: PASS (5 тестов).
 
-- [ ] **Step 5: Обработчик задачи (тест)**
+- [x] **Step 5: Обработчик задачи (тест)**
 
 `apps/worker/src/parse-item.test.ts`:
 ```ts
@@ -351,7 +351,7 @@ export * from "./index";
 Run: `pnpm vitest run apps/worker/src/parse-item.test.ts`
 Expected: FAIL — `Cannot find module './parse-item'`.
 
-- [ ] **Step 6: Обработчик задачи (реализация)**
+- [x] **Step 6: Обработчик задачи (реализация)**
 
 `apps/worker/src/parse-item.ts`:
 ```ts
@@ -425,7 +425,7 @@ export async function runParseItem(itemId: string, deps: ParseItemDeps): Promise
 Run: `pnpm vitest run apps/worker`
 Expected: PASS (11 тестов).
 
-- [ ] **Step 7: Проверка и commit**
+- [x] **Step 7: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck`
 Expected: PASS, в typecheck есть `apps/worker typecheck: Done`.

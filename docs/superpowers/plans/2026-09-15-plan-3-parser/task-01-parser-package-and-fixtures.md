@@ -25,7 +25,7 @@
   ```
 - Фикстуры — сырой HTML, снятый с московского сервера теми же User-Agent, что будет использовать воркер (спайк 2026-09-14, спека 4.4).
 
-- [ ] **Step 1: Ветка**
+- [x] **Step 1: Ветка**
 
 Ветка `feat/parser` создана вместе с этим планом (план закоммичен в неё).
 ```bash
@@ -33,7 +33,7 @@ git checkout feat/parser && git status --short
 ```
 Expected: рабочее дерево чистое.
 
-- [ ] **Step 2: Каркас пакета**
+- [x] **Step 2: Каркас пакета**
 
 `packages/parser/package.json`:
 ```json
@@ -105,7 +105,7 @@ export * from "./types";
 Run: `pnpm install`
 Expected: в `pnpm-lock.yaml` появился `packages/parser`; без ошибок `minimumReleaseAge` (версии старше суток).
 
-- [ ] **Step 3: Тест на наличие фикстур (падает)**
+- [x] **Step 3: Тест на наличие фикстур (падает)**
 
 `packages/parser/src/read-fixture.ts` (отдельный модуль: если импортировать помощник из `*.test.ts`, vitest повторно зарегистрирует тесты того файла):
 ```ts
@@ -146,7 +146,7 @@ describe("store fixtures captured from the Moscow server", () => {
 Run: `pnpm vitest run packages/parser`
 Expected: FAIL — `ENOENT: no such file or directory ... fixtures/wildberries.html`.
 
-- [ ] **Step 4: Найти живые карточки товаров (сервер, только после «да» пользователя)**
+- [x] **Step 4: Найти живые карточки товаров (сервер, только после «да» пользователя)**
 
 Wildberries: `https://www.wildberries.ru/catalog/173937886/detail.aspx` (товар из проверки плана 2).
 
@@ -160,7 +160,7 @@ Expected: по одному-три пути вида `/19000123456-...` и `/pro
 
 Если grep ничего не нашёл (вёрстка изменилась) — попросить пользователя открыть магазин в браузере и прислать ссылку на любой товар. Ссылки из результатов поиска/рекламы (`/search`, `?clid=`) не подходят.
 
-- [ ] **Step 5: Снять страницы (сервер, только после «да» пользователя)**
+- [x] **Step 5: Снять страницы (сервер, только после «да» пользователя)**
 
 С машины разработчика, подставив найденные URL в переменные:
 ```bash
@@ -189,12 +189,12 @@ Expected: каждый файл больше 20 КБ. Файл в пару ки�
 | yandex-market.html | <YM_URL> | TelegramBot (like TwitterBot) | 2026-09-15 |
 ```
 
-- [ ] **Step 6: Тест проходит**
+- [x] **Step 6: Тест проходит**
 
 Run: `pnpm vitest run packages/parser`
 Expected: PASS (3 теста). Если падает проверка разметки (например, у Золотого Яблока нет `itemprop="price"`), это находка о смене вёрстки: записать в `SOURCES.md` строку «нет microdata-цены на <дата>», поправить ожидание в тесте на то, что реально есть в HTML (`grep -o 'itemprop="[a-zA-Z]*"' packages/parser/fixtures/goldapple.html | sort | uniq -c`), и учесть в Task 2.
 
-- [ ] **Step 7: Проверка и commit**
+- [x] **Step 7: Проверка и commit**
 
 Run: `pnpm typecheck`
 Expected: PASS, в выводе есть `packages/parser typecheck: Done`.

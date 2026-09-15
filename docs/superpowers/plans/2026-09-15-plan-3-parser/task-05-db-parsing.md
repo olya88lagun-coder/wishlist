@@ -32,7 +32,7 @@
   ```
 - Правила: подарок со ссылкой создаётся `pending`; без ссылки — `ok`. Правка владельца: смена ссылки на другую → `pending`, фото и описание сбрасываются; ссылка убрана → фото сбрасывается; иначе статус становится `ok` (владелец сам подтвердил данные, подсказка «впишите» исчезает). `applyParseResult` пишет только в пустые поля, и только пока подарок `pending`, не удалён и с той же ссылкой; статус считается в SQL по итоговым значениям: нет названия → `failed`, нет цены → `partial`, иначе `ok`.
 
-- [ ] **Step 1: Схема и миграция**
+- [x] **Step 1: Схема и миграция**
 
 В `packages/db/src/schema.ts`:
 1. В импорт из `drizzle-orm/pg-core` добавить `jsonb`.
@@ -52,7 +52,7 @@ export const parseCache = pgTable("parse_cache", {
 Run: `pnpm --filter @wishlist/db db:generate`
 Expected: создан `packages/db/drizzle/0001_<имя>.sql` с `CREATE TABLE "parse_cache"` (три колонки, `PRIMARY KEY` по `normalized_url`) и обновлены `drizzle/meta/_journal.json`, `0001_snapshot.json`. Других изменений в SQL нет — если есть, схема разошлась со снимком: остановиться и разобраться.
 
-- [ ] **Step 2: Тесты репозитория парсинга**
+- [x] **Step 2: Тесты репозитория парсинга**
 
 `packages/db/src/parsing.test.ts`:
 ```ts
@@ -206,7 +206,7 @@ describe("parse cache", () => {
 Run: `pnpm vitest run packages/db/src/parsing.test.ts`
 Expected: FAIL — `Cannot find module './parsing'`.
 
-- [ ] **Step 3: Изменения `items.ts`**
+- [x] **Step 3: Изменения `items.ts`**
 
 В `packages/db/src/items.ts`:
 
@@ -272,7 +272,7 @@ export async function updateItem(
 - в тесте `malformed ids return false` — `expect(await updateItem(db, owner, "x", headphones)).toEqual({ ok: false });`;
 - в тесте `adds a manual item and detects the store` в `objectContaining` добавить `parseStatus: "pending", imageKey: null` (у `headphones` есть ссылка).
 
-- [ ] **Step 4: `parsing.ts`**
+- [x] **Step 4: `parsing.ts`**
 
 `packages/db/src/parsing.ts`:
 ```ts
@@ -355,7 +355,7 @@ export async function pruneParseCache(db: Database, now = new Date()): Promise<n
 Run: `pnpm vitest run packages/db`
 Expected: PASS (все старые и новые тесты). Если Postgres ругается `could not determine data type of parameter` — у параметра в `sql\`...\`` не хватает явного приведения (`::integer`/`::text`), добавить его.
 
-- [ ] **Step 5: Публичный вид — фото и скрытие незаполненных карточек**
+- [x] **Step 5: Публичный вид — фото и скрытие незаполненных карточек**
 
 В `packages/db/src/public-view.ts`:
 1. В `PublicItemView` после `isMustHave: boolean;` добавить `imageKey: string | null;`.
@@ -386,7 +386,7 @@ describe("pending items", () => {
 Run: `pnpm vitest run packages/db/src/public-view.test.ts`
 Expected: PASS.
 
-- [ ] **Step 6: Web под новые типы**
+- [x] **Step 6: Web под новые типы**
 
 В `apps/web/src/app/lists/[id]/actions.ts`, в `updateItemAction`, строку
 ```ts
@@ -399,7 +399,7 @@ Expected: PASS.
 ```
 (постановка в очередь появится в Task 8).
 
-- [ ] **Step 7: Проверка и commit**
+- [x] **Step 7: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck`
 Expected: PASS.

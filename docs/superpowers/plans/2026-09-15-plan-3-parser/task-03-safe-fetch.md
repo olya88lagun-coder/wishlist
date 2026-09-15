@@ -25,7 +25,7 @@
 
 **Почему так.** Владелец может вставить любую ссылку, и воркер пойдёт по ней из нашей сети. Без защиты это SSRF: `http://169.254.169.254/` (метаданные облака), `http://db:5432`, `http://127.0.0.1`. Защита в два слоя: `checkTarget` отбрасывает схемы, порты, `localhost` и литеральные приватные IP до запроса (DNS для литеральных IP не вызывается), а `guardedLookup` в `undici.Agent` проверяет **все** адреса, в которые резолвится имя, в момент подключения — это закрывает DNS rebinding. Редиректы обрабатываются вручную, и каждый новый адрес снова проходит `checkTarget`.
 
-- [ ] **Step 1: Тесты загрузчика**
+- [x] **Step 1: Тесты загрузчика**
 
 `packages/parser/src/safe-fetch.test.ts`:
 ```ts
@@ -163,7 +163,7 @@ describe("createSafeFetcher", () => {
 Run: `pnpm vitest run packages/parser/src/safe-fetch.test.ts`
 Expected: FAIL — `Cannot find module './safe-fetch'`.
 
-- [ ] **Step 2: Реализация загрузчика**
+- [x] **Step 2: Реализация загрузчика**
 
 `packages/parser/src/safe-fetch.ts`:
 ```ts
@@ -325,7 +325,7 @@ export function createSafeFetcher(options: SafeFetchOptions = {}): SafeFetcher {
 Run: `pnpm vitest run packages/parser/src/safe-fetch.test.ts`
 Expected: PASS. Если тест таймаута даёт `network` вместо `timeout` — вывести `console.log(error, error.cause)` в `reasonOf` один раз, посмотреть фактическое имя/код ошибки undici 8 и добавить его в проверку; отладочный вывод удалить.
 
-- [ ] **Step 3: Пауза между запросами к одному домену (тест → реализация)**
+- [x] **Step 3: Пауза между запросами к одному домену (тест → реализация)**
 
 `packages/parser/src/throttle.test.ts`:
 ```ts
@@ -400,7 +400,7 @@ export function createHostThrottle(minIntervalMs: number, clock: Clock = systemC
 Run: `pnpm vitest run packages/parser/src/throttle.test.ts`
 Expected: PASS.
 
-- [ ] **Step 4: Экспорт, проверка, commit**
+- [x] **Step 4: Экспорт, проверка, commit**
 
 В `packages/parser/src/index.ts` добавить строки:
 ```ts

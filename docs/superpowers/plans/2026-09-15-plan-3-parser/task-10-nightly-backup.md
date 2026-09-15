@@ -25,7 +25,7 @@
 - Пароль БД передаётся `pg_dump` через `PGPASSWORD` в окружении дочернего процесса, а не в аргументах (аргументы видны в `ps`) и не пишется в лог.
 - Клиент — `postgresql-client-16` из репозитория PGDG: общий сервер БД — `postgres:16`, а `pg_dump` старше сервера отказывается работать.
 
-- [ ] **Step 1: Тесты чистых функций бэкапа**
+- [x] **Step 1: Тесты чистых функций бэкапа**
 
 `apps/worker/src/backup.test.ts`:
 ```ts
@@ -68,7 +68,7 @@ describe("pgEnvFromUrl", () => {
 Run: `pnpm vitest run apps/worker/src/backup.test.ts`
 Expected: FAIL — `Cannot find module './backup'`.
 
-- [ ] **Step 2: Реализация бэкапа**
+- [x] **Step 2: Реализация бэкапа**
 
 `apps/worker/src/backup.ts`:
 ```ts
@@ -159,7 +159,7 @@ export function dumpDatabase(databaseUrl: string): Promise<Buffer> {
 Run: `pnpm vitest run apps/worker/src/backup.test.ts`
 Expected: PASS.
 
-- [ ] **Step 3: Ночная задача**
+- [x] **Step 3: Ночная задача**
 
 `apps/worker/src/maintenance.ts`:
 ```ts
@@ -218,7 +218,7 @@ await boss.work(QUEUES.maintenance, async () => {
 await boss.schedule(QUEUES.maintenance, MAINTENANCE_CRON, {}, { tz: MAINTENANCE_TZ });
 ```
 
-- [ ] **Step 4: pg_dump в образе воркера**
+- [x] **Step 4: pg_dump в образе воркера**
 
 В `apps/web/Dockerfile` в стадии `worker` сразу после `FROM node:${NODE_VERSION} AS worker` вставить:
 ```dockerfile
@@ -234,7 +234,7 @@ RUN apt-get update \
   && apt-get purge -y curl && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 ```
 
-- [ ] **Step 5: Восстановление — в документацию**
+- [x] **Step 5: Восстановление — в документацию**
 
 В конец `deploy/server-setup.md` добавить раздел:
 ````markdown
@@ -264,7 +264,7 @@ docker compose up -d web worker
 ```
 ````
 
-- [ ] **Step 6: Проверка и commit**
+- [x] **Step 6: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/worker build`
 Expected: PASS.

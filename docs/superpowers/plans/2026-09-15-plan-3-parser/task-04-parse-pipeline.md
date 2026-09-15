@@ -23,7 +23,7 @@
 - Стратегии — из таблицы спайка (спека 4.4): WB и Золотое Яблоко — UA мессенджера; Маркет — UA превью Telegram, цене не доверяем (на странице цены рекомендаций); Lamoda и Ozon — не ходим (антибот), название из slug; прочие — UA превью.
 - Короткие ссылки (`clck.ru`, `wb.ru/...`) раскрываются редиректами: магазин определяется по конечному URL; если у конечного магазина другой UA — страница перезапрашивается с правильным.
 
-- [ ] **Step 1: Название из URL (тест → реализация)**
+- [x] **Step 1: Название из URL (тест → реализация)**
 
 `packages/parser/src/slug-title.test.ts`:
 ```ts
@@ -70,7 +70,7 @@ export function titleFromUrlSlug(url: string, store: StoreId): string | null {
 Run: `pnpm vitest run packages/parser/src/slug-title.test.ts`
 Expected: PASS.
 
-- [ ] **Step 2: Стратегии**
+- [x] **Step 2: Стратегии**
 
 `packages/parser/src/strategies.ts`:
 ```ts
@@ -92,7 +92,7 @@ export const STORE_STRATEGIES: Record<StoreId, StoreStrategy> = {
 };
 ```
 
-- [ ] **Step 3: Пайплайн (тест)**
+- [x] **Step 3: Пайплайн (тест)**
 
 `packages/parser/src/pipeline.test.ts`:
 ```ts
@@ -199,7 +199,7 @@ describe("parseProduct", () => {
 Run: `pnpm vitest run packages/parser/src/pipeline.test.ts`
 Expected: FAIL — `Cannot find module './pipeline'`.
 
-- [ ] **Step 4: Пайплайн (реализация)**
+- [x] **Step 4: Пайплайн (реализация)**
 
 `packages/parser/src/pipeline.ts`:
 ```ts
@@ -260,7 +260,7 @@ export async function parseProduct(rawUrl: string, deps: ParseDeps): Promise<Par
 Run: `pnpm vitest run packages/parser/src/pipeline.test.ts`
 Expected: PASS (7 тестов).
 
-- [ ] **Step 5: Экспорт, проверка, commit**
+- [x] **Step 5: Экспорт, проверка, commit**
 
 В `packages/parser/src/index.ts` добавить строки:
 ```ts

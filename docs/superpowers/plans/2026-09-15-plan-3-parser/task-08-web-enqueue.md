@@ -16,7 +16,7 @@
   function QuickLinkForm(props: { wishlistId: string }): JSX.Element;
   ```
 
-- [ ] **Step 1: Форма подарка — название необязательно при ссылке (тест)**
+- [x] **Step 1: Форма подарка — название необязательно при ссылке (тест)**
 
 В `apps/web/src/server/forms.test.ts` в `describe("parseItemForm", ...)`:
 
@@ -47,7 +47,7 @@
 Run: `pnpm vitest run apps/web/src/server/forms.test.ts`
 Expected: FAIL — в первом тесте лишняя ошибка `title`, во втором сообщение «Введите название подарка», в третьем `ok: false`.
 
-- [ ] **Step 2: Форма подарка (реализация)**
+- [x] **Step 2: Форма подарка (реализация)**
 
 В `apps/web/src/server/forms.ts` в `parseItemForm` блок
 ```ts
@@ -73,7 +73,7 @@ Expected: FAIL — в первом тесте лишняя ошибка `title`,
 Run: `pnpm vitest run apps/web/src/server/forms.test.ts`
 Expected: PASS.
 
-- [ ] **Step 3: Отправка задач в очередь**
+- [x] **Step 3: Отправка задач в очередь**
 
 `apps/web/package.json` — в `dependencies` добавить `"pg-boss": "12.31.1"`.
 
@@ -120,7 +120,7 @@ export async function enqueueParse(itemId: string): Promise<void> {
 Run: `pnpm install && pnpm --filter @wishlist/web typecheck`
 Expected: PASS. Если типы `PgBoss` не принимают `supervise/schedule/migrate` — свериться с `node_modules/pg-boss/dist/*.d.ts` (опции конструктора 12.31.1) и использовать фактические имена.
 
-- [ ] **Step 4: Actions ставят задачу**
+- [x] **Step 4: Actions ставят задачу**
 
 В `apps/web/src/app/lists/[id]/actions.ts`:
 1. Добавить импорт `import { enqueueParse } from "@/server/queue";`.
@@ -140,7 +140,7 @@ Expected: PASS. Если типы `PgBoss` не принимают `supervise/sc
   if (result.needsParsing) await enqueueParse(itemId);
 ```
 
-- [ ] **Step 5: Быстрая форма «Вставьте ссылку»**
+- [x] **Step 5: Быстрая форма «Вставьте ссылку»**
 
 `apps/web/src/app/lists/[id]/QuickLinkForm.tsx`:
 ```tsx
@@ -204,7 +204,7 @@ export function QuickLinkForm({ wishlistId }: { wishlistId: string }) {
 
 Подключение формы на страницу и стили — в Task 9.
 
-- [ ] **Step 6: Проверка и commit**
+- [x] **Step 6: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS, сборка успешна.

@@ -20,7 +20,7 @@
 - Переменные окружения воркера (тот же `/opt/wishlist/.env`, что у web): `DATABASE_URL`; `S3_ENDPOINT` (по умолчанию `https://s3.twcstorage.ru`), `S3_REGION` (по умолчанию `ru-1`), `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_IMAGES_BUCKET`, `S3_BACKUPS_BUCKET` — либо все четыре последних, либо ни одного (тогда фото и бэкапы отключены, для локальной разработки).
 - Воркер — единственный, кто создаёт схему pg-boss и очереди; web только отправляет задачи (Task 8).
 
-- [ ] **Step 1: Окружение (тест → реализация)**
+- [x] **Step 1: Окружение (тест → реализация)**
 
 `apps/worker/src/env.test.ts`:
 ```ts
@@ -98,7 +98,7 @@ export function readWorkerEnv(source: Record<string, string | undefined> = proce
 Run: `pnpm vitest run apps/worker/src/env.test.ts`
 Expected: PASS.
 
-- [ ] **Step 2: Точка входа**
+- [x] **Step 2: Точка входа**
 
 `apps/worker/src/main.ts`:
 ```ts
@@ -167,7 +167,7 @@ process.on("SIGINT", () => void shutdown("SIGINT"));
 
 Если `pnpm typecheck` ругается на сигнатуру `boss.work<ParseItemJob>` или на `boss.stop({ graceful, timeout })` — открыть `node_modules/pg-boss/dist/*.d.ts`, найти фактические типы `work`/`stop` в 12.31.1 и привести вызов к ним, не меняя поведения (конкурентность 2, graceful stop ≤ 20 с).
 
-- [ ] **Step 3: Сборка и локальный запуск**
+- [x] **Step 3: Сборка и локальный запуск**
 
 `apps/worker/scripts/build.mjs`:
 ```js
@@ -219,7 +219,7 @@ Expected: в выводе `{"level":"warn","message":"S3 is not configured: ..."
 
 Если pg-boss не стартует на PGlite (ошибка в миграции схемы `pgboss`) — зафиксировать текст ошибки в отчёте задачи; дальнейшая проверка воркера идёт в Docker против настоящего Postgres на шаге 5, а локально web будет работать без парсинга (подарки останутся `pending`, UI через 90 с предложит заполнить вручную — Task 9).
 
-- [ ] **Step 4: Образ воркера**
+- [x] **Step 4: Образ воркера**
 
 `apps/web/Dockerfile` заменить целиком:
 ```dockerfile
@@ -282,14 +282,14 @@ CMD ["node", "apps/web/server.js"]
     networks: [shared]
 ```
 
-- [ ] **Step 5: Проверка образа в CI**
+- [x] **Step 5: Проверка образа в CI**
 
 Локально Docker нет (план 1), поэтому образ проверяется сборкой в GitHub Actions после мержа (Task 11). Здесь — только статические проверки.
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/worker build && pnpm --filter @wishlist/web build`
 Expected: PASS; обе сборки успешны.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/worker apps/web/Dockerfile deploy/docker-compose.yml .github/workflows/images.yml packages/db/scripts/dev-db.mjs package.json .env.example pnpm-lock.yaml
