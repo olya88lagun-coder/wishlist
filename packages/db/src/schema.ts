@@ -92,3 +92,20 @@ export const parseCache = pgTable("parse_cache", {
   result: jsonb("result").notNull(),
   fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// Одно событие — одно сообщение человеку (уникальный индекс), и не больше дневного лимита (индекс по дню)
+export const notificationLog = pgTable(
+  "notification_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    refId: text("ref_id").notNull(),
+    sentOn: date("sent_on", { mode: "string" }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex("notification_log_once_uq").on(t.userId, t.kind, t.refId),
+    index("notification_log_user_day_idx").on(t.userId, t.sentOn),
+  ],
+);

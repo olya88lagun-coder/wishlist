@@ -10,3 +10,4 @@ export * from "./items";
 export * from "./public-view";
 export * from "./reservations";
 export * from "./parsing";
+export * from "./notifications";

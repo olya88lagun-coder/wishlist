@@ -28,7 +28,7 @@ export type PublicWishlistView = {
 
 const REDACTED_NAME = "";
 
-function firstName(displayName: string): string {
+export function firstName(displayName: string): string {
   return displayName.split(" ")[0] ?? displayName;
 }
 
