@@ -88,3 +88,28 @@ docker exec food-tracker-bot-caddy-1 caddy validate --config /tmp/Caddyfile --ad
 ```bash
 cd /opt/wishlist && docker compose pull && docker compose run --rm migrate && docker compose up -d web
 ```
+
+## Фото, бэкапы и воркер
+
+**S3 (Timeweb, панель → Объектное хранилище):** бакет `wishlist-images` — **публичный** (фото товаров), бакет `wishlist-backups` — **приватный**. Ключи доступа — в `.env`:
+```
+S3_ACCESS_KEY_ID=...
+S3_SECRET_ACCESS_KEY=...
+S3_IMAGES_BUCKET=wishlist-images
+S3_BACKUPS_BUCKET=wishlist-backups
+S3_PUBLIC_BASE_URL=https://s3.twcstorage.ru/wishlist-images
+```
+
+**Воркер:** `docker compose up -d worker`, логи — `docker logs --since 30m wishlist-worker-1`.
+
+**Бэкап вручную:** `docker compose run --rm worker node apps/worker/dist/main.mjs --maintenance-once`.
+Автоматически — каждый день в 03:00 МСК, хранятся 14 дней.
+
+**Восстановление** (в пустую БД `wishlist`, после остановки web и worker):
+```bash
+cd /opt/wishlist
+docker compose stop web worker
+# скачать нужный файл из бакета wishlist-backups через панель Timeweb и положить в /opt/wishlist/restore.sql.gz
+gunzip -c restore.sql.gz | docker exec -i food-tracker-bot-db-1 psql -U wishlist -d wishlist -v ON_ERROR_STOP=1
+docker compose up -d web worker
+```

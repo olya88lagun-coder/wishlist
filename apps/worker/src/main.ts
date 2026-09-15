@@ -5,6 +5,7 @@ import { PgBoss } from "pg-boss";
 import sharp from "sharp";
 import { readWorkerEnv } from "./env";
 import { log } from "./log";
+import { MAINTENANCE_CRON, MAINTENANCE_TZ, runMaintenance } from "./maintenance";
 import { runParseItem } from "./parse-item";
 import { createS3Storage } from "./storage";
 
@@ -24,6 +25,14 @@ const fetcher = createSafeFetcher();
 const waitTurn = createHostThrottle(HOST_INTERVAL_MS);
 const storage = env.s3 ? createS3Storage(env.s3) : null;
 if (!storage) log("warn", "S3 is not configured: photos and backups are disabled");
+
+const maintenanceDeps = { db, databaseUrl: env.DATABASE_URL, storage, backupsBucket: env.s3?.backupsBucket ?? null, log };
+
+if (process.argv.includes("--maintenance-once")) {
+  await runMaintenance(maintenanceDeps);
+  await fetcher.close();
+  process.exit(0);
+}
 
 const boss = new PgBoss({ connectionString: env.DATABASE_URL, max: DB_POOL });
 boss.on("error", (error) => log("error", "pg-boss error", { error: String(error) }));
@@ -45,6 +54,11 @@ await boss.work<ParseItemJob>(QUEUES.parseItem, { localConcurrency: PARSE_CONCUR
     log,
   });
 });
+
+await boss.work(QUEUES.maintenance, async () => {
+  await runMaintenance(maintenanceDeps);
+});
+await boss.schedule(QUEUES.maintenance, MAINTENANCE_CRON, {}, { tz: MAINTENANCE_TZ });
 
 log("info", "worker started", { parseConcurrency: PARSE_CONCURRENCY, s3: storage !== null });
 
