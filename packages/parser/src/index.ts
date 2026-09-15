@@ -7,3 +7,6 @@ export { extractOpenGraph } from "./extract/opengraph";
 export { extractMicrodata } from "./extract/microdata";
 export * from "./safe-fetch";
 export * from "./throttle";
+export * from "./strategies";
+export * from "./slug-title";
+export * from "./pipeline";
