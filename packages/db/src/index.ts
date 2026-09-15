@@ -7,3 +7,5 @@ export * from "./limits";
 export { isUuid } from "./errors";
 export * from "./wishlists";
 export * from "./items";
+export * from "./public-view";
+export * from "./reservations";
