@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { authIdentities, type AuthProvider, users } from "./schema";
+import { authIdentities, type AuthProvider, reservations, users, wishlists } from "./schema";
 import type { Database } from "./types";
 
 export type IdentityInput = { provider: AuthProvider; providerUserId: string; displayName: string; avatarUrl: string | null };
@@ -42,6 +42,13 @@ export async function upsertUserFromIdentity(db: Database, input: IdentityInput)
   });
 }
 
+export async function isProfileEmpty(db: Database, userId: string): Promise<boolean> {
+  const [list] = await db.select({ id: wishlists.id }).from(wishlists).where(eq(wishlists.ownerId, userId)).limit(1);
+  if (list) return false;
+  const [reservation] = await db.select({ id: reservations.id }).from(reservations).where(eq(reservations.guestUserId, userId)).limit(1);
+  return !reservation;
+}
+
 export async function linkIdentity(
   db: Database,
   userId: string,
@@ -49,15 +56,34 @@ export async function linkIdentity(
 ): Promise<{ ok: true } | { ok: false; reason: "IDENTITY_TAKEN" | "PROVIDER_ALREADY_LINKED" }> {
   const owner = await findIdentityOwner(db, input.provider, input.providerUserId);
   if (owner === userId) return { ok: true };
-  if (owner !== null) return { ok: false, reason: "IDENTITY_TAKEN" };
+
   const sameProvider = await db
     .select({ id: authIdentities.id })
     .from(authIdentities)
     .where(and(eq(authIdentities.userId, userId), eq(authIdentities.provider, input.provider)))
     .limit(1);
   if (sameProvider.length > 0) return { ok: false, reason: "PROVIDER_ALREADY_LINKED" };
-  await db.insert(authIdentities).values({ userId, provider: input.provider, providerUserId: input.providerUserId });
+
+  if (owner === null) {
+    await db.insert(authIdentities).values({ userId, provider: input.provider, providerUserId: input.providerUserId });
+    return { ok: true };
+  }
+
+  if (!(await isProfileEmpty(db, owner))) return { ok: false, reason: "IDENTITY_TAKEN" };
+
+  // Пустой профиль остался от входа другим способом: переносим аккаунт и удаляем профиль-пустышку
+  await db.transaction(async (tx) => {
+    await tx
+      .update(authIdentities)
+      .set({ userId })
+      .where(and(eq(authIdentities.provider, input.provider), eq(authIdentities.providerUserId, input.providerUserId)));
+    await tx.delete(users).where(eq(users.id, owner));
+  });
   return { ok: true };
+}
+
+export async function setSurpriseMode(db: Database, userId: string, enabled: boolean): Promise<void> {
+  await db.update(users).set({ surpriseMode: enabled }).where(eq(users.id, userId));
 }
 
 export async function getUserWithIdentities(db: Database, userId: string): Promise<UserWithIdentities | null> {

@@ -1,6 +1,6 @@
 import { createHash, createHmac } from "node:crypto";
 import { signSession, verifySession } from "@wishlist/core";
-import { getUserWithIdentities } from "@wishlist/db";
+import { createWishlist, getUserWithIdentities } from "@wishlist/db";
 import { createTestDb } from "@wishlist/db/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
@@ -111,8 +111,9 @@ describe("VK login", () => {
     expect(result).toEqual({ ok: false, error: "vk_missing_params" });
   });
 
-  test("linking an identity owned by someone else fails", async () => {
-    await vkLogin("777", null);
+  test("linking an identity owned by a non-empty profile fails", async () => {
+    const vkOwner = await vkLogin("777", null);
+    await createWishlist(deps.db, vkOwner.userId, { title: "Список VK", occasion: "other", eventDate: null });
     const tgUser = await loginWithTelegramInitData(deps, initData({ id: 42, first_name: "Маша" }));
     if (!tgUser.ok) throw new Error("setup");
     const started = await startVkLogin(deps, tgUser.sessionToken);
@@ -122,6 +123,15 @@ describe("VK login", () => {
       .mockResolvedValueOnce(json({ user: { user_id: "777", first_name: "Мария" } }));
     const result = await finishVkLogin(deps, { code: "c", deviceId: "d", state, stateCookie: started.stateCookie, currentSessionToken: tgUser.sessionToken });
     expect(result).toEqual({ ok: false, error: "link_IDENTITY_TAKEN" });
+  });
+
+  test("linking VK from an empty earlier profile merges it into the current user", async () => {
+    await vkLogin("777", null);
+    const tgUser = await loginWithTelegramInitData(deps, initData({ id: 42, first_name: "Маша" }));
+    if (!tgUser.ok) throw new Error("setup");
+    const linked = await vkLogin("777", tgUser.sessionToken);
+    expect(linked.userId).toBe(tgUser.userId);
+    expect((await getUserWithIdentities(deps.db, tgUser.userId))?.providers.sort()).toEqual(["telegram", "vk"]);
   });
 });
 
