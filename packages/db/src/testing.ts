@@ -12,3 +12,6 @@ export async function createTestDb(): Promise<Database> {
   await migrate(db, { migrationsFolder });
   return db as unknown as Database;
 }
+
+export { createUserFixture } from "./test-fixtures";
+export * from "./index";
