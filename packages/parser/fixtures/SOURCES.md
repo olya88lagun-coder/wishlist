@@ -9,5 +9,5 @@
 | goldapple.html | https://goldapple.ru/19000378828-cardamom-moss | WhatsApp/2.23.20.0 | 2026-09-15 |
 
 Заметки:
-- Золотое Яблоко: JSON-LD только `OfferShippingDetails` (без Product); цена в microdata, первый `itemprop="price"` на странице — `content="0"` (кнопка цены для гостя), реальная цена идёт следующей.
+- Золотое Яблоко: JSON-LD только `OfferShippingDetails` (без Product). Название и цена — в microdata Product (`h1 itemprop="name"`); внутри Product есть хлебные крошки со своими `itemprop="name"`, а на странице — `SoftwareApplication` с `price content="0"`. OG-заголовок начинается с «В наличии: ».
 - Яндекс Маркет: каталог рендерится скриптами, ссылок на товары в HTML нет — фикстура товара снимается по ссылке, присланной вручную.
