@@ -35,7 +35,7 @@ export function TelegramAutoLogin() {
           body: JSON.stringify({ initData: webApp.initData }),
         });
         if (!res.ok) throw new Error(`login failed: ${res.status}`);
-        router.replace("/me");
+        router.replace("/lists");
       })
       .catch((error: unknown) => {
         console.warn("telegram mini app login failed", error);

@@ -1,0 +1,68 @@
+import { formatKopecks } from "@wishlist/core";
+import { getOwnerWishlistView, type OwnerItemView } from "@wishlist/db";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { CountdownSticker } from "@/components/CountdownSticker";
+import { EmptyState } from "@/components/EmptyState";
+import { ItemCard } from "@/components/ItemCard";
+import { ReservedSticker } from "@/components/ReservedSticker";
+import { getDb } from "@/server/db";
+import { requireUser } from "@/server/viewer";
+import { deleteItemAction } from "./actions";
+import { AddItemForm } from "./AddItemForm";
+import { ConfirmButton } from "./ConfirmButton";
+import { ItemEditor } from "./ItemEditor";
+import { ListSettings } from "./ListSettings";
+
+export const dynamic = "force-dynamic";
+
+function editorDefaults(item: OwnerItemView) {
+  return {
+    title: item.title,
+    url: item.sourceUrl ?? "",
+    price: item.priceKopecks === null ? "" : formatKopecks(item.priceKopecks).replace(/ ₽$/, ""),
+    note: item.note ?? "",
+    isMustHave: item.isMustHave,
+  };
+}
+
+export default async function OwnerListPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const user = await requireUser();
+  const view = await getOwnerWishlistView(getDb(), user.id, id);
+  if (!view) notFound();
+  const { wishlist, items, surpriseMode } = view;
+
+  return (
+    <main className="page page--wide">
+      <div className="row row--between">
+        <Link className="eyebrow" href="/lists">← Мои списки</Link>
+        <CountdownSticker occasion={wishlist.occasion} eventDate={wishlist.eventDate} />
+      </div>
+      <h1 className="display">{wishlist.title}</h1>
+      <div className="row" style={{ marginBottom: 20, flexWrap: "wrap" }}>
+        <Link className="button button--ghost button--small" href={`/${wishlist.slug}`}>Как видят гости</Link>
+        {surpriseMode && <span className="muted">Режим «Полный сюрприз»: брони скрыты</span>}
+      </div>
+
+      <AddItemForm wishlistId={wishlist.id} defaultOpen={items.length === 0} />
+
+      {items.length === 0 ? (
+        <EmptyState title="Здесь будут подарки" text="Вставьте ссылку из любого магазина или просто напишите, что хотите." />
+      ) : (
+        <section className="grid" aria-label="Подарки">
+          {items.map((item) => (
+            <ItemCard key={item.id} item={item} dimmed={item.reserved} sticker={item.reserved ? <ReservedSticker label="забронировано" /> : undefined}>
+              <ItemEditor wishlistId={wishlist.id} itemId={item.id} defaults={editorDefaults(item)} />
+              <ConfirmButton action={deleteItemAction.bind(null, wishlist.id, item.id)} question={`Удалить «${item.title}»?`}>
+                Удалить
+              </ConfirmButton>
+            </ItemCard>
+          ))}
+        </section>
+      )}
+
+      <ListSettings wishlist={wishlist} />
+    </main>
+  );
+}
