@@ -15,10 +15,20 @@ function fromSlug(url: string, store: StoreId): ParseResult {
   return { ...EMPTY_PRODUCT, title, status: title ? "partial" : "failed", finalUrl: url, store };
 }
 
+const ANTIBOT_PATH = /captcha/i;
+
+// Антибот отвечает 200 на своей странице (у Маркета — /showcaptcha с og:title «Яндекс»): это не товар
+function isAntibotPage(page: FetchedPage): boolean {
+  return page.ok && ANTIBOT_PATH.test(new URL(page.url).pathname);
+}
+
 function fromPage(url: string, body: string, store: StoreId): ParseResult {
   const root = parseHtml(body);
-  const merged = mergeProduct(url, [extractJsonLdProduct(root), extractMicrodata(root), extractOpenGraph(root)]);
-  const priced = STORE_STRATEGIES[store].trustPrice ? merged : { ...merged, priceKopecks: null, currency: null };
+  const jsonLd = extractJsonLdProduct(root);
+  const merged = mergeProduct(url, [jsonLd, extractMicrodata(root), extractOpenGraph(root)]);
+  const priceFrom = STORE_STRATEGIES[store].priceFrom;
+  const trustedPrice = priceFrom === "any" ? merged : priceFrom === "jsonld" ? mergeProduct(url, [jsonLd]) : { priceKopecks: null, currency: null };
+  const priced = { ...merged, priceKopecks: trustedPrice.priceKopecks, currency: trustedPrice.currency };
   const product = priced.title ? priced : { ...priced, title: titleFromUrlSlug(url, store) };
   return { ...product, status: statusFor(product), finalUrl: url, store };
 }
@@ -37,7 +47,7 @@ export async function parseProduct(rawUrl: string, deps: ParseDeps): Promise<Par
   if (!strategy.fetch) return fromSlug(url, store);
 
   const page = await load(url, strategy.userAgent, deps);
-  if (!page.ok) return fromSlug(url, store);
+  if (!page.ok || isAntibotPage(page)) return fromSlug(url, store);
 
   const finalUrl = normalizeProductUrl(page.url) ?? url;
   const finalStore = detectStore(finalUrl).id;
@@ -48,5 +58,5 @@ export async function parseProduct(rawUrl: string, deps: ParseDeps): Promise<Par
   if (finalStrategy.userAgent === strategy.userAgent) return fromPage(finalUrl, page.body, finalStore);
 
   const refetched = await load(finalUrl, finalStrategy.userAgent, deps);
-  return refetched.ok ? fromPage(finalUrl, refetched.body, finalStore) : fromSlug(finalUrl, finalStore);
+  return refetched.ok && !isAntibotPage(refetched) ? fromPage(finalUrl, refetched.body, finalStore) : fromSlug(finalUrl, finalStore);
 }

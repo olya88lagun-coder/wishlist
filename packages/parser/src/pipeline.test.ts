@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { readFixture } from "./read-fixture";
 import { parseProduct } from "./pipeline";
-import { LINK_PREVIEW_USER_AGENT, MESSENGER_USER_AGENT } from "./strategies";
+import { LINK_PREVIEW_USER_AGENT, MESSENGER_USER_AGENT, VK_PREVIEW_USER_AGENT } from "./strategies";
 import type { FetchedPage, FetchPage } from "./types";
 
 type Call = { url: string; userAgent: string };
@@ -31,13 +31,32 @@ describe("parseProduct", () => {
     expect(result.priceKopecks).toBeGreaterThan(0);
   });
 
-  test("Yandex Market: ignores page prices, so the item is partial", async () => {
+  test("Yandex Market: VK preview UA, ignores recommendation prices on the page", async () => {
     const url = "https://market.yandex.ru/product--naushniki/1779261893";
     const page = html(url, '<meta property="og:title" content="Наушники Sony"><meta property="og:image" content="https://avatars.mds.yandex.net/i.jpg"><span itemprop="price">1990</span>');
     const { calls, fetchPage } = fakeFetch({ [url]: page });
     const result = await parseProduct(url, { fetchPage });
-    expect(calls[0]?.userAgent).toBe(LINK_PREVIEW_USER_AGENT);
+    expect(calls[0]?.userAgent).toBe(VK_PREVIEW_USER_AGENT);
     expect(result).toMatchObject({ status: "partial", title: "Наушники Sony", priceKopecks: null, imageUrl: "https://avatars.mds.yandex.net/i.jpg" });
+  });
+
+  test("Yandex Market: trusts the price of the card's own JSON-LD offer", async () => {
+    const url = "https://market.yandex.ru/card/elektrochaynik-tuvio/103830995648";
+    const { fetchPage } = fakeFetch({ [url]: html(url, readFixture("yandex-market.html")) });
+    expect(await parseProduct(url, { fetchPage })).toMatchObject({
+      status: "ok",
+      store: "yandex_market",
+      title: "Электрический чайник с Алисой и с панелью с выбором температуры Tuvio Semble, 1.7л, TKP1517S",
+      priceKopecks: 569000,
+      imageUrl: "https://avatars.mds.yandex.net/get-mpic/20656428/2a0000019efe6181f24c00283f2a935d7b96/orig",
+    });
+  });
+
+  test("a captcha redirect is a failed load, not a product called «Яндекс»", async () => {
+    const url = "https://market.yandex.ru/card/svecha/123456";
+    const captcha = html("https://market.yandex.ru/showcaptcha?cc=1&retpath=abc", '<meta property="og:title" content="Яндекс">');
+    const { fetchPage } = fakeFetch({ [url]: captcha });
+    expect(await parseProduct(url, { fetchPage })).toMatchObject({ status: "failed", title: null, store: "yandex_market" });
   });
 
   test("Ozon: does not fetch, takes the title from the slug", async () => {

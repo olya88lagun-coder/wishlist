@@ -13,4 +13,10 @@ describe("store fixtures captured from the Moscow server", () => {
     expect(html).toMatch(/property="og:title"/);
     expect(html).toMatch(/itemprop="price"/);
   });
+
+  test("Yandex Market card carries OpenGraph and a JSON-LD Product", () => {
+    const html = readFixture("yandex-market.html");
+    expect(html).toMatch(/property="og:title"/);
+    expect(html).toMatch(/"@type":"Product"/);
+  });
 });
