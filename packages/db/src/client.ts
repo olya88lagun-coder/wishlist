@@ -3,9 +3,9 @@ import postgres from "postgres";
 import * as schema from "./schema";
 import type { Database } from "./types";
 
-const MAX_CONNECTIONS = 5;
+const DEFAULT_MAX_CONNECTIONS = 5;
 
-export function createDb(databaseUrl: string): Database {
-  const client = postgres(databaseUrl, { max: MAX_CONNECTIONS });
+export function createDb(databaseUrl: string, options: { maxConnections?: number } = {}): Database {
+  const client = postgres(databaseUrl, { max: options.maxConnections ?? DEFAULT_MAX_CONNECTIONS });
   return drizzle(client, { schema }) as unknown as Database;
 }
