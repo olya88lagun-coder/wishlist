@@ -50,9 +50,9 @@ chmod 600 .env
 
 ```bash
 cd /opt/wishlist
-docker compose pull
+docker compose --profile tools pull
 docker compose run --rm migrate
-docker compose up -d web
+docker compose up -d web worker
 docker compose ps
 docker stats --no-stream --format "{{.Name}} {{.MemUsage}}"
 ```
@@ -86,7 +86,7 @@ docker exec food-tracker-bot-caddy-1 caddy validate --config /tmp/Caddyfile --ad
 
 После мержа в `master` GitHub Actions публикует новые образы. На сервере:
 ```bash
-cd /opt/wishlist && docker compose pull && docker compose run --rm migrate && docker compose up -d web
+cd /opt/wishlist && docker compose --profile tools pull && docker compose run --rm migrate && docker compose up -d web worker
 ```
 
 ## Фото, бэкапы и воркер

@@ -40,6 +40,11 @@ export function checkTarget(rawUrl: string, allowPrivateNetworks = false): strin
   return url.toString();
 }
 
+// IPv6 первым: IPv4 московского сервера антибот Wildberries отвечает 498, а по IPv6 отдаёт страницу (проверено 2026-09-15)
+export function preferIpv6(addresses: LookupAddress[]): LookupAddress[] {
+  return [...addresses.filter((entry) => entry.family === 6), ...addresses.filter((entry) => entry.family !== 6)];
+}
+
 export function guardedLookup(hostname: string, options: { all?: boolean; family?: number }, callback: LookupCallback): void {
   dnsLookup(hostname, { family: options.family ?? 0, all: true }, (error, addresses) => {
     if (error) return callback(error, options.all ? [] : "");
@@ -47,8 +52,9 @@ export function guardedLookup(hostname: string, options: { all?: boolean; family
     if (addresses.length === 0 || !addresses.every((entry) => isPublicAddress(entry.address))) {
       return callback(Object.assign(new Error(`blocked address for ${hostname}`), { code: "EBLOCKED" }), options.all ? [] : "");
     }
-    if (options.all) return callback(null, addresses);
-    return callback(null, addresses[0]!.address, addresses[0]!.family);
+    const ordered = preferIpv6(addresses);
+    if (options.all) return callback(null, ordered);
+    return callback(null, ordered[0]!.address, ordered[0]!.family);
   });
 }
 

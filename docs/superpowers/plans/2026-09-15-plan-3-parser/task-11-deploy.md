@@ -65,7 +65,7 @@ Expected: пять имён переменных `S3_...=`.
 ssh root@200.169.178.231 '
 set -e
 cd /opt/wishlist
-docker compose pull
+docker compose --profile tools pull
 docker compose run --rm migrate
 docker compose up -d web worker
 sleep 25

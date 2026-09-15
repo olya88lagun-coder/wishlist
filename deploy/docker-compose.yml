@@ -16,7 +16,8 @@ services:
     restart: unless-stopped
     mem_limit: 200m
     stop_grace_period: 30s
-    networks: [shared]
+    # egress с IPv6: по IPv4 сервера Wildberries отвечает антиботом (498)
+    networks: [shared, egress]
 
   migrate:
     image: ghcr.io/${GHCR_OWNER}/wishlist-migrate:latest
@@ -29,3 +30,5 @@ networks:
   shared:
     external: true
     name: food-tracker-bot_default
+  egress:
+    enable_ipv6: true

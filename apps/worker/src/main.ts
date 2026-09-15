@@ -43,16 +43,22 @@ await boss.createQueue(QUEUES.maintenance);
 
 await boss.work<ParseItemJob>(QUEUES.parseItem, { localConcurrency: PARSE_CONCURRENCY }, async ([job]) => {
   if (!job) return;
-  await runParseItem(job.data.itemId, {
-    db,
-    parse: (url) => parseProduct(url, { fetchPage: fetcher.fetchPage, waitTurn }),
-    fetchImage: async (url) => {
-      await waitTurn(url);
-      return fetcher.fetchImage(url);
-    },
-    images: storage && env.s3 ? { storage, bucket: env.s3.imagesBucket } : null,
-    log,
-  });
+  try {
+    await runParseItem(job.data.itemId, {
+      db,
+      parse: (url) => parseProduct(url, { fetchPage: fetcher.fetchPage, waitTurn }),
+      fetchImage: async (url) => {
+        await waitTurn(url);
+        return fetcher.fetchImage(url);
+      },
+      images: storage && env.s3 ? { storage, bucket: env.s3.imagesBucket } : null,
+      log,
+    });
+  } catch (error) {
+    // pg-boss сам пометит задачу failed, но в лог контейнера ничего не попадёт
+    log("error", "parse job failed", { itemId: job.data.itemId, error: String(error) });
+    throw error;
+  }
 });
 
 await boss.work(QUEUES.maintenance, async () => {

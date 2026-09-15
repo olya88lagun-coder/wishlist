@@ -1,7 +1,7 @@
 import { createServer, type Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { checkTarget, createSafeFetcher, guardedLookup, isPublicAddress } from "./safe-fetch";
+import { checkTarget, createSafeFetcher, guardedLookup, isPublicAddress, preferIpv6 } from "./safe-fetch";
 
 describe("isPublicAddress", () => {
   test.each([
@@ -49,6 +49,13 @@ describe("checkTarget", () => {
   test("test mode allows loopback with any port", () => {
     expect(checkTarget("http://127.0.0.1:4000/x", true)).toBe("http://127.0.0.1:4000/x");
   });
+});
+
+test("preferIpv6 puts IPv6 addresses first and keeps IPv4 as fallback", () => {
+  const v4 = { address: "185.62.202.2", family: 4 };
+  const v6 = { address: "2a03:720::173:2", family: 6 };
+  expect(preferIpv6([v4, v6])).toEqual([v6, v4]);
+  expect(preferIpv6([v4])).toEqual([v4]);
 });
 
 describe("guardedLookup", () => {
