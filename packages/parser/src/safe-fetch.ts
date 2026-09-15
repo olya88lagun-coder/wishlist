@@ -1,8 +1,9 @@
 import { type LookupAddress, lookup as dnsLookup } from "node:dns";
-import type { LookupFunction } from "node:net";
+import { connect as netConnect, type LookupFunction, type Socket } from "node:net";
 import type { ReadableStream } from "node:stream/web";
+import { connect as tlsConnect } from "node:tls";
 import ipaddr from "ipaddr.js";
-import { Agent, fetch } from "undici";
+import { Agent, type buildConnector, fetch } from "undici";
 import type { FetchedImage, FetchedPage, FetchFailure, FetchFailureReason, FetchPage } from "./types";
 
 export const IMAGE_USER_AGENT = "Mozilla/5.0 (compatible; WishlistImageBot/1.0; +https://my-wish-list.online)";
@@ -58,6 +59,26 @@ export function guardedLookup(hostname: string, options: { all?: boolean; family
   });
 }
 
+// Свой коннектор вместо встроенного в undici: тот всегда шлёт ALPN http/1.1, и Яндекс Маркет по такому
+// TLS-отпечатку отдаёт капчу, а на рукопожатие без ALPN — страницу (проверено с сервера 2026-09-15)
+export function createConnector(lookup: LookupFunction | undefined, timeoutMs: number): buildConnector.connector {
+  return (options, callback) => {
+    const port = Number(options.port) || (options.protocol === "https:" ? 443 : 80);
+    const socket: Socket =
+      options.protocol === "https:"
+        ? tlsConnect({ host: options.hostname, port, servername: options.servername ?? options.hostname, lookup })
+        : netConnect({ host: options.hostname, port, lookup });
+    const readyEvent = options.protocol === "https:" ? "secureConnect" : "connect";
+    socket.setTimeout(timeoutMs, () => socket.destroy(Object.assign(new Error("connect timeout"), { code: "UND_ERR_CONNECT_TIMEOUT" })));
+    socket.once(readyEvent, () => {
+      socket.setTimeout(0);
+      callback(null, socket);
+    });
+    socket.once("error", (error) => callback(error, null));
+    return socket;
+  };
+}
+
 type RawResponse = { ok: true; url: string; status: number; contentType: string; bytes: Uint8Array };
 
 function failure(reason: FetchFailureReason, status?: number): FetchFailure {
@@ -69,7 +90,7 @@ function reasonOf(error: unknown): FetchFailureReason {
   if (name === "TimeoutError" || name === "AbortError") return "timeout";
   const cause = error instanceof Error ? (error.cause as NodeJS.ErrnoException | undefined) : undefined;
   if (cause?.code === "EBLOCKED") return "blocked";
-  if (cause?.name === "TimeoutError" || cause?.code === "UND_ERR_HEADERS_TIMEOUT" || cause?.code === "UND_ERR_BODY_TIMEOUT") return "timeout";
+  if (cause?.name === "TimeoutError" || cause?.code === "UND_ERR_CONNECT_TIMEOUT" || cause?.code === "UND_ERR_HEADERS_TIMEOUT" || cause?.code === "UND_ERR_BODY_TIMEOUT") return "timeout";
   return "network";
 }
 
@@ -109,7 +130,7 @@ export function createSafeFetcher(options: SafeFetchOptions = {}): SafeFetcher {
   const dispatcher = new Agent({
     headersTimeout: timeoutMs,
     bodyTimeout: timeoutMs,
-    connect: allowPrivate ? {} : { lookup: guardedLookup as unknown as LookupFunction },
+    connect: createConnector(allowPrivate ? undefined : (guardedLookup as unknown as LookupFunction), timeoutMs),
   });
 
   async function request(startUrl: string, headers: Record<string, string>, maxBytes: number): Promise<RawResponse | FetchFailure> {

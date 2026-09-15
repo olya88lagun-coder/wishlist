@@ -1,7 +1,7 @@
 import { createServer, type Server } from "node:http";
-import type { AddressInfo } from "node:net";
+import type { AddressInfo, LookupFunction } from "node:net";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { checkTarget, createSafeFetcher, guardedLookup, isPublicAddress, preferIpv6 } from "./safe-fetch";
+import { checkTarget, createConnector, createSafeFetcher, guardedLookup, isPublicAddress, preferIpv6 } from "./safe-fetch";
 
 describe("isPublicAddress", () => {
   test.each([
@@ -62,6 +62,14 @@ describe("guardedLookup", () => {
   test("refuses names that resolve to private addresses", async () => {
     const error = await new Promise<NodeJS.ErrnoException | null>((resolve) => guardedLookup("localhost", { all: true }, (err) => resolve(err)));
     expect(error?.code).toBe("EBLOCKED");
+  });
+
+  test("connector resolves names through the guard, so a private address never gets a socket", async () => {
+    const connect = createConnector(guardedLookup as unknown as LookupFunction, 5000);
+    const error = await new Promise<Error | null>((resolve) =>
+      connect({ hostname: "localhost", host: "localhost", protocol: "http:", port: "80", servername: "" } as never, ((err: Error | null) => resolve(err)) as never),
+    );
+    expect((error as NodeJS.ErrnoException | null)?.code).toBe("EBLOCKED");
   });
 });
 
