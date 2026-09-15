@@ -6,7 +6,9 @@ import { CountdownSticker } from "@/components/CountdownSticker";
 import { EmptyState } from "@/components/EmptyState";
 import { ItemCard } from "@/components/ItemCard";
 import { ReservedSticker } from "@/components/ReservedSticker";
+import { ShareBar } from "@/components/ShareBar";
 import { getDb } from "@/server/db";
+import { getEnv } from "@/server/env";
 import { requireUser } from "@/server/viewer";
 import { deleteItemAction } from "./actions";
 import { AddItemForm } from "./AddItemForm";
@@ -32,6 +34,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
   const view = await getOwnerWishlistView(getDb(), user.id, id);
   if (!view) notFound();
   const { wishlist, items, surpriseMode } = view;
+  const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
 
   return (
     <main className="page page--wide">
@@ -43,6 +46,10 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
       <div className="row" style={{ marginBottom: 20, flexWrap: "wrap" }}>
         <Link className="button button--ghost button--small" href={`/${wishlist.slug}`}>Как видят гости</Link>
         {surpriseMode && <span className="muted">Режим «Полный сюрприз»: брони скрыты</span>}
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <ShareBar url={shareUrl} title={`${wishlist.title} — вишлист`} />
       </div>
 
       <AddItemForm wishlistId={wishlist.id} defaultOpen={items.length === 0} />
