@@ -21,7 +21,7 @@ export function ItemFields({ idPrefix, defaults, errors }: { idPrefix: string; d
       </div>
       <div className="field">
         <label htmlFor={id("title")}>Что подарить</label>
-        <input id={id("title")} name="title" className="input" placeholder="Наушники Sony" maxLength={200} defaultValue={defaults.title} required />
+        <input id={id("title")} name="title" className="input" placeholder="Наушники Sony" maxLength={200} defaultValue={defaults.title} />
         {errors.title && <p className="error">{errors.title}</p>}
       </div>
       <div className="field">

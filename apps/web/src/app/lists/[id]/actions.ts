@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/server/db";
 import { parseItemForm, parseWishlistForm } from "@/server/forms";
+import { enqueueParse } from "@/server/queue";
 import { editLimiter } from "@/server/rate-limit";
 import { clientKey, requireUser } from "@/server/viewer";
 import { errorState, type FormState, formValues, LIMIT_MESSAGES, successState } from "../form-state";
@@ -39,8 +40,9 @@ export async function addItemAction(wishlistId: string, _prev: FormState, form: 
   if (!parsed.ok) return errorState(parsed.errors, null, formValues(form));
   const result = await addItem(getDb(), user.id, wishlistId, parsed.value);
   if (!result.ok) return errorState({}, result.reason === "LIMIT_REACHED" ? LIMIT_MESSAGES.items : LIMIT_MESSAGES.notFound, formValues(form));
+  if (result.needsParsing) await enqueueParse(result.itemId);
   revalidatePath(`/lists/${wishlistId}`);
-  return successState("Подарок добавлен");
+  return successState(result.needsParsing ? "Подарок добавлен — подтягиваем данные из магазина" : "Подарок добавлен");
 }
 
 export async function updateItemAction(wishlistId: string, itemId: string, _prev: FormState, form: FormData): Promise<FormState> {
@@ -50,6 +52,7 @@ export async function updateItemAction(wishlistId: string, itemId: string, _prev
   if (!parsed.ok) return errorState(parsed.errors, null, formValues(form));
   const result = await updateItem(getDb(), user.id, itemId, parsed.value);
   if (!result.ok) return errorState({}, LIMIT_MESSAGES.notFound, formValues(form));
+  if (result.needsParsing) await enqueueParse(itemId);
   revalidatePath(`/lists/${wishlistId}`);
   return successState("Сохранено");
 }

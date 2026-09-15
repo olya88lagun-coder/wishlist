@@ -52,10 +52,24 @@ describe("parseItemForm", () => {
     });
   });
 
-  test("reports invalid link, price and missing title", () => {
+  test("reports invalid link and price; a broken link alone does not require a title", () => {
     expect(parseItemForm(form({ title: "", url: "javascript:alert(1)", price: "дорого", note: "" }))).toEqual({
       ok: false,
-      errors: { title: "Введите название подарка", url: "Ссылка должна начинаться с https://", price: "Цена — число в рублях, например 2 490" },
+      errors: { url: "Ссылка должна начинаться с https://", price: "Цена — число в рублях, например 2 490" },
+    });
+  });
+
+  test("needs either a link or a title", () => {
+    expect(parseItemForm(form({ title: "", url: "", price: "", note: "" }))).toEqual({
+      ok: false,
+      errors: { title: "Вставьте ссылку или напишите название" },
+    });
+  });
+
+  test("a link alone is enough — the rest comes from the store", () => {
+    expect(parseItemForm(form({ url: "https://www.wildberries.ru/catalog/173937886/detail.aspx?utm_source=tg" }))).toEqual({
+      ok: true,
+      value: { title: "", sourceUrl: "https://www.wildberries.ru/catalog/173937886/detail.aspx", priceKopecks: null, note: null, isMustHave: false },
     });
   });
 });

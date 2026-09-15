@@ -44,10 +44,11 @@ export function parseWishlistForm(form: FormData): FormResult<WishlistInput> {
 
 export function parseItemForm(form: FormData): FormResult<ItemInput> {
   const errors: FieldErrors = {};
-  const title = titleSchema(ITEM_TITLE_MAX, "Введите название подарка", "Название").safeParse(text(form, "title"));
-  if (!title.success) errors.title = title.error.issues[0]!.message;
-
   const rawUrl = text(form, "url");
+  const rawTitle = text(form, "title");
+  // По ссылке название подтянет воркер; без ссылки подарок должен как-то называться
+  if (rawTitle === "" && rawUrl === "") errors.title = "Вставьте ссылку или напишите название";
+  if (rawTitle.length > ITEM_TITLE_MAX) errors.title = `Название длиннее ${ITEM_TITLE_MAX} символов`;
   const sourceUrl = rawUrl === "" ? null : normalizeProductUrl(rawUrl);
   if (rawUrl !== "" && sourceUrl === null) errors.url = "Ссылка должна начинаться с https://";
 
@@ -61,6 +62,6 @@ export function parseItemForm(form: FormData): FormResult<ItemInput> {
   if (Object.keys(errors).length > 0) return { ok: false, errors };
   return {
     ok: true,
-    value: { title: title.data!, sourceUrl, priceKopecks, note: note === "" ? null : note, isMustHave: form.get("isMustHave") === "on" },
+    value: { title: rawTitle, sourceUrl, priceKopecks, note: note === "" ? null : note, isMustHave: form.get("isMustHave") === "on" },
   };
 }
