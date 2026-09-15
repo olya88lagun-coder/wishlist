@@ -16,6 +16,17 @@ const server = new PGLiteSocketServer({ db, port: DEV_DB_PORT, host: "127.0.0.1"
 await server.start();
 console.log(`dev db ready: postgres://postgres:postgres@127.0.0.1:${DEV_DB_PORT}/postgres`);
 
+// Клиент, убитый без закрытия соединения (Ctrl+C в воркере, process.exit), даёт ECONNRESET на сокете,
+// который PGLiteSocketServer не обрабатывает, и без этого падала бы вся локальная БД
+process.on("uncaughtException", (error) => {
+  if (error.code === "ECONNRESET" || error.code === "EPIPE") {
+    console.warn(`dev db: client disconnected abruptly (${error.code})`);
+    return;
+  }
+  console.error(error);
+  process.exit(1);
+});
+
 process.on("SIGINT", async () => {
   await server.stop();
   await db.close();
