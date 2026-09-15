@@ -74,3 +74,16 @@ describe("getPublicWishlist", () => {
     expect(statusOf(await getPublicWishlist(db, slug, { userId: guestUser, guestToken: null }), freeId)).toBe("reserved_by_me");
   });
 });
+
+describe("pending items", () => {
+  test("guests do not see link-only items that are still parsing", async () => {
+    const pendingOwner = await createUserFixture(db, "Оля");
+    const list = await createWishlist(db, pendingOwner, { title: "Скоро", occasion: "other", eventDate: null });
+    if (!list.ok) throw new Error("setup");
+    await addItem(db, pendingOwner, list.wishlist.id, { title: "", sourceUrl: "https://www.wildberries.ru/catalog/1/detail.aspx", priceKopecks: null, note: null, isMustHave: false });
+    await addItem(db, pendingOwner, list.wishlist.id, { title: "С названием", sourceUrl: "https://www.wildberries.ru/catalog/2/detail.aspx", priceKopecks: null, note: null, isMustHave: false });
+    const view = await getPublicWishlist(db, list.wishlist.slug, { userId: null, guestToken: null });
+    expect(view?.items.map((item) => item.title)).toEqual(["С названием"]);
+    expect(view?.items[0]).toMatchObject({ imageKey: null });
+  });
+});

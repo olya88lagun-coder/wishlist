@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, date, index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 export const authProviderEnum = pgEnum("auth_provider", ["telegram", "vk"]);
 export const occasionEnum = pgEnum("occasion", ["birthday", "new_year", "other"]);
@@ -7,6 +7,7 @@ export const parseStatusEnum = pgEnum("parse_status", ["pending", "ok", "partial
 export const reservationStatusEnum = pgEnum("reservation_status", ["active", "cancelled"]);
 
 export type AuthProvider = (typeof authProviderEnum.enumValues)[number];
+export type ItemParseStatus = (typeof parseStatusEnum.enumValues)[number];
 
 const createdAt = () => timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
 
@@ -85,3 +86,9 @@ export const reservations = pgTable(
   },
   (t) => [uniqueIndex("reservations_one_active_per_item_uq").on(t.itemId).where(sql`"status" = 'active'`)],
 );
+
+export const parseCache = pgTable("parse_cache", {
+  normalizedUrl: text("normalized_url").primaryKey(),
+  result: jsonb("result").notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+});

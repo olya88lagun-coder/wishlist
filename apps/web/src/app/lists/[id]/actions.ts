@@ -48,7 +48,8 @@ export async function updateItemAction(wishlistId: string, itemId: string, _prev
   if (!allowed) return errorState({}, LIMIT_MESSAGES.rate, formValues(form));
   const parsed = parseItemForm(form);
   if (!parsed.ok) return errorState(parsed.errors, null, formValues(form));
-  if (!(await updateItem(getDb(), user.id, itemId, parsed.value))) return errorState({}, LIMIT_MESSAGES.notFound, formValues(form));
+  const result = await updateItem(getDb(), user.id, itemId, parsed.value);
+  if (!result.ok) return errorState({}, LIMIT_MESSAGES.notFound, formValues(form));
   revalidatePath(`/lists/${wishlistId}`);
   return successState("Сохранено");
 }

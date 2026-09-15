@@ -1,5 +1,5 @@
 import { guestReservationView, isValidSlug, ownerReservationView, type Viewer } from "@wishlist/core";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { items, reservations, users, wishlists } from "./schema";
 import type { Database } from "./types";
 import type { WishlistOccasion } from "./wishlists";
@@ -15,6 +15,7 @@ export type PublicItemView = {
   currency: string;
   note: string | null;
   isMustHave: boolean;
+  imageKey: string | null;
   status: PublicItemStatus;
 };
 
@@ -60,13 +61,15 @@ export async function getPublicWishlist(db: Database, slug: string, viewer: View
       currency: items.currency,
       note: items.note,
       isMustHave: items.isMustHave,
+      imageKey: items.imageKey,
       reservationGuestUserId: reservations.guestUserId,
       reservationGuestToken: reservations.guestToken,
       reservationId: reservations.id,
     })
     .from(items)
     .leftJoin(reservations, and(eq(reservations.itemId, items.id), eq(reservations.status, "active")))
-    .where(and(eq(items.wishlistId, header.id), isNull(items.deletedAt)))
+    // Гостям не показываем скелетоны: подарок без названия, который ещё парсится
+    .where(and(eq(items.wishlistId, header.id), isNull(items.deletedAt), sql`not (${items.parseStatus} = 'pending' and ${items.title} = '')`))
     .orderBy(desc(items.isMustHave), desc(items.createdAt), desc(items.id));
 
   const isOwner = viewer.userId !== null && viewer.userId === header.ownerId;

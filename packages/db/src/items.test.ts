@@ -41,7 +41,7 @@ describe("addItem", () => {
     await added();
     const view = await getOwnerWishlistView(db, owner, listId);
     expect(view?.items).toEqual([
-      expect.objectContaining({ title: "Наушники", store: "wildberries", priceKopecks: 2499000, note: "чёрные", reserved: false }),
+      expect.objectContaining({ title: "Наушники", store: "wildberries", priceKopecks: 2499000, note: "чёрные", reserved: false, parseStatus: "pending", imageKey: null }),
     ]);
     expect(view?.wishlist.itemCount).toBe(1);
   });
@@ -71,19 +71,19 @@ describe("addItem", () => {
 describe("updateItem / deleteItem", () => {
   test("owner edits and soft-deletes; stranger cannot", async () => {
     const id = await added();
-    expect(await updateItem(db, stranger, id, { ...headphones, title: "Взлом" })).toBe(false);
+    expect(await updateItem(db, stranger, id, { ...headphones, title: "Взлом" })).toEqual({ ok: false });
     expect(await deleteItem(db, stranger, id)).toBe(false);
 
-    expect(await updateItem(db, owner, id, { ...headphones, title: "Наушники Sony", isMustHave: true, sourceUrl: null })).toBe(true);
+    expect(await updateItem(db, owner, id, { ...headphones, title: "Наушники Sony", isMustHave: true, sourceUrl: null })).toEqual({ ok: true, needsParsing: false });
     expect((await getOwnerWishlistView(db, owner, listId))?.items[0]).toMatchObject({ title: "Наушники Sony", isMustHave: true, store: null });
 
     expect(await deleteItem(db, owner, id)).toBe(true);
     expect((await getOwnerWishlistView(db, owner, listId))?.items).toEqual([]);
-    expect(await updateItem(db, owner, id, headphones)).toBe(false);
+    expect(await updateItem(db, owner, id, headphones)).toEqual({ ok: false });
   });
 
   test("malformed ids return false", async () => {
-    expect(await updateItem(db, owner, "x", headphones)).toBe(false);
+    expect(await updateItem(db, owner, "x", headphones)).toEqual({ ok: false });
     expect(await deleteItem(db, owner, "x")).toBe(false);
   });
 });

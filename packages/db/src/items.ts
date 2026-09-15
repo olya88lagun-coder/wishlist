@@ -2,7 +2,7 @@ import { detectStore, ownerReservationView } from "@wishlist/core";
 import { and, count, desc, eq, isNull, sql } from "drizzle-orm";
 import { isUuid } from "./errors";
 import { MAX_ITEMS_PER_WISHLIST } from "./limits";
-import { items, users, wishlists } from "./schema";
+import { items, type ItemParseStatus, users, wishlists } from "./schema";
 import type { Database } from "./types";
 import { getOwnedWishlist, type WishlistSummary } from "./wishlists";
 
@@ -18,6 +18,8 @@ export type OwnerItemView = {
   note: string | null;
   isMustHave: boolean;
   reserved: boolean;
+  imageKey: string | null;
+  parseStatus: ItemParseStatus;
 };
 
 export type OwnerWishlistView = { wishlist: WishlistSummary; surpriseMode: boolean; items: OwnerItemView[] };
@@ -52,7 +54,7 @@ export async function addItem(
   ownerId: string,
   wishlistId: string,
   input: ItemInput,
-): Promise<{ ok: true; itemId: string } | { ok: false; reason: "NOT_FOUND" | "LIMIT_REACHED" }> {
+): Promise<{ ok: true; itemId: string; needsParsing: boolean } | { ok: false; reason: "NOT_FOUND" | "LIMIT_REACHED" }> {
   const wishlist = await getOwnedWishlist(db, ownerId, wishlistId);
   if (!wishlist) return { ok: false, reason: "NOT_FOUND" };
   const [existing] = await db
@@ -60,18 +62,32 @@ export async function addItem(
     .from(items)
     .where(and(eq(items.wishlistId, wishlistId), isNull(items.deletedAt)));
   if ((existing?.total ?? 0) >= MAX_ITEMS_PER_WISHLIST) return { ok: false, reason: "LIMIT_REACHED" };
+  const needsParsing = input.sourceUrl !== null;
   const [row] = await db
     .insert(items)
-    .values({ wishlistId, parseStatus: "ok", ...itemValues(input) })
+    .values({ wishlistId, parseStatus: needsParsing ? "pending" : "ok", ...itemValues(input) })
     .returning({ id: items.id });
-  return { ok: true, itemId: row!.id };
+  return { ok: true, itemId: row!.id, needsParsing };
 }
 
-export async function updateItem(db: Database, ownerId: string, itemId: string, input: ItemInput): Promise<boolean> {
+export async function updateItem(
+  db: Database,
+  ownerId: string,
+  itemId: string,
+  input: ItemInput,
+): Promise<{ ok: true; needsParsing: boolean } | { ok: false }> {
   const id = await ownedItemId(db, ownerId, itemId);
-  if (!id) return false;
-  await db.update(items).set(itemValues(input)).where(eq(items.id, id));
-  return true;
+  if (!id) return { ok: false };
+  const [current] = await db.select({ sourceUrl: items.sourceUrl }).from(items).where(eq(items.id, id));
+  const linkChanged = (current?.sourceUrl ?? null) !== input.sourceUrl;
+  const needsParsing = linkChanged && input.sourceUrl !== null;
+  // Фото и описание принадлежат старому товару; без ссылки фото из магазина тоже не нужно
+  const reset = linkChanged ? { imageKey: null, description: null } : {};
+  await db
+    .update(items)
+    .set({ ...itemValues(input), ...reset, parseStatus: needsParsing ? "pending" : "ok" })
+    .where(eq(items.id, id));
+  return { ok: true, needsParsing };
 }
 
 export async function deleteItem(db: Database, ownerId: string, itemId: string): Promise<boolean> {
@@ -97,6 +113,8 @@ export async function getOwnerWishlistView(db: Database, ownerId: string, wishli
       currency: items.currency,
       note: items.note,
       isMustHave: items.isMustHave,
+      imageKey: items.imageKey,
+      parseStatus: items.parseStatus,
       // Имена таблиц пишем явно: в select с одной таблицей Drizzle не квалифицирует колонки,
       // и "id" внутри подзапроса молча резолвился бы в reservations.id
       hasActiveReservation: sql<boolean>`exists (select 1 from "reservations" r where r."item_id" = "items"."id" and r."status" = 'active')`,
