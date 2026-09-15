@@ -82,7 +82,7 @@ describe("toCardModel", () => {
       }),
     ).toEqual({
       title: "наушники Sony",
-      priceText: "24 990 ₽",
+      priceText: "24 990 ₽",
       storeLabel: "Wildberries",
       monogram: "Н",
       note: "чёрные",

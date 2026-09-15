@@ -7,6 +7,7 @@ const envSchema = z.object({
   TELEGRAM_BOT_TOKEN: z.string().regex(/^\d+:[\w-]+$/),
   TELEGRAM_BOT_USERNAME: z.string().min(1),
   VK_CLIENT_ID: z.string().regex(/^\d+$/),
+  S3_PUBLIC_BASE_URL: z.url().optional(),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

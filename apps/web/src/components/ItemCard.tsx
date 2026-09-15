@@ -5,9 +5,9 @@ import { StoreTile } from "./StoreTile";
 export function ItemCard({ item, sticker, dimmed, children }: { item: CardItem; sticker?: ReactNode; dimmed?: boolean; children?: ReactNode }) {
   const card = toCardModel(item);
   return (
-    <article className={dimmed ? "card card--dimmed" : "card"}>
+    <article className={dimmed ? "card card--dimmed" : "card"} aria-busy={card.pending}>
       {sticker && <div className="card__sticker">{sticker}</div>}
-      <StoreTile monogram={card.monogram} storeLabel={card.storeLabel} isMustHave={card.isMustHave} />
+      <StoreTile monogram={card.monogram} storeLabel={card.storeLabel} isMustHave={card.isMustHave} imageUrl={card.imageUrl} pending={card.pending} />
       <h3 className="card__title">
         {card.title}
         {card.isMustHave && <span className="visually-hidden"> — очень хочу</span>}

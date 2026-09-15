@@ -18,7 +18,7 @@ export function AddItemForm({ wishlistId, defaultOpen }: { wishlistId: string; d
 
   return (
     <details className="panel" open={defaultOpen || state.status === "error"} style={{ marginBottom: 24 }}>
-      <summary className="serif" style={{ fontSize: 20, cursor: "pointer" }}>Добавить подарок</summary>
+      <summary className="serif" style={{ fontSize: 20, cursor: "pointer" }}>Добавить без ссылки или со всеми полями</summary>
       <form ref={formRef} action={action} className="stack" style={{ marginTop: 14 }} noValidate>
         <ItemFields idPrefix="new" defaults={itemDefaultsFor(state, EMPTY)} errors={state.errors} />
         {state.message && <p className={state.status === "error" ? "error" : "muted"} role="status">{state.message}</p>}

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { CountdownSticker } from "@/components/CountdownSticker";
 import { EmptyState } from "@/components/EmptyState";
 import { ItemCard } from "@/components/ItemCard";
+import { imageUrlFor } from "@/components/item-image";
 import { toCardModel } from "@/components/item-card-model";
 import { ReservedSticker } from "@/components/ReservedSticker";
 import { ShareBar } from "@/components/ShareBar";
@@ -38,6 +39,7 @@ export default async function PublicWishlistPage({ params }: Props) {
   if (!view) notFound();
   const { wishlist, items, ownerName, isOwner } = view;
   const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
+  const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
   const defaultName = user?.displayName.split(" ")[0] ?? "";
 
   return (
@@ -59,7 +61,7 @@ export default async function PublicWishlistPage({ params }: Props) {
       ) : (
         <section className="grid" aria-label="Подарки">
           {items.map((item) => (
-            <ItemCard key={item.id} item={item} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
+            <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl) }} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
               {!isOwner && item.status === "free" && (
                 <ReserveSheet
                   slug={wishlist.slug}
