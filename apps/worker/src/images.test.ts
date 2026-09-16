@@ -1,6 +1,6 @@
 import sharp from "sharp";
 import { describe, expect, test } from "vitest";
-import { IMAGE_MAX_HEIGHT, IMAGE_MAX_WIDTH, itemImageKey, toWebp } from "./images";
+import { IMAGE_MAX_HEIGHT, IMAGE_MAX_WIDTH, itemImageKey, previewImageKey, toPreviewJpeg, toWebp } from "./images";
 
 const png = (width: number, height: number) => sharp({ create: { width, height, channels: 3, background: "#d4537e" } }).png().toBuffer();
 
@@ -33,4 +33,14 @@ test("image keys live under the item id", () => {
     "items/0b6f6c1e-8a4e-4a57-9d31-6a2c1f2b7e10/11111111-2222-4333-8444-555555555555.webp",
   );
   expect(itemImageKey("a")).toMatch(/^items\/a\/[0-9a-f-]{36}\.webp$/);
+});
+
+test("a jpeg copy of the photo for Telegram previews, which do not render webp", async () => {
+  const meta = await sharp(await toPreviewJpeg(await png(2400, 2400))).metadata();
+  expect(meta.format).toBe("jpeg");
+  expect(meta.width).toBe(IMAGE_MAX_WIDTH);
+});
+
+test("the preview copy lives next to the photo", () => {
+  expect(previewImageKey("items/a/p.webp")).toBe("items/a/p.jpg");
 });

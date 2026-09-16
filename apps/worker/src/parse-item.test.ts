@@ -66,11 +66,12 @@ beforeEach(async () => {
 });
 
 describe("runParseItem", () => {
-  test("parses, stores the photo as immutable webp and fills the item", async () => {
+  test("parses, stores the photo as immutable webp with a jpeg copy for the bot and fills the item", async () => {
     const id = await linkItem();
     expect(await runParseItem(id, await deps())).toBe("applied");
     expect(puts).toEqual([
       { bucket: "wishlist-images", key: expect.stringMatching(new RegExp(`^items/${id}/[0-9a-f-]{36}\\.webp$`)), contentType: "image/webp", cacheControl: "public, max-age=31536000, immutable" },
+      { bucket: "wishlist-images", key: puts[0]!.key.replace(/\.webp$/, ".jpg"), contentType: "image/jpeg", cacheControl: "public, max-age=31536000, immutable" },
     ]);
     expect(await itemView()).toMatchObject({ title: "Диффузор для дома", priceKopecks: 289100, imageKey: puts[0]!.key, parseStatus: "ok" });
     expect(await readParseCache(db, WB)).toMatchObject({ title: "Диффузор для дома", status: "ok" });

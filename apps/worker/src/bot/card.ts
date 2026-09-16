@@ -1,5 +1,6 @@
 import type { BotMessageRef } from "@wishlist/core";
 import { type BotItemCard, type Database, getBotItemCard } from "@wishlist/db";
+import { previewImageKey } from "../images";
 import type { Logger } from "../log";
 import type { Messenger, SendExtra } from "../telegram/messenger";
 import { itemCardKeyboard } from "./keyboards";
@@ -14,7 +15,7 @@ export function publicImageUrl(imageKey: string | null, baseUrl: string | null):
 
 // Фото показываем превью ссылки: так карточку можно редактировать текстом, не пересоздавая сообщение
 export function renderItemCard(card: BotItemCard, deps: CardDeps): { text: string; extra: SendExtra } {
-  const imageUrl = publicImageUrl(card.imageKey, deps.imagesPublicBaseUrl);
+  const imageUrl = publicImageUrl(card.imageKey && previewImageKey(card.imageKey), deps.imagesPublicBaseUrl);
   return {
     text: itemCardText(card),
     extra: {

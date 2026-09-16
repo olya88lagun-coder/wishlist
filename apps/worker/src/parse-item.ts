@@ -1,6 +1,6 @@
 import { applyParseResult, type Database, getItemForParsing, readParseCache, writeParseCache } from "@wishlist/db";
 import { EMPTY_PRODUCT, type FetchedImage, type ParseResult } from "@wishlist/parser";
-import { itemImageKey, toWebp } from "./images";
+import { itemImageKey, previewImageKey, toPreviewJpeg, toWebp } from "./images";
 import type { Logger } from "./log";
 import { IMMUTABLE_CACHE_CONTROL, type ObjectStorage } from "./storage";
 
@@ -35,7 +35,9 @@ async function storeImage(itemId: string, imageUrl: string, deps: ParseItemDeps)
       return null;
     }
     const key = itemImageKey(itemId);
-    await deps.images.storage.put(deps.images.bucket, key, await toWebp(image.bytes), { contentType: "image/webp", cacheControl: IMMUTABLE_CACHE_CONTROL });
+    const { storage, bucket } = deps.images;
+    await storage.put(bucket, key, await toWebp(image.bytes), { contentType: "image/webp", cacheControl: IMMUTABLE_CACHE_CONTROL });
+    await storage.put(bucket, previewImageKey(key), await toPreviewJpeg(image.bytes), { contentType: "image/jpeg", cacheControl: IMMUTABLE_CACHE_CONTROL });
     return key;
   } catch (error) {
     deps.log("warn", "image not stored", { itemId, imageUrl, error: String(error) });
@@ -59,7 +61,7 @@ export async function runParseItem(itemId: string, deps: ParseItemDeps): Promise
     imageKey,
   });
   // Пока грузилось фото, владелец мог сменить ссылку или удалить подарок — загруженный файл больше никому не нужен
-  if (!applied && imageKey && deps.images) await deps.images.storage.remove(deps.images.bucket, [imageKey]);
+  if (!applied && imageKey && deps.images) await deps.images.storage.remove(deps.images.bucket, [imageKey, previewImageKey(imageKey)]);
   deps.log("info", "item parsed", { itemId, store: result.store, status: result.status, applied, withImage: imageKey !== null });
   return applied ? "applied" : "skipped";
 }

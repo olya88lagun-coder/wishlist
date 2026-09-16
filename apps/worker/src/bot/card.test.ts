@@ -49,7 +49,7 @@ test("card with a photo shows it as a large preview above the text", async () =>
   const card = await getBotItemCard(db, itemId);
   const { text, extra } = renderItemCard(card!, { appUrl: APP, imagesPublicBaseUrl: BASE });
   expect(text).toContain("<b>Наушники</b>");
-  expect(extra.link_preview_options).toEqual({ url: `${BASE}/items/i/p.webp`, prefer_large_media: true, show_above_text: true });
+  expect(extra.link_preview_options).toEqual({ url: `${BASE}/items/i/p.jpg`, prefer_large_media: true, show_above_text: true });
   expect(extra.reply_markup?.inline_keyboard.flat().map((b) => b.text)).toEqual(["В список ▾", "Удалить", "Изменить"]);
 });
 
