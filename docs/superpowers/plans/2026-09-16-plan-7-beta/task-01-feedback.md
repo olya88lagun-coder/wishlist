@@ -19,7 +19,7 @@
 
 Участник беты пишет `/feedback` (или нажимает «Написать отзыв» на сайте → `t.me/<бот>?start=feedback`), бот отвечает сообщением-вопросом с `force_reply`, ответ на него пересылается администратору. В базе отзывы не хранятся. Ответ на вопрос распознаётся раньше обработчика ссылок, поэтому отзыв со ссылкой не превращается в подарок.
 
-- [ ] **Step 1: Ветка**
+- [x] **Step 1: Ветка**
 
 ```bash
 git checkout master && git pull --ff-only && git checkout -b feat/beta
@@ -27,7 +27,7 @@ git add docs/superpowers/plans/2026-09-16-plan-7-beta
 git commit -m "docs: plan 7 (closed beta)"
 ```
 
-- [ ] **Step 2: Тест (падает)**
+- [x] **Step 2: Тест (падает)**
 
 `apps/worker/src/bot/feedback.test.ts`:
 ```ts
@@ -52,7 +52,7 @@ test("the admin sees who wrote, to be able to answer", () => {
 Run: `pnpm vitest run apps/worker/src/bot/feedback.test.ts`
 Expected: FAIL — `Failed to resolve import "./feedback"`.
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `apps/worker/src/bot/feedback.ts`:
 ```ts
@@ -76,7 +76,7 @@ export function feedbackHeader(from: { id: number; username?: string }): string 
 Run: `pnpm vitest run apps/worker/src/bot/feedback.test.ts`
 Expected: PASS (2 теста).
 
-- [ ] **Step 4: Подключить к боту**
+- [x] **Step 4: Подключить к боту**
 
 `apps/worker/src/bot/create-bot.ts` — импорт:
 ```ts
@@ -120,7 +120,7 @@ import { FEEDBACK_PROMPT, FEEDBACK_START_PAYLOAD, FEEDBACK_THANKS, feedbackHeade
   ]);
 ```
 
-- [ ] **Step 5: Ссылка на сайте**
+- [x] **Step 5: Ссылка на сайте**
 
 `apps/web/src/components/SiteFooter.tsx` — после ссылки «Бот в Telegram» добавить:
 ```tsx
@@ -129,7 +129,7 @@ import { FEEDBACK_PROMPT, FEEDBACK_START_PAYLOAD, FEEDBACK_THANKS, feedbackHeade
       </a>
 ```
 
-- [ ] **Step 6: Проверка и commit**
+- [x] **Step 6: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/worker build && pnpm --filter @wishlist/web build`
 Expected: PASS.

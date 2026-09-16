@@ -10,7 +10,7 @@
 
 Сценарий из спеки (раздел 9): владелец создаёт список → добавляет подарок → открывает публичную ссылку → гость в отдельном браузере бронирует → видит «вы дарите» → снимает бронь → подарок снова свободен. Плюс проверка приватности на странице владельца: имени гостя нет.
 
-- [ ] **Step 1: Зависимость**
+- [x] **Step 1: Зависимость**
 
 ```bash
 pnpm add -D -w @playwright/test@1.63.0
@@ -31,7 +31,7 @@ e2e/playwright-report/
 
 В корневом `vitest.config.ts` Vitest не должен подхватывать спеки Playwright — `projects: ["packages/*", "apps/*"]` папку `e2e` не включает, изменений не нужно; проверить командой `pnpm test` после Step 3 (число тестовых файлов не изменилось).
 
-- [ ] **Step 2: Конфиг**
+- [x] **Step 2: Конфиг**
 
 `e2e/playwright.config.ts`:
 ```ts
@@ -49,7 +49,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: Сценарий**
+- [x] **Step 3: Сценарий**
 
 `e2e/main-flow.spec.ts`:
 ```ts
@@ -104,7 +104,7 @@ test("owner shares a list, a guest reserves and cancels, the owner never sees wh
 
 Подписи полей и кнопок взяты из текущих компонентов (`CreateListForm`, `AddItemForm`/`ItemFields`, `ReserveSheet`, `CancelReservationButton`, страница владельца). Если тест не находит элемент — сначала сверить текст в компоненте, а не ослаблять проверку.
 
-- [ ] **Step 4: Прогон**
+- [x] **Step 4: Прогон**
 
 Три терминала: `pnpm dev:db`, `pnpm dev:web` (с `apps/web/.env.development.local`, где `DEV_LOGIN=1`), затем:
 ```bash
@@ -117,7 +117,7 @@ Expected: PASS, количество тестовых файлов Vitest пре
 
 Остановить dev-процессы (проверить, что не осталось `node` с `dev-db` и `next dev`).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add e2e package.json pnpm-lock.yaml .gitignore

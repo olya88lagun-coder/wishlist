@@ -15,7 +15,7 @@
 
 Спека (раздел 9) называет ключевыми доли, а не абсолютные числа: доля списков с 3+ подарками (человек правда собрал список) и доля списков с бронями (ссылкой поделились, и гости пришли). На бете это главные сигналы.
 
-- [ ] **Step 1: Тест агрегата (падает)**
+- [x] **Step 1: Тест агрегата (падает)**
 
 В `packages/db/src/stats.test.ts` в ожидании `wishlists` заменить
 ```ts
@@ -44,7 +44,7 @@ test("cancelled reservations and deleted items do not make a list 'with reservat
 Run: `pnpm vitest run packages/db/src/stats.test.ts`
 Expected: FAIL — нет поля `withReservations`.
 
-- [ ] **Step 2: Агрегат — реализация**
+- [x] **Step 2: Агрегат — реализация**
 
 `packages/db/src/stats.ts`:
 
@@ -72,7 +72,7 @@ Expected: FAIL — нет поля `withReservations`.
 Run: `pnpm vitest run packages/db`
 Expected: PASS.
 
-- [ ] **Step 3: Текст — тест (падает)**
+- [x] **Step 3: Текст — тест (падает)**
 
 `apps/worker/src/bot/stats.test.ts`:
 - в объекте `stats` заменить `wishlists: { total: 25, new: 9, withThreeItems: 10 }` на `wishlists: { total: 25, new: 9, withThreeItems: 10, withReservations: 5 }`;
@@ -89,7 +89,7 @@ test("percentages survive an empty database", () => {
 Run: `pnpm vitest run apps/worker/src/bot/stats.test.ts`
 Expected: FAIL.
 
-- [ ] **Step 4: Текст — реализация**
+- [x] **Step 4: Текст — реализация**
 
 `apps/worker/src/bot/stats.ts`:
 ```ts
@@ -105,7 +105,7 @@ export function percent(part: number, total: number): string {
 Run: `pnpm test && pnpm typecheck`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/db apps/worker
