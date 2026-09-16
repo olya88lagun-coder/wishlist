@@ -1,5 +1,5 @@
 import type { NotifyJob, ParseItemJob } from "@wishlist/core";
-import type { Database } from "@wishlist/db";
+import { adminStats, type Database } from "@wishlist/db";
 import { Bot } from "grammy";
 import type { TelegramConfig } from "../env";
 import type { Logger } from "../log";
@@ -7,6 +7,7 @@ import { addLinksFromMessage } from "./add-links";
 import { handleCallback } from "./callbacks";
 import { answerInline } from "./inline";
 import { ensureBotUser, startReply } from "./start";
+import { STATS_WINDOW_DAYS, statsText } from "./stats";
 
 export type BotDeps = {
   config: TelegramConfig;
@@ -49,6 +50,13 @@ export async function createTelegramBot(deps: BotDeps): Promise<Bot | null> {
   // Администратору: узнать свой id для ADMIN_TELEGRAM_ID
   bot.command("myid", async (ctx) => {
     if (ctx.from) await ctx.reply(`Ваш Telegram id: ${ctx.from.id}`);
+  });
+
+  // Только администратору; остальным бот не показывает, что команда существует
+  bot.command("stats", async (ctx) => {
+    if (!ctx.from || deps.config.adminId === null || ctx.from.id !== deps.config.adminId) return;
+    const since = new Date(Date.now() - STATS_WINDOW_DAYS * 86_400_000);
+    await ctx.reply(statsText(await adminStats(deps.db, since)));
   });
 
   const cardDeps = { appUrl: deps.config.appUrl, imagesPublicBaseUrl: deps.imagesPublicBaseUrl };

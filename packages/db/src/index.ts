@@ -14,3 +14,4 @@ export * from "./notifications";
 export * from "./bot";
 export * from "./affiliate";
 export * from "./interest";
+export * from "./stats";

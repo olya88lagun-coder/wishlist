@@ -1,0 +1,16 @@
+import type { AdminStats } from "@wishlist/db";
+
+export const STATS_WINDOW_DAYS = 7;
+
+export function statsText(stats: AdminStats): string {
+  const visits = stats.storeVisits.byStore.map((row) => `${row.store} ${row.count}`).join(", ");
+  return [
+    `📊 За ${STATS_WINDOW_DAYS} дней (всего)`,
+    `Пользователи: +${stats.users.new} (${stats.users.total})`,
+    `Списки: +${stats.wishlists.new} (${stats.wishlists.total}), с 3+ подарками: ${stats.wishlists.withThreeItems}`,
+    `Подарки: +${stats.items.new}`,
+    `Брони: +${stats.reservations.new}`,
+    `Переходы в магазин: +${stats.storeVisits.new}${visits ? ` — ${visits}` : ""}`,
+    `Хотят оформление: ${stats.themeInterest}`,
+  ].join("\n");
+}
