@@ -104,7 +104,7 @@ export default async function PublicWishlistPage({ params }: Props) {
       )}
 
       <div style={{ marginTop: 32 }}>
-        <ShareBar url={shareUrl} title={`${wishlist.title} — вишлист`} />
+        <ShareBar url={shareUrl} title={`${wishlist.title} — вишлист ${ownerName}`} />
       </div>
     </main>
   );
