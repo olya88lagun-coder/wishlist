@@ -102,3 +102,4 @@ a { color: inherit; }
 .quick-link__row { display: flex; gap: 8px; flex-wrap: wrap; }
 .quick-link__row .input { flex: 1 1 220px; }
 .quick-link__row .button { flex: 0 0 auto; width: auto; }
+.guest-cta { border: 1px solid var(--line); }

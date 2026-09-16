@@ -13,6 +13,7 @@ import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
 import { CancelReservationButton } from "./CancelReservationButton";
+import { GuestCta } from "./GuestCta";
 import { ReserveSheet } from "./ReserveSheet";
 import { reminderBotLink } from "./remind-link";
 
@@ -101,6 +102,16 @@ export default async function PublicWishlistPage({ params }: Props) {
             </ItemCard>
           ))}
         </section>
+      )}
+
+      {!isOwner && (
+        <div style={{ marginTop: 32 }}>
+          <GuestCta
+            botUsername={env.TELEGRAM_BOT_USERNAME}
+            signedIn={user !== null}
+            reservedSomething={items.some((item) => item.status === "reserved_by_me")}
+          />
+        </div>
       )}
 
       <div style={{ marginTop: 32 }}>
