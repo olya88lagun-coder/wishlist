@@ -4,6 +4,7 @@ export const QUEUES = {
   maintenance: "maintenance",
   notify: "notify",
   reminders: "reminders",
+  ownerDigest: "owner-digest",
   canary: "canary",
   uptime: "uptime",
 } as const;

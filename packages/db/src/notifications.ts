@@ -1,4 +1,4 @@
-import { and, asc, count, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, count, eq, gte, isNull, sql } from "drizzle-orm";
 import { isUuid } from "./errors";
 import { firstName } from "./public-view";
 import { authIdentities, items, notificationLog, reservations, users, wishlists } from "./schema";
@@ -7,16 +7,21 @@ import type { WishlistOccasion } from "./wishlists";
 
 export const DAILY_NOTIFICATION_LIMIT = 2;
 
-export type NotificationKind = "owner_reserved" | "guest_reserved" | "item_deleted" | "reminder";
+export type NotificationKind = "owner_reserved" | "guest_reserved" | "item_deleted" | "reminder" | "owner_digest";
+
+// Сводка броней собирает то, что дневной лимит не пропустил, поэтому сама лимит не занимает и не проверяет
+const LIMIT_EXEMPT_KINDS: readonly NotificationKind[] = ["owner_digest"];
 export type NotificationClaim = { userId: string; kind: NotificationKind; refId: string };
 
 // Место в дневном лимите занимается до отправки; если Telegram не принял сообщение — releaseNotification
 export async function claimNotification(db: Database, claim: NotificationClaim, day: string): Promise<boolean> {
-  const [sent] = await db
-    .select({ total: count() })
-    .from(notificationLog)
-    .where(and(eq(notificationLog.userId, claim.userId), eq(notificationLog.sentOn, day)));
-  if ((sent?.total ?? 0) >= DAILY_NOTIFICATION_LIMIT) return false;
+  if (!LIMIT_EXEMPT_KINDS.includes(claim.kind)) {
+    const [sent] = await db
+      .select({ total: count() })
+      .from(notificationLog)
+      .where(and(eq(notificationLog.userId, claim.userId), eq(notificationLog.sentOn, day), sql`${notificationLog.kind} <> 'owner_digest'`));
+    if ((sent?.total ?? 0) >= DAILY_NOTIFICATION_LIMIT) return false;
+  }
   const inserted = await db
     .insert(notificationLog)
     .values({ userId: claim.userId, kind: claim.kind, refId: claim.refId, sentOn: day })
@@ -38,6 +43,26 @@ export async function getTelegramId(db: Database, userId: string): Promise<numbe
     .where(and(eq(authIdentities.userId, userId), eq(authIdentities.provider, "telegram")))
     .limit(1);
   return row ? Number(row.providerUserId) : null;
+}
+
+export type UnannouncedReservations = { ownerId: string; count: number };
+
+// Брони, о которых владелец не узнал из-за дневного лимита (в «Полном сюрпризе» владельцу не пишем вовсе)
+export async function listUnannouncedReservations(db: Database, since: Date): Promise<UnannouncedReservations[]> {
+  return db
+    .select({ ownerId: wishlists.ownerId, count: sql<number>`count(*)::int` })
+    .from(reservations)
+    .innerJoin(items, and(eq(items.id, reservations.itemId), isNull(items.deletedAt)))
+    .innerJoin(wishlists, eq(wishlists.id, items.wishlistId))
+    .innerJoin(users, and(eq(users.id, wishlists.ownerId), eq(users.surpriseMode, false)))
+    .where(
+      and(
+        eq(reservations.status, "active"),
+        gte(reservations.createdAt, since),
+        sql`not exists (select 1 from ${notificationLog} where ${notificationLog.userId} = ${wishlists.ownerId} and ${notificationLog.kind} = 'owner_reserved' and ${notificationLog.refId} = ${reservations.id}::text)`,
+      ),
+    )
+    .groupBy(wishlists.ownerId);
 }
 
 export type ReservationNotice = {

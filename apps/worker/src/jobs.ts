@@ -3,6 +3,7 @@ import type { Database } from "@wishlist/db";
 import { parseProduct, type SafeFetcher } from "@wishlist/parser";
 import type { PgBoss } from "pg-boss";
 import { updateItemCardMessage } from "./bot/card";
+import { OWNER_DIGEST_CRON, runOwnerDigest } from "./digest";
 import type { S3Config, TelegramConfig } from "./env";
 import type { Logger } from "./log";
 import { MAINTENANCE_CRON, MAINTENANCE_TZ, runMaintenance } from "./maintenance";
@@ -90,6 +91,12 @@ export async function registerJobs(boss: PgBoss, deps: JobDeps): Promise<void> {
     await runReminders({ db: deps.db, messenger: deps.messenger, appUrl: deps.telegram.appUrl, now: () => new Date(), log: deps.log });
   });
   await boss.schedule(QUEUES.reminders, REMINDERS_CRON, {}, { tz: MAINTENANCE_TZ });
+
+  await boss.work(QUEUES.ownerDigest, async () => {
+    if (!deps.messenger) return;
+    await runOwnerDigest({ db: deps.db, messenger: deps.messenger, now: () => new Date(), log: deps.log });
+  });
+  await boss.schedule(QUEUES.ownerDigest, OWNER_DIGEST_CRON, {}, { tz: MAINTENANCE_TZ });
 
   const alert = async (text: string) => {
     const adminId = deps.telegram?.adminId ?? null;

@@ -7,9 +7,10 @@ import {
   getActiveReservationNotice,
   getTelegramId,
   listDueReminders,
+  listUnannouncedReservations,
   releaseNotification,
 } from "./notifications";
-import { authIdentities, reservations, users } from "./schema";
+import { authIdentities, notificationLog, reservations, users } from "./schema";
 import { createTestDb } from "./testing";
 import { createUserFixture } from "./test-fixtures";
 import type { Database } from "./types";
@@ -131,5 +132,44 @@ describe("listDueReminders", () => {
     const cancelled = await reserve(itemId, guest);
     await db.update(reservations).set({ status: "cancelled" }).where(eq(reservations.id, cancelled));
     expect(await listDueReminders(db, TODAY, [7])).toEqual([]);
+  });
+});
+
+test("the evening digest is not blocked by the daily limit, but goes out once a day", async () => {
+  const claim = { userId: owner, kind: "owner_reserved" as const, refId: "r1" };
+  await claimNotification(db, claim, TODAY);
+  await claimNotification(db, { ...claim, refId: "r2" }, TODAY);
+  const digest = { userId: owner, kind: "owner_digest" as const, refId: TODAY };
+  expect(await claimNotification(db, digest, TODAY)).toBe(true);
+  expect(await claimNotification(db, digest, TODAY)).toBe(false);
+});
+
+describe("listUnannouncedReservations", () => {
+  const SINCE = new Date(Date.now() - 60 * 60 * 1000);
+
+  async function item(title: string) {
+    const added = await addItem(db, owner, listId, { title, sourceUrl: null, priceKopecks: null, note: null, isMustHave: false });
+    if (!added.ok) throw new Error("setup");
+    return added.itemId;
+  }
+
+  test("counts owner's active reservations the owner was not told about", async () => {
+    const told = await reserve(itemId, null);
+    await db.insert(notificationLog).values({ userId: owner, kind: "owner_reserved", refId: told, sentOn: TODAY });
+    await reserve(await item("Свеча"), null);
+    await reserve(await item("Шарф"), null);
+    const cancelled = await reserve(await item("Книга"), null);
+    await db.update(reservations).set({ status: "cancelled" }).where(eq(reservations.id, cancelled));
+    const deletedItem = await item("Кружка");
+    await reserve(deletedItem, null);
+    await deleteItem(db, owner, deletedItem);
+    expect(await listUnannouncedReservations(db, SINCE)).toEqual([{ ownerId: owner, count: 2 }]);
+  });
+
+  test("skips surprise mode and reservations before the window", async () => {
+    await reserve(itemId, null);
+    expect(await listUnannouncedReservations(db, new Date(Date.now() + 60 * 1000))).toEqual([]);
+    await db.update(users).set({ surpriseMode: true }).where(eq(users.id, owner));
+    expect(await listUnannouncedReservations(db, SINCE)).toEqual([]);
   });
 });
