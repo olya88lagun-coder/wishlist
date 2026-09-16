@@ -50,7 +50,7 @@ test("counts totals and what happened since the given moment", async () => {
 
   expect(await adminStats(db, SINCE)).toEqual({
     users: { total: 2, new: 1 },
-    wishlists: { total: 2, new: 1, withThreeItems: 1 },
+    wishlists: { total: 2, new: 1, withThreeItems: 1, withReservations: 1 },
     items: { new: 3 },
     reservations: { new: 1 },
     storeVisits: {
@@ -62,4 +62,16 @@ test("counts totals and what happened since the given moment", async () => {
     },
     themeInterest: 1,
   });
+});
+
+test("cancelled reservations and deleted items do not make a list 'with reservations'", async () => {
+  const masha = await createUserFixture(db, "Маша");
+  const list = await createWishlist(db, masha, { title: "ДР", occasion: "birthday", eventDate: null });
+  if (!list.ok) throw new Error("setup");
+  const a = await add(masha, list.wishlist.id, "Свеча");
+  const b = await add(masha, list.wishlist.id, "Шарф");
+  await db.insert(reservations).values({ itemId: a, guestToken: "t1", guestName: "Оля", cancelToken: "c-a", status: "cancelled" });
+  await db.insert(reservations).values({ itemId: b, guestToken: "t2", guestName: "Петя", cancelToken: "c-b" });
+  await deleteItem(db, masha, b);
+  expect((await adminStats(db, SINCE)).wishlists.withReservations).toBe(0);
 });
