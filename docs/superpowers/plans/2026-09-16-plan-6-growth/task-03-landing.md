@@ -14,7 +14,7 @@
 
 Сейчас `/` сразу редиректит на `/login` — человек не из Telegram видит только кнопки входа. Лендинг объясняет продукт за один экран на телефоне и ведёт туда же. Залогиненные по-прежнему уходят на `/lists`. Страница остаётся `noindex` (SEO — отдельная задача в бэклоге).
 
-- [ ] **Step 1: Подвал**
+- [x] **Step 1: Подвал**
 
 `apps/web/src/components/SiteFooter.tsx`:
 ```tsx
@@ -30,7 +30,7 @@ export function SiteFooter({ botUsername }: { botUsername: string }) {
 }
 ```
 
-- [ ] **Step 2: Лендинг**
+- [x] **Step 2: Лендинг**
 
 `apps/web/src/app/page.tsx` — заменить целиком:
 ```tsx
@@ -102,7 +102,7 @@ export default async function Home() {
 
 `apps/web/src/app/login/page.tsx`: импорт `import { SiteFooter } from "@/components/SiteFooter";` и перед `</main>` добавить `<SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />`.
 
-- [ ] **Step 3: Проверка**
+- [x] **Step 3: Проверка**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS.
@@ -112,7 +112,7 @@ Expected: PASS.
 - после входа `/` перенаправляет на `/lists`;
 - в тёмной теме системы текст читается (переменные темы уже есть в `globals.css`).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add apps/web

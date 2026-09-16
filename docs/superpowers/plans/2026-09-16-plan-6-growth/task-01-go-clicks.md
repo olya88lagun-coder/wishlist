@@ -26,7 +26,7 @@
   type CardItem = { ...; linkHref?: string | null };      // если задан — ссылка «Открыть в магазине» ведёт сюда
   ```
 
-- [ ] **Step 1: Ветка и отчёт совета**
+- [x] **Step 1: Ветка и отчёт совета**
 
 ```bash
 git checkout master && git pull --ff-only && git checkout -b feat/growth
@@ -35,7 +35,7 @@ git commit -m "docs: monetization council report and plan 6 (growth before monet
 ```
 Expected: коммит на `feat/growth`.
 
-- [ ] **Step 2: Таблица кликов**
+- [x] **Step 2: Таблица кликов**
 
 В `packages/db/src/schema.ts` в конец:
 ```ts
@@ -57,7 +57,7 @@ export const affiliateClicks = pgTable(
 Run: `pnpm --filter @wishlist/db db:generate`
 Expected: `drizzle/0003_*.sql` с `CREATE TABLE "affiliate_clicks"`, внешним ключом на `items` и двумя индексами.
 
-- [ ] **Step 3: Запросы — тест (падает)**
+- [x] **Step 3: Запросы — тест (падает)**
 
 `packages/db/src/affiliate.test.ts`:
 ```ts
@@ -112,7 +112,7 @@ test("clicks are stored per item and store only", async () => {
 Run: `pnpm vitest run packages/db/src/affiliate.test.ts`
 Expected: FAIL — `Failed to resolve import "./affiliate"`.
 
-- [ ] **Step 4: Запросы — реализация**
+- [x] **Step 4: Запросы — реализация**
 
 `packages/db/src/affiliate.ts`:
 ```ts
@@ -143,7 +143,7 @@ export async function recordAffiliateClick(db: Database, p: { itemId: string; st
 Run: `pnpm vitest run packages/db`
 Expected: PASS.
 
-- [ ] **Step 5: Cookie и безопасный адрес — тест (падает)**
+- [x] **Step 5: Cookie и безопасный адрес — тест (падает)**
 
 `apps/web/src/app/go/go-cookie.test.ts`:
 ```ts
@@ -167,7 +167,7 @@ test("only web links are followed", () => {
 Run: `pnpm vitest run apps/web/src/app/go`
 Expected: FAIL — `Failed to resolve import "./go-cookie"`.
 
-- [ ] **Step 6: Cookie и маршрут — реализация**
+- [x] **Step 6: Cookie и маршрут — реализация**
 
 `apps/web/src/app/go/go-cookie.ts`:
 ```ts
@@ -222,7 +222,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 Run: `pnpm vitest run apps/web/src/app/go`
 Expected: PASS (2 теста).
 
-- [ ] **Step 7: Ссылка гостя через `/go`**
+- [x] **Step 7: Ссылка гостя через `/go`**
 
 `apps/web/src/components/item-card-model.ts`: в `CardItem` добавить поле
 ```ts
@@ -248,7 +248,7 @@ Expected: PASS (2 теста).
 item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl), linkHref: isOwner ? null : `/go/${item.id}` }}
 ```
 
-- [ ] **Step 8: Проверка**
+- [x] **Step 8: Проверка**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS; в выводе сборки маршрут `ƒ /go/[itemId]`.
@@ -259,7 +259,7 @@ node -e 'import("postgres").then(async ({default: pg}) => { const sql = pg("post
 ```
 (запускать из `packages/db`, где установлен `postgres`).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add packages/db apps/web

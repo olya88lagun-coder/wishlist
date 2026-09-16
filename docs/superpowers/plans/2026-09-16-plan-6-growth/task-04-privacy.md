@@ -17,7 +17,7 @@
 
 Сервис уже хранит персональные данные: имена и Telegram id пользователей, имя гостя в брони, cookie гостя. По 152-ФЗ нужна опубликованная политика и согласие при вводе данных. Текст — обязанность владельца сервиса; задача даёт структуру, которая перечисляет реально собираемые данные, а оператора пользователь указывает сам.
 
-- [ ] **Step 1: Данные оператора (пользователь)**
+- [x] **Step 1: Данные оператора (пользователь)**
 
 Спросить у пользователя и получить явный ответ (без догадок):
 1. ФИО оператора (самозанятый).
@@ -26,7 +26,7 @@
 
 Эти данные публичны на странице политики. Если пользователь не хочет публиковать ИНН — остановиться и уточнить (для самозанятого оператора ИНН обычно указывают; решение за пользователем).
 
-- [ ] **Step 2: Тест (падает)**
+- [x] **Step 2: Тест (падает)**
 
 `apps/web/src/app/privacy/operator.test.ts`:
 ```ts
@@ -52,7 +52,7 @@ test("the policy lists everything the service actually stores", () => {
 Run: `pnpm vitest run apps/web/src/app/privacy`
 Expected: FAIL — `Failed to resolve import "./operator"`.
 
-- [ ] **Step 3: Данные политики**
+- [x] **Step 3: Данные политики**
 
 `apps/web/src/app/privacy/operator.ts` (подставить ответы Step 1 вместо значений в кавычках `OPERATOR`):
 ```ts
@@ -77,7 +77,7 @@ export const COLLECTED_DATA = [
 
 Если значения ещё не получены от пользователя — тест из Step 2 остаётся красным, и задача не коммитится.
 
-- [ ] **Step 4: Страница**
+- [x] **Step 4: Страница**
 
 `apps/web/src/app/privacy/page.tsx`:
 ```tsx
@@ -133,7 +133,7 @@ export default function PrivacyPage() {
 .legal p, .legal li { margin: 6px 0; }
 ```
 
-- [ ] **Step 5: Ссылки на политику**
+- [x] **Step 5: Ссылки на политику**
 
 `apps/web/src/components/SiteFooter.tsx` — после ссылки «Бот в Telegram» добавить:
 ```tsx
@@ -155,7 +155,7 @@ export default function PrivacyPage() {
 
 `apps/web/src/app/[slug]/page.tsx`: импорт `import { SiteFooter } from "@/components/SiteFooter";` и перед `</main>` добавить `<SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />`.
 
-- [ ] **Step 6: Проверка и commit**
+- [x] **Step 6: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS.

@@ -24,7 +24,7 @@
 
 Проверка спроса без оплаты: владелец видит, что другие оформления появятся, и может нажать «Хочу». Без цены и без даты — это не обещание, а сбор интереса. Показывается и на сайте, и в Mini App: цен и ссылок на оплату нет, правила Telegram не нарушаются.
 
-- [ ] **Step 1: Таблица**
+- [x] **Step 1: Таблица**
 
 В `packages/db/src/schema.ts` в конец:
 ```ts
@@ -43,7 +43,7 @@ export const featureInterest = pgTable(
 Run: `pnpm --filter @wishlist/db db:generate`
 Expected: `drizzle/0004_*.sql` с `CREATE TABLE "feature_interest"` и уникальным индексом.
 
-- [ ] **Step 2: Тест (падает)**
+- [x] **Step 2: Тест (падает)**
 
 `packages/db/src/interest.test.ts`:
 ```ts
@@ -74,7 +74,7 @@ test("one vote per user, counted across users", async () => {
 Run: `pnpm vitest run packages/db/src/interest.test.ts`
 Expected: FAIL — `Failed to resolve import "./interest"`.
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `packages/db/src/interest.ts`:
 ```ts
@@ -110,7 +110,7 @@ export async function countInterest(db: Database, feature: Feature): Promise<num
 Run: `pnpm vitest run packages/db`
 Expected: PASS.
 
-- [ ] **Step 4: Действие и блок в настройках**
+- [x] **Step 4: Действие и блок в настройках**
 
 `apps/web/src/app/lists/[id]/actions.ts`: в импорт из `@wishlist/db` добавить `FEATURE_THEMES, registerInterest`, в конец файла:
 ```ts
@@ -156,7 +156,7 @@ export function ThemeInterest({ wishlistId, voted }: { wishlistId: string; voted
 ```
 (имена `user`, `view` — как на странице; если переменная данных списка называется иначе, использовать её).
 
-- [ ] **Step 5: Проверка и commit**
+- [x] **Step 5: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS.

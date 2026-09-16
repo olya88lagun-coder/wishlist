@@ -20,7 +20,7 @@
 
 Гость, открывший чужой список, — самый дешёвый будущий владелец: он уже видел, как это работает. Бот на `/start guest` отвечает обычным приветствием (параметр не начинается с `r`, см. план 4), отдельного обработчика не нужно.
 
-- [ ] **Step 1: Тест ссылок (падает)**
+- [x] **Step 1: Тест ссылок (падает)**
 
 `apps/web/src/components/start-links.test.ts`:
 ```ts
@@ -42,7 +42,7 @@ test("signed-in visitors go straight to their lists", () => {
 Run: `pnpm vitest run apps/web/src/components/start-links.test.ts`
 Expected: FAIL — `Failed to resolve import "./start-links"`.
 
-- [ ] **Step 2: Ссылки — реализация**
+- [x] **Step 2: Ссылки — реализация**
 
 `apps/web/src/components/start-links.ts`:
 ```ts
@@ -62,7 +62,7 @@ export function startLinks(botUsername: string, signedIn: boolean): StartLink[] 
 Run: `pnpm vitest run apps/web/src/components/start-links.test.ts`
 Expected: PASS (2 теста).
 
-- [ ] **Step 3: Блок на публичной странице**
+- [x] **Step 3: Блок на публичной странице**
 
 `apps/web/src/app/[slug]/GuestCta.tsx`:
 ```tsx
@@ -115,7 +115,7 @@ export function GuestCta({ botUsername, signedIn, reservedSomething }: Props) {
 .guest-cta { border: 1px solid var(--line); }
 ```
 
-- [ ] **Step 4: Проверка и commit**
+- [x] **Step 4: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS.

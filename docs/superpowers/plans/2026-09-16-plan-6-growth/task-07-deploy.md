@@ -9,7 +9,7 @@
 
 Каждая команда на сервере — только после явного «да» пользователя.
 
-- [ ] **Step 1: Полная проверка ветки**
+- [x] **Step 1: Полная проверка ветки**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build && pnpm --filter @wishlist/worker build`
 Expected: PASS.
@@ -19,14 +19,14 @@ git push -u origin feat/growth
 ```
 Попросить пользователя дождаться зелёного `ci` на `feat/growth`.
 
-- [ ] **Step 2: Мерж и образы (с согласия пользователя)**
+- [x] **Step 2: Мерж и образы (с согласия пользователя)**
 
 ```bash
 git checkout master && git pull --ff-only && git merge --ff-only feat/growth && git push
 ```
 Дождаться зелёного `images` (web, migrate, worker).
 
-- [ ] **Step 3: Деплой (только после «да»)**
+- [x] **Step 3: Деплой (только после «да»)**
 
 Скрипт `$TEMP/deploy-growth.sh`, запуск `ssh root@200.169.178.231 'bash -s' < "$TEMP/deploy-growth.sh"`:
 ```bash
@@ -45,7 +45,7 @@ docker stats --no-stream --format "{{.Name}} {{.MemUsage}}" | grep wishlist
 ```
 Expected: `migrations applied`; миграций `5`; обе таблицы существуют; `web` healthy, `worker` Up, в логе `worker started` и `bot polling started`; `{"ok":true}`; `landing 200`, `privacy 200`; память в пределах лимитов.
 
-- [ ] **Step 4: Проверка вместе с пользователем**
+- [x] **Step 4: Проверка вместе с пользователем**
 
 1. **Лендинг:** `https://my-wish-list.online` в окне без входа на телефоне → заголовок, «Собрать в Telegram» открывает бота, «Собрать на сайте» — вход; подвал со ссылкой на политику.
 2. **Политика:** `/privacy` — данные оператора верные.
@@ -64,7 +64,7 @@ ssh root@200.169.178.231 'docker logs --since 30m wishlist-web-1 2>&1 | grep -iE
 ```
 Expected: нет `error`.
 
-- [ ] **Step 5: Статус плана**
+- [x] **Step 5: Статус плана**
 
 В `00-overview.md` под заголовком добавить строку (фактическая дата и итоги Step 4):
 ```

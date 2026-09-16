@@ -29,7 +29,7 @@
 
 Метрики из спеки (раздел 9), которые уже можно посчитать: пользователи, списки (и сколько из них с 3+ подарками), новые подарки, брони, переходы в магазин по магазинам, интерес к оформлению. «Поделились списком» не считается — такого события в данных нет. Команда отвечает только `ADMIN_TELEGRAM_ID`; остальным бот молчит, как будто команды нет.
 
-- [ ] **Step 1: Тест агрегатов (падает)**
+- [x] **Step 1: Тест агрегатов (падает)**
 
 `packages/db/src/stats.test.ts`:
 ```ts
@@ -103,7 +103,7 @@ test("counts totals and what happened since the given moment", async () => {
 Run: `pnpm vitest run packages/db/src/stats.test.ts`
 Expected: FAIL — `Failed to resolve import "./stats"`.
 
-- [ ] **Step 2: Агрегаты — реализация**
+- [x] **Step 2: Агрегаты — реализация**
 
 `packages/db/src/stats.ts`:
 ```ts
@@ -163,7 +163,7 @@ export async function adminStats(db: Database, since: Date): Promise<AdminStats>
 Run: `pnpm vitest run packages/db`
 Expected: PASS.
 
-- [ ] **Step 3: Текст — тест (падает)**
+- [x] **Step 3: Текст — тест (падает)**
 
 `apps/worker/src/bot/stats.test.ts`:
 ```ts
@@ -203,7 +203,7 @@ test("no visits yet", () => {
 Run: `pnpm vitest run apps/worker/src/bot/stats.test.ts`
 Expected: FAIL — `Failed to resolve import "./stats"`.
 
-- [ ] **Step 4: Текст и команда — реализация**
+- [x] **Step 4: Текст и команда — реализация**
 
 `apps/worker/src/bot/stats.ts`:
 ```ts
@@ -243,7 +243,7 @@ import { STATS_WINDOW_DAYS, statsText } from "./stats";
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/worker build`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/db apps/worker
