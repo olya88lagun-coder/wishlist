@@ -113,3 +113,18 @@ docker compose stop web worker
 gunzip -c restore.sql.gz | docker exec -i food-tracker-bot-db-1 psql -U wishlist -d wishlist -v ON_ERROR_STOP=1
 docker compose up -d web worker
 ```
+
+## Бот
+
+Бот работает внутри контейнера `worker` (long polling). Он использует те же `TELEGRAM_BOT_TOKEN`, `APP_URL` и `SESSION_SECRET`, что и web.
+
+- `ADMIN_TELEGRAM_ID` — кому слать алерты canary парсера (ежедневно 10:00 МСК) и проверки сайта (каждые 5 минут). Узнать id: написать боту `/myid`.
+- Inline-режим включается в @BotFather: `/setinline` → выбрать бота → подсказка «название списка».
+- Напоминания гостям — ежедневно в 12:00 МСК.
+- Одновременно токен может опрашивать только один процесс: не запускать второй воркер с боевым токеном (Telegram ответит 409 Conflict).
+- При локальном `APP_URL` (`localhost`) бот не запускается — это признак машины разработчика.
+
+Проверка:
+```bash
+docker logs --since 10m wishlist-worker-1 2>&1 | grep -E '"(bot polling started|worker started)"'
+```
