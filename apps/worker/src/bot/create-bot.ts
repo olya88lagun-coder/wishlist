@@ -5,6 +5,7 @@ import type { TelegramConfig } from "../env";
 import type { Logger } from "../log";
 import { addLinksFromMessage } from "./add-links";
 import { handleCallback } from "./callbacks";
+import { FEEDBACK_PROMPT, FEEDBACK_START_PAYLOAD, FEEDBACK_THANKS, feedbackHeader, isFeedbackReply } from "./feedback";
 import { answerInline } from "./inline";
 import { ensureBotUser, startReply } from "./start";
 import { STATS_WINDOW_DAYS, statsText } from "./stats";
@@ -26,6 +27,8 @@ export function isLocalAppUrl(appUrl: string): boolean {
   return LOCAL_HOSTS.has(new URL(appUrl).hostname);
 }
 
+const FEEDBACK_REPLY_MARKUP = { force_reply: true, input_field_placeholder: "Ваш отзыв" } as const;
+
 export async function createTelegramBot(deps: BotDeps): Promise<Bot | null> {
   // Локальная разработка: бот не нужен, а кнопки Mini App на localhost Telegram всё равно не примет
   if (isLocalAppUrl(deps.config.appUrl)) {
@@ -43,6 +46,10 @@ export async function createTelegramBot(deps: BotDeps): Promise<Bot | null> {
 
   bot.command("start", async (ctx) => {
     if (!ctx.from) return;
+    if (ctx.match === FEEDBACK_START_PAYLOAD) {
+      await ctx.reply(FEEDBACK_PROMPT, { reply_markup: FEEDBACK_REPLY_MARKUP });
+      return;
+    }
     const reply = await startReply({ db: deps.db, appUrl: deps.config.appUrl, sessionSecret: deps.config.sessionSecret }, ctx.from, ctx.match);
     await ctx.reply(reply.text, { parse_mode: "HTML", ...reply.extra });
   });
@@ -50,6 +57,23 @@ export async function createTelegramBot(deps: BotDeps): Promise<Bot | null> {
   // Администратору: узнать свой id для ADMIN_TELEGRAM_ID
   bot.command("myid", async (ctx) => {
     if (ctx.from) await ctx.reply(`Ваш Telegram id: ${ctx.from.id}`);
+  });
+
+  bot.command("feedback", async (ctx) => {
+    await ctx.reply(FEEDBACK_PROMPT, { reply_markup: FEEDBACK_REPLY_MARKUP });
+  });
+
+  // Ответ на вопрос об отзыве — раньше обработчика ссылок, чтобы отзыв со ссылкой не стал подарком
+  bot.chatType("private").on("message", async (ctx, next) => {
+    if (!isFeedbackReply(ctx.message, ctx.me.id)) return next();
+    const adminId = deps.config.adminId;
+    if (adminId === null) {
+      deps.log("warn", "feedback received without admin configured");
+    } else {
+      await ctx.api.sendMessage(adminId, feedbackHeader(ctx.from));
+      await ctx.forwardMessage(adminId);
+    }
+    await ctx.reply(FEEDBACK_THANKS);
   });
 
   // Только администратору; остальным бот не показывает, что команда существует
@@ -98,7 +122,10 @@ export async function createTelegramBot(deps: BotDeps): Promise<Bot | null> {
 
   bot.catch((error) => deps.log("error", "bot update failed", { updateId: error.ctx.update.update_id, error: String(error.error) }));
 
-  await bot.api.setMyCommands([{ command: "start", description: "Открыть вишлист" }]);
+  await bot.api.setMyCommands([
+    { command: "start", description: "Открыть вишлист" },
+    { command: "feedback", description: "Написать отзыв" },
+  ]);
   await bot.api.setChatMenuButton({
     menu_button: { type: "web_app", text: "Вишлист", web_app: { url: new URL("/tg", deps.config.appUrl).toString() } },
   });
