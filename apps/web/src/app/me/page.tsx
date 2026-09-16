@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/server/viewer";
+import { SiteFooter } from "@/components/SiteFooter";
 import { SurpriseModeForm } from "./SurpriseModeForm";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export default async function MePage() {
       <form action="/api/auth/logout" method="post">
         <button className="button button--ghost button--block" type="submit">Выйти</button>
       </form>
+      <SiteFooter />
     </main>
   );
 }

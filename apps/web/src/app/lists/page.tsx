@@ -2,6 +2,7 @@ import { listWishlistsForOwner } from "@wishlist/db";
 import Link from "next/link";
 import { CountdownSticker } from "@/components/CountdownSticker";
 import { getDb } from "@/server/db";
+import { SiteFooter } from "@/components/SiteFooter";
 import { requireUser } from "@/server/viewer";
 import { CreateListForm } from "./CreateListForm";
 
@@ -35,6 +36,7 @@ export default async function ListsPage() {
         </nav>
       )}
       <CreateListForm defaultOpen={lists.length === 0} />
+      <SiteFooter />
     </main>
   );
 }

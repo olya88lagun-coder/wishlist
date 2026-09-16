@@ -8,6 +8,7 @@ import { ItemCard } from "@/components/ItemCard";
 import { imageUrlFor } from "@/components/item-image";
 import { ReservedSticker } from "@/components/ReservedSticker";
 import { ShareBar } from "@/components/ShareBar";
+import { SiteFooter } from "@/components/SiteFooter";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
 import { requireUser } from "@/server/viewer";
@@ -90,6 +91,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
 
       <ThemeInterest wishlistId={wishlist.id} voted={votedForThemes} />
       <ListSettings wishlist={wishlist} />
+      <SiteFooter />
     </main>
   );
 }

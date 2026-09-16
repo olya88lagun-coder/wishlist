@@ -1,4 +1,7 @@
-export function SiteFooter({ botUsername }: { botUsername: string }) {
+// Статические страницы (политика) собираются без переменных окружения — берём известное имя бота
+const DEFAULT_BOT_USERNAME = "my_wish_list1_bot";
+
+export function SiteFooter({ botUsername = process.env.TELEGRAM_BOT_USERNAME ?? DEFAULT_BOT_USERNAME }: { botUsername?: string }) {
   return (
     <footer className="site-footer">
       <span>my-wish-list.online</span>

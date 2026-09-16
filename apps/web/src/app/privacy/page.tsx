@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SiteFooter } from "@/components/SiteFooter";
 import { COLLECTED_DATA, OPERATOR, PRIVACY_UPDATED_AT } from "./operator";
 
 export const metadata: Metadata = { title: "Политика конфиденциальности — вишлист", robots: { index: false, follow: false } };
@@ -44,6 +45,7 @@ export default function PrivacyPage() {
         Входя через Telegram или VK ID, а также бронируя подарок, вы соглашаетесь на обработку перечисленных данных для работы сервиса.
         Согласие можно отозвать письмом на {OPERATOR.email}.
       </p>
+      <SiteFooter />
     </main>
   );
 }
