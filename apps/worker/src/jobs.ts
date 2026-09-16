@@ -8,6 +8,7 @@ import type { Logger } from "./log";
 import { MAINTENANCE_CRON, MAINTENANCE_TZ, runMaintenance } from "./maintenance";
 import { runNotify } from "./notify";
 import { runParseItem } from "./parse-item";
+import { REMINDERS_CRON, runReminders } from "./reminders";
 import type { ObjectStorage } from "./storage";
 import type { Messenger } from "./telegram/messenger";
 
@@ -82,4 +83,10 @@ export async function registerJobs(boss: PgBoss, deps: JobDeps): Promise<void> {
     await runMaintenance(maintenanceDeps);
   });
   await boss.schedule(QUEUES.maintenance, MAINTENANCE_CRON, {}, { tz: MAINTENANCE_TZ });
+
+  await boss.work(QUEUES.reminders, async () => {
+    if (!deps.messenger || !deps.telegram) return;
+    await runReminders({ db: deps.db, messenger: deps.messenger, appUrl: deps.telegram.appUrl, now: () => new Date(), log: deps.log });
+  });
+  await boss.schedule(QUEUES.reminders, REMINDERS_CRON, {}, { tz: MAINTENANCE_TZ });
 }
