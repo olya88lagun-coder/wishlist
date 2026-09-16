@@ -9,6 +9,8 @@ export type CardItem = {
   isMustHave: boolean;
   imageUrl?: string | null;
   parseStatus?: ItemParseStatus;
+  // Публичная страница передаёт /go/<id>, чтобы переход засчитался; у владельца — прямая ссылка
+  linkHref?: string | null;
 };
 
 export type CardModel = {
@@ -42,7 +44,7 @@ export function toCardModel(item: CardItem): CardModel {
     monogram: (monogramSource.trim()[0] ?? "?").toLocaleUpperCase("ru-RU"),
     note: item.note,
     isMustHave: item.isMustHave,
-    href: item.sourceUrl,
+    href: item.sourceUrl ? (item.linkHref ?? item.sourceUrl) : null,
     imageUrl: item.imageUrl ?? null,
     pending,
   };

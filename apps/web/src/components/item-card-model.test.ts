@@ -48,4 +48,10 @@ describe("toCardModel", () => {
       toCardModel({ title: "", sourceUrl: "https://www.ozon.ru/t/abc", priceKopecks: null, note: null, isMustHave: false, parseStatus: "failed" }),
     ).toMatchObject({ title: "Подарок из Ozon", monogram: "O", pending: false });
   });
+
+  test("public cards can route the store link through /go", () => {
+    const base = { title: "Наушники", sourceUrl: "https://www.wildberries.ru/catalog/1/detail.aspx", priceKopecks: null, note: null, isMustHave: false };
+    expect(toCardModel({ ...base, linkHref: "/go/i1" }).href).toBe("/go/i1");
+    expect(toCardModel({ ...base, sourceUrl: null, linkHref: "/go/i1" }).href).toBeNull();
+  });
 });

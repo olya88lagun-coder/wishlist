@@ -72,7 +72,7 @@ export default async function PublicWishlistPage({ params }: Props) {
       ) : (
         <section className="grid" aria-label="Подарки">
           {items.map((item) => (
-            <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl) }} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
+            <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl), linkHref: isOwner ? null : `/go/${item.id}` }} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
               {!isOwner && item.status === "free" && (
                 <ReserveSheet
                   slug={wishlist.slug}

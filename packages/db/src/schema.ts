@@ -109,3 +109,15 @@ export const notificationLog = pgTable(
     index("notification_log_user_day_idx").on(t.userId, t.sentOn),
   ],
 );
+
+// Статистика переходов гостей в магазин: только подарок, магазин и время
+export const affiliateClicks = pgTable(
+  "affiliate_clicks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemId: uuid("item_id").notNull().references(() => items.id, { onDelete: "cascade" }),
+    store: text("store"),
+    clickedAt: timestamp("clicked_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("affiliate_clicks_item_idx").on(t.itemId), index("affiliate_clicks_time_idx").on(t.clickedAt)],
+);
