@@ -3,7 +3,9 @@ import type { Database } from "@wishlist/db";
 import { Bot } from "grammy";
 import type { TelegramConfig } from "../env";
 import type { Logger } from "../log";
-import { startReply } from "./start";
+import { addLinksFromMessage } from "./add-links";
+import { handleCallback } from "./callbacks";
+import { ensureBotUser, startReply } from "./start";
 
 export type BotDeps = {
   config: TelegramConfig;
@@ -46,6 +48,38 @@ export async function createTelegramBot(deps: BotDeps): Promise<Bot | null> {
   // Администратору: узнать свой id для ADMIN_TELEGRAM_ID
   bot.command("myid", async (ctx) => {
     if (ctx.from) await ctx.reply(`Ваш Telegram id: ${ctx.from.id}`);
+  });
+
+  const cardDeps = { appUrl: deps.config.appUrl, imagesPublicBaseUrl: deps.imagesPublicBaseUrl };
+
+  // Только личные сообщения: в группах бот не добавляет подарки
+  bot.chatType("private").on("message:text", async (ctx) => {
+    if (ctx.message.text.startsWith("/")) return;
+    const userId = await ensureBotUser(deps.db, ctx.from);
+    await addLinksFromMessage(
+      {
+        ...cardDeps,
+        db: deps.db,
+        chatId: ctx.chat.id,
+        enqueueParse: deps.enqueueParse,
+        reply: (text, extra) => ctx.reply(text, { parse_mode: "HTML", ...extra }),
+      },
+      userId,
+      ctx.message.text,
+      ctx.message.entities ?? [],
+    );
+  });
+
+  bot.on("callback_query:data", async (ctx) => {
+    const userId = await ensureBotUser(deps.db, ctx.from);
+    const outcome = await handleCallback({ ...cardDeps, db: deps.db, enqueueNotify: deps.enqueueNotify }, userId, ctx.callbackQuery.data);
+    if (outcome.kind === "toast") {
+      await ctx.answerCallbackQuery({ text: outcome.text });
+      return;
+    }
+    await ctx.answerCallbackQuery();
+    if (outcome.kind === "markup") await ctx.editMessageReplyMarkup({ reply_markup: outcome.markup });
+    else await ctx.editMessageText(outcome.text, { parse_mode: "HTML", ...outcome.extra });
   });
 
   bot.catch((error) => deps.log("error", "bot update failed", { updateId: error.ctx.update.update_id, error: String(error.error) }));
