@@ -23,7 +23,7 @@
 
 Картинка рисуется `next/og` (satori → resvg): поддерживаются только PNG и JPEG для вложенных картинок, поэтому фото подарков (WebP) в превью не попадают — только текст и стикер обратного отсчёта.
 
-- [ ] **Step 1: Шрифты в репозитории**
+- [x] **Step 1: Шрифты в репозитории**
 
 Google Fonts отдаёт `.ttf` старым User-Agent:
 ```bash
@@ -44,7 +44,7 @@ Expected: длина больше 80 000 — в файле есть кирилл
 Если Google отдал `.woff2` вместо `.ttf` (изменился ответ на старый UA) — взять статические файлы из репозитория Google Fonts:
 `https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/Manrope%5Bwght%5D.ttf` и `https://raw.githubusercontent.com/google/fonts/main/ofl/playfairdisplay/PlayfairDisplay-Italic%5Bwght%5D.ttf` (переменные шрифты; satori берёт из них начертание по умолчанию).
 
-- [ ] **Step 2: Тест отрисовки (падает)**
+- [x] **Step 2: Тест отрисовки (падает)**
 
 `apps/web/src/app/[slug]/og-render.test.tsx`:
 ```tsx
@@ -71,7 +71,7 @@ test("works without a countdown", async () => {
 Run: `pnpm vitest run "apps/web/src/app/\[slug\]/og-render.test.tsx"`
 Expected: FAIL — `Failed to resolve import "./og-render"`.
 
-- [ ] **Step 3: Отрисовка**
+- [x] **Step 3: Отрисовка**
 
 `apps/web/src/app/[slug]/og-render.tsx`:
 ```tsx
@@ -139,7 +139,7 @@ export function ogImageElement(model: OgModel): ReactElement {
 Run: `pnpm vitest run "apps/web/src/app/\[slug\]/og-render.test.tsx"`
 Expected: PASS (2 теста). Если тест падает на `Cannot find module 'next/og'` в vitest — добавить в `apps/web/vitest.config.ts` `server: { deps: { inline: ["next"] } }`.
 
-- [ ] **Step 4: Глазами**
+- [x] **Step 4: Глазами**
 
 ```bash
 node --experimental-strip-types -e '
@@ -154,7 +154,7 @@ require("node:fs").writeFileSync("og-preview.png", Buffer.from(await r.arrayBuff
 rm og-preview.png
 ```
 
-- [ ] **Step 5: Маршрут превью**
+- [x] **Step 5: Маршрут превью**
 
 `apps/web/src/app/[slug]/opengraph-image.tsx`:
 ```tsx
@@ -181,7 +181,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 }
 ```
 
-- [ ] **Step 6: Мета-теги**
+- [x] **Step 6: Мета-теги**
 
 `apps/web/src/app/layout.tsx` — заменить строку `export const metadata` на:
 ```ts
@@ -213,7 +213,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 ```
 Ссылку на саму картинку Next добавит сам из файла `opengraph-image.tsx`.
 
-- [ ] **Step 7: Проверка**
+- [x] **Step 7: Проверка**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS; в выводе сборки есть маршрут `/[slug]/opengraph-image`.
@@ -225,7 +225,7 @@ curl -s "http://localhost:3000/<slug>" | grep -oE '<meta property="og:[a-z:]+" c
 ```
 Expected: `200 image/png` и размер 20 000–300 000 байт; в разметке есть `og:title`, `og:description`, `og:image` (абсолютный адрес) и `og:image:width` 1200.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add apps/web

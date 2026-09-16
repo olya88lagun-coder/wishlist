@@ -15,7 +15,7 @@
 
 Адреса шеринга: Telegram `https://t.me/share/url?url=…&text=…`, VK `https://vk.com/share.php?url=…&title=…`, MAX `https://max.ru/:share?text=…` (адрес MAX официально не задокументирован — проверяется на телефоне в Task 4; если не сработает, кнопка убирается, и остаётся системное «Поделиться»).
 
-- [ ] **Step 1: Тест (падает)**
+- [x] **Step 1: Тест (падает)**
 
 `apps/web/src/app/[slug]/share-links.test.ts`:
 ```ts
@@ -48,7 +48,7 @@ test("known addresses of the messengers", () => {
 Run: `pnpm vitest run "apps/web/src/app/\[slug\]/share-links.test.ts"`
 Expected: FAIL — `Failed to resolve import "./share-links"`.
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 `apps/web/src/app/[slug]/share-links.ts`:
 ```ts
@@ -68,7 +68,7 @@ export function shareLinks(url: string, title: string): ShareTarget[] {
 Run: `pnpm vitest run "apps/web/src/app/\[slug\]/share-links.test.ts"`
 Expected: PASS (2 теста).
 
-- [ ] **Step 3: Кнопки на странице**
+- [x] **Step 3: Кнопки на странице**
 
 `apps/web/src/components/ShareBar.tsx` — заменить целиком:
 ```tsx
@@ -129,7 +129,7 @@ export function ShareBar({ url, title }: { url: string; title: string }) {
         <ShareBar url={shareUrl} title={`${wishlist.title} — вишлист ${ownerName}`} />
 ```
 
-- [ ] **Step 4: Проверка и commit**
+- [x] **Step 4: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS.

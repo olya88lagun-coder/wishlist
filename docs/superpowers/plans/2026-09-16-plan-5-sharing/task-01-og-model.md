@@ -15,14 +15,14 @@
 
 Картинка превью — 1200×630, поэтому длинные названия обрезаются: до 60 символов по границе слова с многоточием. Числительные склоняются.
 
-- [ ] **Step 1: Ветка**
+- [x] **Step 1: Ветка**
 
 ```bash
 git checkout master && git pull --ff-only && git checkout -b feat/sharing && git status --short
 ```
 Expected: ветка создана, рабочее дерево чистое.
 
-- [ ] **Step 2: Тест (падает)**
+- [x] **Step 2: Тест (падает)**
 
 `apps/web/src/app/[slug]/og-model.test.ts`:
 ```ts
@@ -68,7 +68,7 @@ test("long titles are cut on a word boundary and owner names keep the genitive",
 
 Склонение имени: «Маша» → «Маши», «Оля» → «Оли», «Пётр» → «Петра» — полноценная морфология не нужна, достаточно правила для имён на `-а/-я` и общего «список: Пётр» для остальных (см. Step 3, там же тест на мужское имя добавляется).
 
-- [ ] **Step 3: Реализация**
+- [x] **Step 3: Реализация**
 
 `apps/web/src/app/[slug]/og-model.ts`:
 ```ts
@@ -116,7 +116,7 @@ test("male names keep the plain form", () => {
 Run: `pnpm vitest run "apps/web/src/app/\[slug\]/og-model.test.ts"`
 Expected: PASS (5 тестов).
 
-- [ ] **Step 4: Проверка и commit**
+- [x] **Step 4: Проверка и commit**
 
 Run: `pnpm typecheck`
 Expected: PASS.
