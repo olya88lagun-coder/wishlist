@@ -17,6 +17,8 @@ export type PublicItemView = {
   isMustHave: boolean;
   imageKey: string | null;
   status: PublicItemStatus;
+  // Гостю с сайта — чтобы подключить напоминания в Telegram; остальным всегда null
+  remindReservationId: string | null;
 };
 
 export type PublicWishlistView = {
@@ -84,7 +86,8 @@ export async function getPublicWishlist(db: Database, slug: string, viewer: View
     const status: PublicItemStatus = isOwner
       ? ownerReservationView(state, header.surpriseMode).reserved ? "reserved_by_other" : "free"
       : guestReservationView(state, viewer).status;
-    return { ...item, status };
+    const remindReservationId = status === "reserved_by_me" && reservationGuestUserId === null ? reservationId : null;
+    return { ...item, status, remindReservationId };
   });
 
   return {

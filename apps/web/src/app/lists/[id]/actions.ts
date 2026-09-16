@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/server/db";
 import { parseItemForm, parseWishlistForm } from "@/server/forms";
-import { enqueueParse } from "@/server/queue";
+import { enqueueNotify, enqueueParse } from "@/server/queue";
 import { editLimiter } from "@/server/rate-limit";
 import { clientKey, requireUser } from "@/server/viewer";
 import { errorState, type FormState, formValues, LIMIT_MESSAGES, successState } from "../form-state";
@@ -59,6 +59,7 @@ export async function updateItemAction(wishlistId: string, itemId: string, _prev
 
 export async function deleteItemAction(wishlistId: string, itemId: string): Promise<void> {
   const { user } = await authorizedOwner();
-  await deleteItem(getDb(), user.id, itemId);
+  // Воркер сам проверит, была ли на подарке бронь: без брони уведомлять некого
+  if (await deleteItem(getDb(), user.id, itemId)) await enqueueNotify({ kind: "item_deleted", itemId });
   revalidatePath(`/lists/${wishlistId}`);
 }

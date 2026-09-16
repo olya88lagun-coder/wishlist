@@ -1,4 +1,4 @@
-import { PARSE_JOB_OPTIONS, type ParseItemJob, QUEUES } from "@wishlist/core";
+import { NOTIFY_JOB_OPTIONS, type NotifyJob, PARSE_JOB_OPTIONS, type ParseItemJob, QUEUES } from "@wishlist/core";
 import { PgBoss } from "pg-boss";
 import { getEnv } from "./env";
 
@@ -26,5 +26,15 @@ export async function enqueueParse(itemId: string): Promise<void> {
   } catch (error) {
     // Подарок уже сохранён; без воркера он останется pending, и страница предложит заполнить его вручную
     console.error("enqueue parse failed", { itemId, error: String(error) });
+  }
+}
+
+export async function enqueueNotify(job: NotifyJob): Promise<void> {
+  try {
+    const boss = await queue();
+    await boss.send(QUEUES.notify, job, NOTIFY_JOB_OPTIONS);
+  } catch (error) {
+    // Бронь или удаление уже сохранены; потерянное уведомление не должно ломать действие пользователя
+    console.error("enqueue notify failed", { kind: job.kind, itemId: job.itemId, error: String(error) });
   }
 }

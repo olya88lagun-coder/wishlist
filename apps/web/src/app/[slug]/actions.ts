@@ -3,6 +3,7 @@
 import { cancelReservation, reserveItem } from "@wishlist/db";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/server/db";
+import { enqueueNotify } from "@/server/queue";
 import { reservationLimiter } from "@/server/rate-limit";
 import { clientKey, ensureGuestViewer } from "@/server/viewer";
 import { errorState, type FormState, formValues, LIMIT_MESSAGES, successState } from "../lists/form-state";
@@ -18,6 +19,7 @@ export async function reserveAction(slug: string, itemId: string, _prev: FormSta
     const message = reserveErrorMessage(result.reason);
     return result.reason === "INVALID_NAME" ? errorState({ guestName: message }, null, formValues(form)) : errorState({}, message, formValues(form));
   }
+  await enqueueNotify({ kind: "reservation_created", itemId });
   return successState("Готово! Подарок за вами");
 }
 

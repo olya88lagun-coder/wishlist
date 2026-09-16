@@ -14,6 +14,7 @@ import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
 import { CancelReservationButton } from "./CancelReservationButton";
 import { ReserveSheet } from "./ReserveSheet";
+import { reminderBotLink } from "./remind-link";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export default async function PublicWishlistPage({ params }: Props) {
   const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
   const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
   const defaultName = user?.displayName.split(" ")[0] ?? "";
+  const env = getEnv();
 
   return (
     <main className="page page--wide">
@@ -72,7 +74,21 @@ export default async function PublicWishlistPage({ params }: Props) {
                   defaultName={defaultName}
                 />
               )}
-              {!isOwner && item.status === "reserved_by_me" && <CancelReservationButton slug={wishlist.slug} itemId={item.id} />}
+              {!isOwner && item.status === "reserved_by_me" && (
+                <div className="row" style={{ flexWrap: "wrap" }}>
+                  <CancelReservationButton slug={wishlist.slug} itemId={item.id} />
+                  {item.remindReservationId && (
+                    <a
+                      className="link-button"
+                      href={reminderBotLink(env.TELEGRAM_BOT_USERNAME, item.remindReservationId, env.SESSION_SECRET)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Напомнить в Telegram
+                    </a>
+                  )}
+                </div>
+              )}
             </ItemCard>
           ))}
         </section>

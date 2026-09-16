@@ -73,6 +73,18 @@ describe("getPublicWishlist", () => {
     await db.insert(reservations).values({ itemId: freeId, guestName: "Оля", guestUserId: guestUser, cancelToken: "c2" });
     expect(statusOf(await getPublicWishlist(db, slug, { userId: guestUser, guestToken: null }), freeId)).toBe("reserved_by_me");
   });
+
+  test("only the site guest who reserved gets the reservation id for Telegram reminders", async () => {
+    const [row] = await db.select({ id: reservations.id }).from(reservations).where(eq(reservations.itemId, reservedId));
+    const remindOf = (view: Awaited<ReturnType<typeof getPublicWishlist>>, id: string) => view?.items.find((i) => i.id === id)?.remindReservationId;
+    expect(remindOf(await getPublicWishlist(db, slug, anna), reservedId)).toBe(row!.id);
+    expect(remindOf(await getPublicWishlist(db, slug, petya), reservedId)).toBeNull();
+    expect(remindOf(await getPublicWishlist(db, slug, { userId: owner, guestToken: null }), reservedId)).toBeNull();
+    expect(remindOf(await getPublicWishlist(db, slug, anna), freeId)).toBeNull();
+
+    await db.insert(reservations).values({ itemId: freeId, guestName: "Оля", guestUserId: guestUser, cancelToken: "c3" });
+    expect(remindOf(await getPublicWishlist(db, slug, { userId: guestUser, guestToken: null }), freeId)).toBeNull();
+  });
 });
 
 describe("pending items", () => {

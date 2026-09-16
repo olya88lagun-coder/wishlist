@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { safeNextPath } from "./next-path";
 
 type TelegramWindow = Window & { Telegram?: { WebApp?: { initData: string; ready: () => void } } };
 
@@ -35,7 +36,7 @@ export function TelegramAutoLogin() {
           body: JSON.stringify({ initData: webApp.initData }),
         });
         if (!res.ok) throw new Error(`login failed: ${res.status}`);
-        router.replace("/lists");
+        router.replace(safeNextPath(new URLSearchParams(window.location.search).get("next")));
       })
       .catch((error: unknown) => {
         console.warn("telegram mini app login failed", error);
