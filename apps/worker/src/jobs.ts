@@ -6,6 +6,7 @@ import { updateItemCardMessage } from "./bot/card";
 import type { S3Config, TelegramConfig } from "./env";
 import type { Logger } from "./log";
 import { MAINTENANCE_CRON, MAINTENANCE_TZ, runMaintenance } from "./maintenance";
+import { CANARY_CRON, checkHealth, createUptimeMonitor, runCanary, UPTIME_CRON } from "./monitoring";
 import { runNotify } from "./notify";
 import { runParseItem } from "./parse-item";
 import { REMINDERS_CRON, runReminders } from "./reminders";
@@ -89,4 +90,31 @@ export async function registerJobs(boss: PgBoss, deps: JobDeps): Promise<void> {
     await runReminders({ db: deps.db, messenger: deps.messenger, appUrl: deps.telegram.appUrl, now: () => new Date(), log: deps.log });
   });
   await boss.schedule(QUEUES.reminders, REMINDERS_CRON, {}, { tz: MAINTENANCE_TZ });
+
+  const alert = async (text: string) => {
+    const adminId = deps.telegram?.adminId ?? null;
+    if (!deps.messenger || adminId === null) {
+      deps.log("warn", "admin alert (no Telegram admin configured)", { text });
+      return;
+    }
+    const outcome = await deps.messenger.send(adminId, text, { link_preview_options: { is_disabled: true } });
+    if (outcome !== "sent") deps.log("error", "admin alert not delivered", { outcome });
+  };
+
+  await boss.work(QUEUES.canary, async () => {
+    await runCanary({ parse: (url) => parseProduct(url, { fetchPage: deps.fetcher.fetchPage, waitTurn: deps.waitTurn }), alert, log: deps.log });
+  });
+  await boss.schedule(QUEUES.canary, CANARY_CRON, {}, { tz: MAINTENANCE_TZ });
+
+  // Проверка сайта нужна там, где есть адрес и кому слать: локально расписание не создаётся
+  if (deps.telegram) {
+    const appUrl = deps.telegram.appUrl;
+    const uptime = createUptimeMonitor({ check: () => checkHealth(appUrl), alert, log: deps.log });
+    await boss.work(QUEUES.uptime, async () => {
+      await uptime.tick();
+    });
+    await boss.schedule(QUEUES.uptime, UPTIME_CRON, {}, { tz: MAINTENANCE_TZ });
+  } else {
+    await boss.unschedule(QUEUES.uptime);
+  }
 }
