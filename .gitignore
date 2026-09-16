@@ -9,3 +9,5 @@ next-env.d.ts
 !.env.development.example
 .dev-db/
 dist/
+e2e/test-results/
+e2e/playwright-report/
