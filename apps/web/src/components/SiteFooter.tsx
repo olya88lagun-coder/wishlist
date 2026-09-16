@@ -5,6 +5,7 @@ export function SiteFooter({ botUsername }: { botUsername: string }) {
       <a href={`https://t.me/${botUsername}`} target="_blank" rel="noopener noreferrer">
         Бот в Telegram
       </a>
+      <a href="/privacy">Политика конфиденциальности</a>
     </footer>
   );
 }

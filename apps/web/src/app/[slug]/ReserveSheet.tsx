@@ -42,6 +42,10 @@ export function ReserveSheet({ slug, itemId, itemTitle, priceText, ownerName, de
                 {state.errors.guestName && <p className="error">{state.errors.guestName}</p>}
               </div>
               <p className="muted" style={{ margin: 0 }}>{ownerName} не узнает, кто дарит</p>
+              <p className="muted" style={{ margin: 0, fontSize: 12 }}>
+                Нажимая «Я подарю», вы соглашаетесь на обработку указанного имени по{" "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer">политике конфиденциальности</a>.
+              </p>
               {state.status === "error" && state.message && <p className="error" role="status">{state.message}</p>}
               <SubmitButton pendingText="Бронируем…">Я подарю</SubmitButton>
             </form>

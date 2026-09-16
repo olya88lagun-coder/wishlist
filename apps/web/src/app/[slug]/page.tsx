@@ -9,6 +9,7 @@ import { imageUrlFor } from "@/components/item-image";
 import { toCardModel } from "@/components/item-card-model";
 import { ReservedSticker } from "@/components/ReservedSticker";
 import { ShareBar } from "@/components/ShareBar";
+import { SiteFooter } from "@/components/SiteFooter";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
@@ -117,6 +118,7 @@ export default async function PublicWishlistPage({ params }: Props) {
       <div style={{ marginTop: 32 }}>
         <ShareBar url={shareUrl} title={`${wishlist.title} — вишлист ${ownerName}`} />
       </div>
+      <SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />
     </main>
   );
 }
