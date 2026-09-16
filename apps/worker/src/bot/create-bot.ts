@@ -5,6 +5,7 @@ import type { TelegramConfig } from "../env";
 import type { Logger } from "../log";
 import { addLinksFromMessage } from "./add-links";
 import { handleCallback } from "./callbacks";
+import { answerInline } from "./inline";
 import { ensureBotUser, startReply } from "./start";
 
 export type BotDeps = {
@@ -80,6 +81,11 @@ export async function createTelegramBot(deps: BotDeps): Promise<Bot | null> {
     await ctx.answerCallbackQuery();
     if (outcome.kind === "markup") await ctx.editMessageReplyMarkup({ reply_markup: outcome.markup });
     else await ctx.editMessageText(outcome.text, { parse_mode: "HTML", ...outcome.extra });
+  });
+
+  bot.on("inline_query", async (ctx) => {
+    const answer = await answerInline({ db: deps.db, appUrl: deps.config.appUrl, now: () => new Date() }, ctx.from.id, ctx.inlineQuery.query);
+    await ctx.answerInlineQuery(answer.results, answer.options);
   });
 
   bot.catch((error) => deps.log("error", "bot update failed", { updateId: error.ctx.update.update_id, error: String(error.error) }));
