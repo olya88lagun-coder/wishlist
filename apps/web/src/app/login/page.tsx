@@ -1,3 +1,4 @@
+import { SiteFooter } from "@/components/SiteFooter";
 import { getEnv } from "@/server/env";
 import { TelegramLoginButton } from "./TelegramLoginButton";
 
@@ -24,6 +25,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <a className="button" href="/api/auth/vk/start">
         Войти через VK ID
       </a>
+      <SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />
     </main>
   );
 }

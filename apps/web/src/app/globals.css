@@ -103,3 +103,10 @@ a { color: inherit; }
 .quick-link__row .input { flex: 1 1 220px; }
 .quick-link__row .button { flex: 0 0 auto; width: auto; }
 .guest-cta { border: 1px solid var(--line); }
+.landing__lead { font-size: 18px; margin: 0 0 24px; }
+.landing__steps { list-style: none; padding: 0; margin: 40px 0 24px; display: grid; gap: 22px; }
+.landing__step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
+.landing__number { font-size: 34px; font-style: italic; line-height: 1; color: var(--pink); }
+.landing__step-title { font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+.site-footer { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
+.site-footer a { color: var(--ink-soft); }
