@@ -121,3 +121,16 @@ export const affiliateClicks = pgTable(
   },
   (t) => [index("affiliate_clicks_item_idx").on(t.itemId), index("affiliate_clicks_time_idx").on(t.clickedAt)],
 );
+
+// Интерес к будущим функциям: один голос пользователя на функцию
+export const featureInterest = pgTable(
+  "feature_interest",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    feature: text("feature").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("feature_interest_user_feature_uq").on(t.userId, t.feature)],
+);

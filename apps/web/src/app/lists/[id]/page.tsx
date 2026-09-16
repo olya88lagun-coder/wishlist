@@ -1,5 +1,5 @@
 import { formatKopecks } from "@wishlist/core";
-import { getOwnerWishlistView, type OwnerItemView } from "@wishlist/db";
+import { FEATURE_THEMES, getOwnerWishlistView, hasInterest, type OwnerItemView } from "@wishlist/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CountdownSticker } from "@/components/CountdownSticker";
@@ -19,6 +19,7 @@ import { ListSettings } from "./ListSettings";
 import { parseHint } from "./parse-hint";
 import { PendingRefresher } from "./PendingRefresher";
 import { QuickLinkForm } from "./QuickLinkForm";
+import { ThemeInterest } from "./ThemeInterest";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
   const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
   const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
   const pendingCount = items.filter((item) => item.parseStatus === "pending").length;
+  const votedForThemes = await hasInterest(getDb(), user.id, FEATURE_THEMES);
 
   return (
     <main className="page page--wide">
@@ -86,6 +88,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
         </section>
       )}
 
+      <ThemeInterest wishlistId={wishlist.id} voted={votedForThemes} />
       <ListSettings wishlist={wishlist} />
     </main>
   );

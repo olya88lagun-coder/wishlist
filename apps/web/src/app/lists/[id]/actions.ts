@@ -1,6 +1,6 @@
 "use server";
 
-import { addItem, deleteItem, deleteWishlist, updateItem, updateWishlist } from "@wishlist/db";
+import { addItem, deleteItem, deleteWishlist, FEATURE_THEMES, registerInterest, updateItem, updateWishlist } from "@wishlist/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getDb } from "@/server/db";
@@ -61,5 +61,12 @@ export async function deleteItemAction(wishlistId: string, itemId: string): Prom
   const { user } = await authorizedOwner();
   // Воркер сам проверит, была ли на подарке бронь: без брони уведомлять некого
   if (await deleteItem(getDb(), user.id, itemId)) await enqueueNotify({ kind: "item_deleted", itemId });
+  revalidatePath(`/lists/${wishlistId}`);
+}
+
+export async function themeInterestAction(wishlistId: string): Promise<void> {
+  const { user, allowed } = await authorizedOwner();
+  if (!allowed) return;
+  await registerInterest(getDb(), user.id, FEATURE_THEMES);
   revalidatePath(`/lists/${wishlistId}`);
 }
