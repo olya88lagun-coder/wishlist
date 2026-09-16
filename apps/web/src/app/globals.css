@@ -8,6 +8,8 @@
   --pink: #d4537e;
   --pink-ink: #ffffff;
   --yellow: #ffe66d;
+  --sticker-bg: var(--ink);
+  --sticker-ink: var(--yellow);
   --danger: #a32d2d;
   --card: #fffdf8;
   --radius: 14px;
@@ -22,6 +24,9 @@
     --ink-faint: #888780;
     --line: #444441;
     --card: #2c2c2a;
+    /* В тёмной теме тёмный стикер сливался с фоном — переворачиваем: жёлтый стикер, тёмный текст */
+    --sticker-bg: var(--yellow);
+    --sticker-ink: #2c2c2a;
   }
 }
 
@@ -62,7 +67,7 @@ a { color: inherit; }
 .panel { background: var(--card); border-radius: var(--radius); padding: 16px; }
 
 .sticker { display: inline-block; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
-.sticker--countdown { background: var(--ink); color: var(--yellow); transform: rotate(-3deg); }
+.sticker--countdown { background: var(--sticker-bg); color: var(--sticker-ink); transform: rotate(-3deg); }
 .sticker--reserved { background: var(--pink); color: var(--pink-ink); transform: rotate(8deg); animation: slap 280ms cubic-bezier(0.2, 1.6, 0.4, 1); }
 @keyframes slap { from { transform: scale(1.8) rotate(-12deg); opacity: 0; } to { transform: scale(1) rotate(8deg); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .sticker--reserved { animation: none; } }
