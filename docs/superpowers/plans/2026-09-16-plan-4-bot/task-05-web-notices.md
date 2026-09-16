@@ -27,7 +27,7 @@
   function safeNextPath(raw: string | null): string;
   ```
 
-- [ ] **Step 1: Очередь уведомлений**
+- [x] **Step 1: Очередь уведомлений**
 
 `apps/web/src/server/queue.ts` — заменить функцию `enqueueParse` и добавить `enqueueNotify` (функция `queue()` без изменений):
 ```ts
@@ -56,7 +56,7 @@ export async function enqueueNotify(job: NotifyJob): Promise<void> {
 }
 ```
 
-- [ ] **Step 2: Ставим уведомления из действий**
+- [x] **Step 2: Ставим уведомления из действий**
 
 `apps/web/src/app/[slug]/actions.ts`: импорт
 ```ts
@@ -86,7 +86,7 @@ export async function deleteItemAction(wishlistId: string, itemId: string): Prom
 }
 ```
 
-- [ ] **Step 3: Id брони для гостя — тест (падает)**
+- [x] **Step 3: Id брони для гостя — тест (падает)**
 
 В `packages/db/src/public-view.test.ts` в `describe("getPublicWishlist", ...)` после теста `"matches a logged-in guest by user id"` добавить:
 ```ts
@@ -106,7 +106,7 @@ export async function deleteItemAction(wishlistId: string, itemId: string): Prom
 Run: `pnpm vitest run packages/db/src/public-view.test.ts`
 Expected: FAIL — `remindReservationId` равен `undefined`.
 
-- [ ] **Step 4: Id брони для гостя — реализация**
+- [x] **Step 4: Id брони для гостя — реализация**
 
 В `packages/db/src/public-view.ts`:
 
@@ -125,7 +125,7 @@ Expected: FAIL — `remindReservationId` равен `undefined`.
 Run: `pnpm vitest run packages/db`
 Expected: PASS, включая `PRIVACY: never exposes guest names or tokens` (id брони — не токен и не имя).
 
-- [ ] **Step 5: Ссылка на бота — тест (падает)**
+- [x] **Step 5: Ссылка на бота — тест (падает)**
 
 `apps/web/src/app/[slug]/remind-link.test.ts`:
 ```ts
@@ -145,7 +145,7 @@ test("links to the bot with a signed start parameter", () => {
 Run: `pnpm vitest run "apps/web/src/app/\[slug\]/remind-link.test.ts"`
 Expected: FAIL — `Failed to resolve import "./remind-link"`.
 
-- [ ] **Step 6: Ссылка на бота — реализация и кнопка**
+- [x] **Step 6: Ссылка на бота — реализация и кнопка**
 
 `apps/web/src/app/[slug]/remind-link.ts`:
 ```ts
@@ -190,7 +190,7 @@ import { reminderBotLink } from "./remind-link";
 Run: `pnpm vitest run apps/web`
 Expected: PASS.
 
-- [ ] **Step 7: `/tg?next=` — тест (падает)**
+- [x] **Step 7: `/tg?next=` — тест (падает)**
 
 `apps/web/src/app/tg/next-path.test.ts`:
 ```ts
@@ -212,7 +212,7 @@ test("anything that could leave the site falls back to the lists", () => {
 Run: `pnpm vitest run apps/web/src/app/tg`
 Expected: FAIL — `Failed to resolve import "./next-path"`.
 
-- [ ] **Step 8: `/tg?next=` — реализация**
+- [x] **Step 8: `/tg?next=` — реализация**
 
 `apps/web/src/app/tg/next-path.ts`:
 ```ts
@@ -237,7 +237,7 @@ import { safeNextPath } from "./next-path";
 Run: `pnpm vitest run apps/web`
 Expected: PASS.
 
-- [ ] **Step 9: Проверка и commit**
+- [x] **Step 9: Проверка и commit**
 
 Run: `pnpm typecheck && pnpm --filter @wishlist/web build`
 Expected: PASS.

@@ -34,12 +34,12 @@
   function runNotify(job: NotifyJob, deps: NotifyDeps): Promise<void>;   // бросает, если Telegram временно недоступен
   ```
 
-- [ ] **Step 1: Зависимость**
+- [x] **Step 1: Зависимость**
 
 Run: `pnpm --filter @wishlist/worker add grammy@1.46.0 && pnpm --filter @wishlist/worker add -D drizzle-orm@0.45.2`
 Expected: в `apps/worker/package.json` появились `"grammy": "1.46.0"` и в `devDependencies` `"drizzle-orm": "0.45.2"` (та же версия, что в `packages/db`; тестам воркера нужен `eq` для проверок в базе). Без `^`: если pnpm поставил `^` — исправить руками и `pnpm install`. Lock обновлён без ошибок `minimumReleaseAge`.
 
-- [ ] **Step 2: Окружение — тест (падает)**
+- [x] **Step 2: Окружение — тест (падает)**
 
 `apps/worker/src/env.test.ts` — заменить целиком:
 ```ts
@@ -82,7 +82,7 @@ describe("readWorkerEnv", () => {
 Run: `pnpm vitest run apps/worker/src/env.test.ts`
 Expected: FAIL — в результате нет `telegram` и `imagesPublicBaseUrl`.
 
-- [ ] **Step 3: Окружение — реализация**
+- [x] **Step 3: Окружение — реализация**
 
 `apps/worker/src/env.ts` — заменить целиком:
 ```ts
@@ -156,7 +156,7 @@ export function readWorkerEnv(source: Record<string, string | undefined> = proce
 Run: `pnpm vitest run apps/worker/src/env.test.ts`
 Expected: PASS (4 теста).
 
-- [ ] **Step 4: Отправка — тест (падает)**
+- [x] **Step 4: Отправка — тест (падает)**
 
 `apps/worker/src/telegram/messenger.test.ts`:
 ```ts
@@ -187,7 +187,7 @@ test("rate limits, server and network errors are temporary", () => {
 Run: `pnpm vitest run apps/worker/src/telegram`
 Expected: FAIL — `Failed to resolve import "./messenger"`.
 
-- [ ] **Step 5: Отправка — реализация**
+- [x] **Step 5: Отправка — реализация**
 
 `apps/worker/src/telegram/messenger.ts`:
 ```ts
@@ -238,7 +238,7 @@ export function createMessenger(api: Api): Messenger {
 Run: `pnpm vitest run apps/worker/src/telegram`
 Expected: PASS (3 теста). Если конструктор `GrammyError` в 1.46.0 принимает другие аргументы — посмотреть `node_modules/grammy/out/core/error.d.ts` и поправить только фабрику `apiError` в тесте.
 
-- [ ] **Step 6: Задача `notify` — тест (падает)**
+- [x] **Step 6: Задача `notify` — тест (падает)**
 
 `apps/worker/src/notify.test.ts`:
 ```ts
@@ -362,7 +362,7 @@ Expected: FAIL — `Failed to resolve import "./notify"`.
 
 `@wishlist/db/testing` реэкспортирует `index` (таблицы `authIdentities`, `reservations`, `users` — из `schema`), поэтому отдельный импорт схемы не нужен.
 
-- [ ] **Step 7: Доставка и `notify` — реализация**
+- [x] **Step 7: Доставка и `notify` — реализация**
 
 `apps/worker/src/delivery.ts`:
 ```ts
@@ -440,12 +440,12 @@ export async function runNotify(job: NotifyJob, deps: NotifyDeps): Promise<void>
 }
 ```
 
-- [ ] **Step 8: Тесты проходят**
+- [x] **Step 8: Тесты проходят**
 
 Run: `pnpm vitest run apps/worker`
 Expected: PASS.
 
-- [ ] **Step 9: `.env.example`**
+- [x] **Step 9: `.env.example`**
 
 Добавить в `.env.example` после `TELEGRAM_BOT_USERNAME`:
 ```
@@ -453,7 +453,7 @@ Expected: PASS.
 ADMIN_TELEGRAM_ID=
 ```
 
-- [ ] **Step 10: Проверка и commit**
+- [x] **Step 10: Проверка и commit**
 
 Run: `pnpm typecheck && pnpm --filter @wishlist/worker build`
 Expected: PASS; `dist/main.mjs` собран (grammY попадает в бандл).

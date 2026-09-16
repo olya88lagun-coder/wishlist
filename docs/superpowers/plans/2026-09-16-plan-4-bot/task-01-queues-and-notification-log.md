@@ -31,7 +31,7 @@
   function firstName(displayName: string): string; // из public-view.ts, теперь экспортируется
   ```
 
-- [ ] **Step 1: Ветка**
+- [x] **Step 1: Ветка**
 
 Ветка `feat/bot` создана вместе с планом.
 ```bash
@@ -39,7 +39,7 @@ git checkout feat/bot && git status --short
 ```
 Expected: пусто (кроме неотслеживаемой `.claude/`).
 
-- [ ] **Step 2: Типы очередей**
+- [x] **Step 2: Типы очередей**
 
 `packages/core/src/queues.ts` — заменить целиком:
 ```ts
@@ -71,7 +71,7 @@ export const NOTIFY_JOB_OPTIONS = { retryLimit: 3, retryDelay: 60, expireInSecon
 Run: `pnpm typecheck`
 Expected: PASS.
 
-- [ ] **Step 3: Таблица `notification_log`**
+- [x] **Step 3: Таблица `notification_log`**
 
 В `packages/db/src/schema.ts` в конец файла:
 ```ts
@@ -96,11 +96,11 @@ export const notificationLog = pgTable(
 Run: `pnpm --filter @wishlist/db db:generate`
 Expected: создан `packages/db/drizzle/0002_<слово>_<слово>.sql` с `CREATE TABLE "notification_log"`, двумя индексами и внешним ключом на `users`; в `drizzle/meta/_journal.json` запись `idx: 2`. Других изменений в SQL нет (если есть — схема разошлась с миграциями, остановиться и разобраться).
 
-- [ ] **Step 4: Экспорт `firstName`**
+- [x] **Step 4: Экспорт `firstName`**
 
 В `packages/db/src/public-view.ts` заменить `function firstName(` на `export function firstName(`.
 
-- [ ] **Step 5: Тест (падает)**
+- [x] **Step 5: Тест (падает)**
 
 `packages/db/src/notifications.test.ts`:
 ```ts
@@ -244,7 +244,7 @@ describe("listDueReminders", () => {
 Run: `pnpm vitest run packages/db/src/notifications.test.ts`
 Expected: FAIL — `Failed to resolve import "./notifications"`.
 
-- [ ] **Step 6: Реализация**
+- [x] **Step 6: Реализация**
 
 `packages/db/src/notifications.ts`:
 ```ts
@@ -374,12 +374,12 @@ export async function listDueReminders(db: Database, today: string, days: readon
 export * from "./notifications";
 ```
 
-- [ ] **Step 7: Тест проходит**
+- [x] **Step 7: Тест проходит**
 
 Run: `pnpm vitest run packages/db`
 Expected: PASS (все тесты пакета, включая 8 новых). Если `daysLeft` приходит строкой — PGlite вернул `int` как число только с `::int`; проверить, что каст на месте.
 
-- [ ] **Step 8: Проверка и commit**
+- [x] **Step 8: Проверка и commit**
 
 Run: `pnpm typecheck`
 Expected: PASS.

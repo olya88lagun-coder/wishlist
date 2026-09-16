@@ -34,7 +34,7 @@
 
 Логика — в `card.ts` и `start.ts` (тесты без Telegram). `create-bot.ts`, `jobs.ts` и `main.ts` только соединяют части; их проверяют typecheck, сборка и прод (Task 11).
 
-- [ ] **Step 1: Клавиатуры**
+- [x] **Step 1: Клавиатуры**
 
 `apps/worker/src/bot/keyboards.ts`:
 ```ts
@@ -68,7 +68,7 @@ export function listChoiceKeyboard(itemId: string, lists: readonly Pick<Wishlist
 }
 ```
 
-- [ ] **Step 2: Карточка — тест (падает)**
+- [x] **Step 2: Карточка — тест (падает)**
 
 `apps/worker/src/bot/card.test.ts`:
 ```ts
@@ -144,7 +144,7 @@ test("a card deleted meanwhile is edited into a short note without buttons", asy
 Run: `pnpm vitest run apps/worker/src/bot/card.test.ts`
 Expected: FAIL — `Failed to resolve import "./card"`.
 
-- [ ] **Step 3: Карточка — реализация**
+- [x] **Step 3: Карточка — реализация**
 
 `apps/worker/src/bot/card.ts`:
 ```ts
@@ -192,7 +192,7 @@ export async function updateItemCardMessage(
 Run: `pnpm vitest run apps/worker/src/bot/card.test.ts`
 Expected: PASS (5 тестов). `applyParseResult` и `getBotItemCard` приходят из `@wishlist/db/testing` (реэкспорт `index`).
 
-- [ ] **Step 4: `/start` — тест (падает)**
+- [x] **Step 4: `/start` — тест (падает)**
 
 `apps/worker/src/bot/start.test.ts`:
 ```ts
@@ -262,7 +262,7 @@ test("forged reminder links change nothing", async () => {
 Run: `pnpm vitest run apps/worker/src/bot/start.test.ts`
 Expected: FAIL — `Failed to resolve import "./start"`.
 
-- [ ] **Step 5: `/start` — реализация**
+- [x] **Step 5: `/start` — реализация**
 
 `apps/worker/src/bot/start.ts`:
 ```ts
@@ -297,7 +297,7 @@ export async function startReply(deps: { db: Database; appUrl: string; sessionSe
 Run: `pnpm vitest run apps/worker/src/bot`
 Expected: PASS.
 
-- [ ] **Step 6: Создание бота**
+- [x] **Step 6: Создание бота**
 
 `apps/worker/src/bot/create-bot.ts`:
 ```ts
@@ -346,7 +346,7 @@ export async function createTelegramBot(deps: BotDeps): Promise<Bot | null> {
 }
 ```
 
-- [ ] **Step 7: Регистрация задач**
+- [x] **Step 7: Регистрация задач**
 
 `apps/worker/src/jobs.ts`:
 ```ts
@@ -433,7 +433,7 @@ export async function registerJobs(boss: PgBoss, deps: JobDeps): Promise<void> {
 export { PARSE_CONCURRENCY };
 ```
 
-- [ ] **Step 8: `main.ts`**
+- [x] **Step 8: `main.ts`**
 
 `apps/worker/src/main.ts` — заменить целиком:
 ```ts
@@ -524,7 +524,7 @@ process.on("SIGTERM", () => void shutdown("SIGTERM"));
 process.on("SIGINT", () => void shutdown("SIGINT"));
 ```
 
-- [ ] **Step 9: Проверка локально**
+- [x] **Step 9: Проверка локально**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/worker build`
 Expected: PASS.
@@ -532,7 +532,7 @@ Expected: PASS.
 Локальный запуск с фейковым токеном из `apps/web/.env.development.local` (терминалы: `pnpm dev:db`, затем `pnpm dev:worker`):
 Expected в логе: `"telegram bot token rejected"` (warn), `"Telegram bot is disabled..."` (warn), `"worker started"` с `"telegram":false`; процесс не падает. Добавить подарок ссылкой в web (`pnpm dev:web`) → в логе воркера `item parsed`, ошибок нет. Остановить процессы (у `pnpm dev:worker` дочерний `node dist/main.mjs` может пережить остановку — проверить и завершить его).
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add apps/worker

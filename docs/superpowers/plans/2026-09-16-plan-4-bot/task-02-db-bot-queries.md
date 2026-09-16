@@ -29,7 +29,7 @@
 
 Почему подписанная ссылка, а не `cancelToken`: тест приватности плана 2 требует, чтобы токен отмены никогда не попадал в ответ страницы. Ссылка `t.me/<бот>?start=r…` содержит id брони и HMAC от `SESSION_SECRET` — её может выпустить только сервер, и она не даёт права отмены на сайте.
 
-- [ ] **Step 1: Тест подписи (падает)**
+- [x] **Step 1: Тест подписи (падает)**
 
 `packages/core/src/auth/reminder-link.test.ts`:
 ```ts
@@ -59,7 +59,7 @@ test("rejects forged, truncated and foreign payloads", () => {
 Run: `pnpm vitest run packages/core/src/auth/reminder-link.test.ts`
 Expected: FAIL — `Failed to resolve import "./reminder-link"`.
 
-- [ ] **Step 2: Подпись**
+- [x] **Step 2: Подпись**
 
 `packages/core/src/auth/reminder-link.ts`:
 ```ts
@@ -101,7 +101,7 @@ export * from "./auth/reminder-link";
 Run: `pnpm vitest run packages/core`
 Expected: PASS.
 
-- [ ] **Step 3: Тест запросов бота (падает)**
+- [x] **Step 3: Тест запросов бота (падает)**
 
 В `packages/db/src/items.ts` заменить `async function ownedItemId(` на `export async function ownedItemId(`.
 
@@ -228,7 +228,7 @@ describe("reservations from the bot", () => {
 Run: `pnpm vitest run packages/db/src/bot.test.ts`
 Expected: FAIL — `Failed to resolve import "./bot"`.
 
-- [ ] **Step 4: Реализация**
+- [x] **Step 4: Реализация**
 
 `packages/db/src/bot.ts`:
 ```ts
@@ -334,12 +334,12 @@ export async function moveItem(db: Database, ownerId: string, itemId: string, to
 export * from "./bot";
 ```
 
-- [ ] **Step 5: Тест проходит**
+- [x] **Step 5: Тест проходит**
 
 Run: `pnpm vitest run packages/db packages/core`
 Expected: PASS.
 
-- [ ] **Step 6: Проверка и commit**
+- [x] **Step 6: Проверка и commit**
 
 Run: `pnpm typecheck`
 Expected: PASS.

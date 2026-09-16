@@ -18,7 +18,7 @@
 
 Все напоминания одного гостя за день — одно сообщение (`kind: "reminder"`, `refId` = дата), строки по возрастанию даты праздника. Повторный запуск в тот же день отправит только тем, кому не удалось отправить в прошлый раз. Задача не бросает исключение: иначе pg-boss повторил бы её целиком; неотправленные видны в логе `reminders processed`.
 
-- [ ] **Step 1: Тест (падает)**
+- [x] **Step 1: Тест (падает)**
 
 `apps/worker/src/reminders.test.ts`:
 ```ts
@@ -99,7 +99,7 @@ test("temporary failures are counted and can be sent by a rerun the same day", a
 Run: `pnpm vitest run apps/worker/src/reminders.test.ts`
 Expected: FAIL — `Failed to resolve import "./reminders"`.
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 `apps/worker/src/reminders.ts`:
 ```ts
@@ -141,7 +141,7 @@ export async function runReminders(deps: ReminderDeps): Promise<ReminderStats> {
 Run: `pnpm vitest run apps/worker/src/reminders.test.ts`
 Expected: PASS (3 теста). Ответ `rejected` (гость не запускал бота) считается в `skipped`.
 
-- [ ] **Step 3: Расписание**
+- [x] **Step 3: Расписание**
 
 В `apps/worker/src/jobs.ts` импорт:
 ```ts
@@ -157,7 +157,7 @@ import { REMINDERS_CRON, runReminders } from "./reminders";
 ```
 (`MAINTENANCE_TZ` = `Europe/Moscow`, уже импортирован.)
 
-- [ ] **Step 4: Проверка и commit**
+- [x] **Step 4: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/worker build`
 Expected: PASS.

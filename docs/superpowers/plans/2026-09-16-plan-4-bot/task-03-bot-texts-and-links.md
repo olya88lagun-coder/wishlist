@@ -30,7 +30,7 @@
 
 Все тексты уходят с `parse_mode: "HTML"`, поэтому пользовательские строки (названия подарков и списков, имена) проходят через `escapeHtml`.
 
-- [ ] **Step 1: Тест ссылок (падает)**
+- [x] **Step 1: Тест ссылок (падает)**
 
 `apps/worker/src/bot/links.test.ts`:
 ```ts
@@ -63,7 +63,7 @@ test("deduplicates, ignores non-http links and caps the count", () => {
 Run: `pnpm vitest run apps/worker/src/bot/links.test.ts`
 Expected: FAIL — `Failed to resolve import "./links"`.
 
-- [ ] **Step 2: Ссылки**
+- [x] **Step 2: Ссылки**
 
 `apps/worker/src/bot/links.ts`:
 ```ts
@@ -102,7 +102,7 @@ export function extractLinks(text: string, entities: readonly MessageEntityLike[
 Run: `pnpm vitest run apps/worker/src/bot/links.test.ts`
 Expected: PASS (3 теста). Если падает дедупликация с `#reviews` — `normalizeProductUrl` убирает `hash`, проверить, что сравнение идёт после нормализации.
 
-- [ ] **Step 3: Тест текстов (падает)**
+- [x] **Step 3: Тест текстов (падает)**
 
 `apps/worker/src/bot/texts.test.ts`:
 ```ts
@@ -216,7 +216,7 @@ test("reminders of one day are merged into one message", () => {
 Run: `pnpm vitest run apps/worker/src/bot/texts.test.ts`
 Expected: FAIL — `Failed to resolve import "./texts"`.
 
-- [ ] **Step 4: Тексты**
+- [x] **Step 4: Тексты**
 
 `apps/worker/src/bot/texts.ts`:
 ```ts
@@ -311,14 +311,14 @@ export function reminderText(reminders: readonly DueReminder[]): string {
 }
 ```
 
-- [ ] **Step 5: Тест проходит**
+- [x] **Step 5: Тест проходит**
 
 Run: `pnpm vitest run apps/worker/src/bot`
 Expected: PASS. Цена в ожидании — с неразрывным пробелом ` ` (так форматирует `formatKopecks`); если тест падает на пробеле, проверить именно это, а не менять форматирование.
 
 Проверка текста частичной карточки: `itemCardText({...card, priceKopecks: null, parseStatus: "partial"})` содержит «Магазин не отдал цену — впишите её в приложении («Изменить»)» — ожидание в тесте проверяет подстроку без скобок.
 
-- [ ] **Step 6: Проверка и commit**
+- [x] **Step 6: Проверка и commit**
 
 Run: `pnpm typecheck`
 Expected: PASS.

@@ -19,7 +19,7 @@
 
 Inline-режим включается в BotFather командой `/setinline` (Task 11). Ответ персональный (`is_personal`): каждый видит только свои списки. Пользователь без аккаунта или без списков видит кнопку «Создать вишлист», которая открывает личный чат с ботом (`/start inline` → приветствие с кнопкой приложения, Task 6).
 
-- [ ] **Step 1: Тест (падает)**
+- [x] **Step 1: Тест (падает)**
 
 `apps/worker/src/bot/inline.test.ts`:
 ```ts
@@ -94,7 +94,7 @@ describe("answerInline", () => {
 Run: `pnpm vitest run apps/worker/src/bot/inline.test.ts`
 Expected: FAIL — `Failed to resolve import "./inline"`.
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 `apps/worker/src/bot/inline.ts`:
 ```ts
@@ -150,7 +150,7 @@ export async function answerInline(deps: { db: Database; appUrl: string; now: ()
 Run: `pnpm vitest run apps/worker/src/bot/inline.test.ts`
 Expected: PASS (5 тестов).
 
-- [ ] **Step 3: Подключить к боту**
+- [x] **Step 3: Подключить к боту**
 
 В `apps/worker/src/bot/create-bot.ts` импорт:
 ```ts
@@ -167,7 +167,7 @@ import { answerInline } from "./inline";
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/worker build`
 Expected: PASS. Если тип `options.button` не совпадает с `InlineQueryResultsButton` из grammY — использовать этот тип из `grammy/types` в `InlineAnswer`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add apps/worker

@@ -26,7 +26,7 @@ Canary парсит по одной реальной ссылке на мага�
 
 Без `ADMIN_TELEGRAM_ID` алерты пишутся только в лог (`warn`).
 
-- [ ] **Step 1: Тест (падает)**
+- [x] **Step 1: Тест (падает)**
 
 `apps/worker/src/monitoring.test.ts`:
 ```ts
@@ -101,7 +101,7 @@ test("checkHealth treats non-2xx, network errors and timeouts as down", async ()
 Run: `pnpm vitest run apps/worker/src/monitoring.test.ts`
 Expected: FAIL — `Failed to resolve import "./monitoring"`.
 
-- [ ] **Step 2: Реализация**
+- [x] **Step 2: Реализация**
 
 `apps/worker/src/monitoring.ts`:
 ```ts
@@ -182,7 +182,7 @@ export async function checkHealth(appUrl: string, fetchFn: typeof fetch = fetch)
 Run: `pnpm vitest run apps/worker/src/monitoring.test.ts`
 Expected: PASS (5 тестов).
 
-- [ ] **Step 3: Расписание**
+- [x] **Step 3: Расписание**
 
 В `apps/worker/src/jobs.ts` импорт:
 ```ts
@@ -221,7 +221,7 @@ import { CANARY_CRON, checkHealth, createUptimeMonitor, runCanary, UPTIME_CRON }
 ```
 Добавить эту строку сразу после закрывающей скобки `if (deps.telegram) { ... }`.
 
-- [ ] **Step 4: Проверка и commit**
+- [x] **Step 4: Проверка и commit**
 
 Run: `pnpm test && pnpm typecheck && pnpm --filter @wishlist/worker build`
 Expected: PASS.

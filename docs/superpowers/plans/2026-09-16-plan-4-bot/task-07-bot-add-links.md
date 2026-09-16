@@ -23,7 +23,7 @@
 
 Подарок из бота кладётся в **последний созданный** список владельца (`listWishlistsForOwner` сортирует по `created_at desc`); перенос — кнопкой «В список ▾». Список кнопок переноса строится тем же запросом, поэтому индекс в `to:<itemId>:<n>` указывает на тот же список, что показан на кнопке.
 
-- [ ] **Step 1: Добавление ссылкой — тест (падает)**
+- [x] **Step 1: Добавление ссылкой — тест (падает)**
 
 `apps/worker/src/bot/add-links.test.ts`:
 ```ts
@@ -109,7 +109,7 @@ test("a full list stops adding and says so", async () => {
 Run: `pnpm vitest run apps/worker/src/bot/add-links.test.ts`
 Expected: FAIL — `Failed to resolve import "./add-links"`.
 
-- [ ] **Step 2: Добавление ссылкой — реализация**
+- [x] **Step 2: Добавление ссылкой — реализация**
 
 `apps/worker/src/bot/add-links.ts`:
 ```ts
@@ -157,7 +157,7 @@ export async function addLinksFromMessage(deps: AddLinksDeps, userId: string, te
 Run: `pnpm vitest run apps/worker/src/bot/add-links.test.ts`
 Expected: PASS (4 теста).
 
-- [ ] **Step 3: Кнопки — тест (падает)**
+- [x] **Step 3: Кнопки — тест (падает)**
 
 `apps/worker/src/bot/callbacks.test.ts`:
 ```ts
@@ -260,7 +260,7 @@ test("guest cancels own reservation from the confirmation message", async () => 
 Run: `pnpm vitest run apps/worker/src/bot/callbacks.test.ts`
 Expected: FAIL — `Failed to resolve import "./callbacks"`.
 
-- [ ] **Step 4: Кнопки — реализация**
+- [x] **Step 4: Кнопки — реализация**
 
 `apps/worker/src/bot/callbacks.ts`:
 ```ts
@@ -333,7 +333,7 @@ export async function handleCallback(deps: CallbackDeps, userId: string, data: s
 Run: `pnpm vitest run apps/worker/src/bot`
 Expected: PASS.
 
-- [ ] **Step 5: Подключить к боту**
+- [x] **Step 5: Подключить к боту**
 
 В `apps/worker/src/bot/create-bot.ts` добавить импорты:
 ```ts
@@ -381,7 +381,7 @@ import { ensureBotUser } from "./start";
 Run: `pnpm typecheck && pnpm --filter @wishlist/worker build`
 Expected: PASS. Если `ctx.reply` возвращает тип, не совместимый с `{ message_id: number }` — это `Message.TextMessage`, у него есть `message_id`; типы совпадают без приведения.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add apps/worker
