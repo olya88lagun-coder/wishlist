@@ -162,9 +162,9 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
         </div>
 
         <div className="field">
-          <label htmlFor="gift-interests">Что человек любит?</label>
-          <textarea id="gift-interests" className="textarea" value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="Например: кофе, бег, книги, уход за собой, путешествия" />
-        </div>
+          <label htmlFor="gift-interests">Что человек любит? <span className="muted">(важно для персональной подборки)</span></label>
+          <textarea id="gift-interests" className="textarea" required minLength={3} value={interests} onChange={(e) => setInterests(e.target.value)} placeholder="Например: дача, цветы, рыбалка, бег, книги, путешествия" />
+          <p className="muted" style={{ margin: "6px 0 0" }}>Напишите 2–5 интересов или привычек — так AI не будет предлагать универсальные подарки.</p>        </div>
 
         <div className="field">
           <label htmlFor="gift-budget">Бюджет</label>
