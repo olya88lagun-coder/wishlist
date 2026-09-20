@@ -82,11 +82,19 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
       { role: "system", content: systemPrompt },
       { role: "user", content: JSON.stringify(data) },
     ],
-    response_format: { type: "json_object" },
+    tools: [{
+      type: "function",
+      function: {
+        name: "gift_recommendations",
+        description: "Вернуть 3–6 подтверждённых конкретных товаров для подарка.",
+        parameters: schema,
+      },
+    }],
+    tool_choice: { type: "function", function: { name: "gift_recommendations" } },
     reasoning: { effort: "low" },
     include_reasoning: false,
     temperature: 0.2,
-    max_tokens: 1600,
+    max_tokens: 1400,
   };
 }
 
@@ -216,7 +224,7 @@ export async function POST(request: Request) {
         })
         .find(Boolean) ?? ""
     : "";
-  const text = typeof rawContent === "string"
+  const text = typeof rawContent === "string" && rawContent.trim()
     ? rawContent
     : Array.isArray(rawContent)
       ? rawContent
