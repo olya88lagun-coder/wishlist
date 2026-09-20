@@ -11,8 +11,8 @@ const PUBLIC_URL = process.env.APP_URL ?? "https://my-wish-list.online";
 
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_URL),
-  title: "Вишлист",
-  robots: { index: false, follow: false },
+  title: { default: "My Wish List — вишлист и список желаний", template: "%s | My Wish List" },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
