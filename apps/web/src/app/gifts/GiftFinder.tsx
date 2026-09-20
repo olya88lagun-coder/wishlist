@@ -183,7 +183,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
           </div>
         )}
 
-        <button className="button button--block" type="submit" disabled={loading}>{loading ? "Подбираем…" : "Подобрать идеи"}</button>
+        <button className="button button--block" type="submit" disabled={loading}>{loading ? "Подбираем…" : "Найти товары"}</button>
         {error && <p className="error" role="status">{error}</p>}
       </form>
 
@@ -194,7 +194,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
               <p className="eyebrow">Подборка</p>
               <h2 className="gift-finder__title">Вот что можно купить</h2>
             </div>
-            <span className="sticker sticker--reserved">{results.length} идеи</span>
+            <span className="sticker sticker--reserved">{results.length} товаров</span>
           </div>
           {addError && <p className="error" role="status">{addError}</p>}
           <div className="gift-finder__cards">
