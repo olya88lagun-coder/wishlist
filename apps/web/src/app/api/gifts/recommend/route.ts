@@ -13,14 +13,47 @@ const outputSchema = z.object({
     title: z.string().min(1).max(120),
     reason: z.string().min(1).max(500),
     type: z.string().min(1).max(40),
+    productUrl: z.string().url().nullable(),
+    store: z.string().max(80).nullable(),
+    price: z.string().max(80).nullable(),
   })).min(1).max(6),
 });
 
-const systemPrompt = `Ты — AI-помощник по подаркам для сервиса My Wish List.
-Подбирай конкретные типы подарков, а не абстрактные советы. Учитывай получателя, повод, интересы и бюджет.
-Не выдумывай магазины, цены, наличие или ссылки: каталог товаров будет подключён отдельным шагом.
-Верни только JSON формата {"ideas":[{"title":"...","reason":"...","type":"..."}]}.
-`;
+const schema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    ideas: {
+      type: "array",
+      minItems: 1,
+      maxItems: 6,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          title: { type: "string" },
+          reason: { type: "string" },
+          type: { type: "string" },
+          productUrl: { type: ["string", "null"] },
+          store: { type: ["string", "null"] },
+          price: { type: ["string", "null"] },
+        },
+        required: ["title", "reason", "type", "productUrl", "store", "price"],
+      },
+    },
+  },
+  required: ["ideas"],
+};
+
+const systemPrompt = `Ты — AI-помощник по подаркам для My Wish List.
+Подбирай 3–6 конкретных подарков по получателю, поводу, интересам и бюджету.
+Используй веб-поиск, чтобы найти актуальные реальные товары, доступные в русскоязычном интернете.
+Предпочитай крупные магазины и маркетплейсы. Не выдумывай URL, цены, наличие или магазины.
+Если подтверждённый URL товара найти нельзя, productUrl должен быть null.
+Цена должна быть указана только если она видна в найденном источнике.
+Не включай товары выше заданного бюджета, если бюджет можно определить.
+reason — коротко объясни, почему подарок подходит.
+Верни только данные по заданной JSON-схеме.`;
 
 export async function POST(request: Request) {
   const parsed = inputSchema.safeParse(await request.json().catch(() => null));
@@ -44,6 +77,7 @@ export async function POST(request: Request) {
     },
     body: JSON.stringify({
       model: process.env.OPENAI_GIFT_MODEL ?? "gpt-5.6-luna",
+      tools: [{ type: "web_search" }],
       input: [
         { role: "system", content: [{ type: "input_text", text: systemPrompt }] },
         {
@@ -54,6 +88,14 @@ export async function POST(request: Request) {
           }],
         },
       ],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "gift_recommendations",
+          strict: true,
+          schema,
+        },
+      },
     }),
   });
 
