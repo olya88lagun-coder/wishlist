@@ -54,10 +54,31 @@ jobs:
           docker compose up -d --force-recreate web
           sleep 15
           test "$(docker inspect -f '{{.State.Health.Status}}' wishlist-web-1)" = "healthy"
-          curl -fsS -o /dev/null https://my-wish-list.online/
-          curl -fsS -o /dev/null https://my-wish-list.online/gifts
-          curl -fsS -o /dev/null https://my-wish-list.online/gifts/for-mom
-          curl -fsS -o /dev/null https://my-wish-list.online/sitemap.xml
-          curl -fsS -o /dev/null https://my-wish-list.online/robots.txt
-          echo "Deployment and smoke tests passed."
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+
+          curl -fsS https://my-wish-list.online/ > "$tmp/home.html"
+          curl -fsS https://my-wish-list.online/gifts > "$tmp/gifts.html"
+          curl -fsS https://my-wish-list.online/gifts/for-mom > "$tmp/for-mom.html"
+          curl -fsS https://my-wish-list.online/sitemap.xml > "$tmp/sitemap.xml"
+          curl -fsS https://my-wish-list.online/robots.txt > "$tmp/robots.txt"
+
+          grep -Fq '<title>Вишлист — список желаний и подарков | My Wish List</title>' "$tmp/home.html"
+          grep -Fq 'rel="canonical" href="https://my-wish-list.online/"' "$tmp/home.html"
+
+          grep -Fq '<title>Идеи подарков — AI-помощник | My Wish List</title>' "$tmp/gifts.html"
+          grep -Fq 'rel="canonical" href="https://my-wish-list.online/gifts"' "$tmp/gifts.html"
+
+          grep -Fq '<title>Что подарить маме — идеи подарков | My Wish List</title>' "$tmp/for-mom.html"
+          grep -Fq 'rel="canonical" href="https://my-wish-list.online/gifts/for-mom"' "$tmp/for-mom.html"
+          grep -Fq 'Что подарить маме?' "$tmp/for-mom.html"
+          grep -Fq '"@type":"WebPage"' "$tmp/for-mom.html"
+          grep -Fq '"@type":"BreadcrumbList"' "$tmp/for-mom.html"
+          grep -Fq 'href="/gifts/birthday"' "$tmp/for-mom.html"
+
+          grep -Fq 'https://my-wish-list.online/gifts/for-mom' "$tmp/sitemap.xml"
+          grep -Fq 'https://my-wish-list.online/gifts/under-20000' "$tmp/sitemap.xml"
+          grep -Fq 'Sitemap: https://my-wish-list.online/sitemap.xml' "$tmp/robots.txt"
+
+          echo "Deployment, SEO content and smoke tests passed."
           REMOTE
