@@ -165,7 +165,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
         </ul>
       </section>
 
-      <GiftFinder wishlists={wishlists} initialPerson={page.person} />
+      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} initialPerson={page.person} />
 
       <section className="gifts-page__seo">
         <p className="eyebrow">Ещё идеи</p>
