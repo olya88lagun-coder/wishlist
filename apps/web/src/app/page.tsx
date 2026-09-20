@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { startLinks } from "@/components/start-links";
 import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
+import { trackEvent } from "@/lib/analytics";
 
 export const metadata: Metadata = {
   title: "Вишлист — список желаний и подарков",
@@ -92,7 +93,7 @@ export default async function Home() {
             поводу, интересам и бюджету.
           </p>
         </div>
-        <a className="button button--ghost" href="/gifts">
+        <a className="button button--ghost" href="/gifts" onClick={() => trackEvent("landing_gift_finder_click")}>
           Подобрать подарок
         </a>
       </section>
