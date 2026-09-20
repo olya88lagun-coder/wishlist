@@ -40,7 +40,7 @@ export function GiftFinder({ wishlists }: { wishlists: WishlistSummary[] }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [addingTitle, setAddingTitle] = useState<string | null>(null);
-  const [addedTitles, setAddedTitles] = useState<string[]>([]);
+  const [addedItems, setAddedItems] = useState<Record<string, string>>({});
   const [addError, setAddError] = useState("");
   const [openWishlistFor, setOpenWishlistFor] = useState<string | null>(null);
 
@@ -92,7 +92,7 @@ export function GiftFinder({ wishlists }: { wishlists: WishlistSummary[] }) {
       setAddError(response.message);
       return;
     }
-    setAddedTitles((current) => [...current, result.title]);
+    setAddedItems((current) => ({ ...current, [result.title]: response.itemId }));
     setOpenWishlistFor(null);
   }
 
