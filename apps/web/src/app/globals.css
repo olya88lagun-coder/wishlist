@@ -108,11 +108,24 @@ a { color: inherit; }
 .quick-link__row .input { flex: 1 1 220px; }
 .quick-link__row .button { flex: 0 0 auto; width: auto; }
 .guest-cta { border: 1px solid var(--line); }
-.landing__lead { font-size: 18px; margin: 0 0 24px; }
-.landing__steps { list-style: none; padding: 0; margin: 40px 0 24px; display: grid; gap: 22px; }
-.landing__step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; }
-.landing__number { font-size: 34px; font-style: italic; line-height: 1; color: var(--pink); }
-.landing__step-title { font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+.landing { padding-top: 30px; }
+.landing__header { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.landing__header-note { font-size: 12px; color: var(--ink-faint); }
+.landing__hero { display: grid; gap: 42px; padding: 58px 0 52px; }
+.landing__hero-copy { max-width: 650px; }
+.landing__lead { max-width: 620px; font-size: clamp(18px, 2vw, 21px); line-height: 1.5; margin: 0 0 28px; color: var(--ink-soft); }
+.landing__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 10px; max-width: 450px; }
+.landing__actions .button { min-height: 48px; }
+.landing__note { margin: 14px 0 0; font-size: 12px; color: var(--ink-faint); }
+.landing__how { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 26px; box-shadow: 0 18px 50px rgb(44 44 42 / 0.06); }
+.landing__how-title { font-family: var(--font-playfair), Georgia, serif; font-size: 28px; line-height: 1.15; font-weight: 500; margin: 8px 0 24px; }
+.landing__steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 22px; }
+.landing__step { display: grid; grid-template-columns: 38px 1fr; gap: 12px; align-items: start; }
+.landing__number { font-size: 30px; font-style: italic; line-height: 1; color: var(--pink); }
+.landing__step-title { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+.landing__gift { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.landing__gift h2 { font-family: var(--font-playfair), Georgia, serif; font-size: 30px; font-weight: 500; margin: 6px 0 8px; }
+.landing__gift p { max-width: 650px; margin: 0; }
 .site-footer { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
 .site-footer a { color: var(--ink-soft); }
 .legal h2 { font-size: 18px; margin: 18px 0 0; }
@@ -130,6 +143,19 @@ a { color: inherit; }
 .gift-finder__cards { display: grid; gap: 12px; }
 .gift-card h3 { font-family: var(--font-playfair), Georgia, serif; font-size: 23px; font-weight: 500; margin: 4px 0 0; }
 .gift-finder__note { margin: 2px 0 0; }
+@media (min-width: 900px) {
+  .landing__hero { grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr); align-items: center; gap: 72px; }
+  .display { font-size: clamp(48px, 5.5vw, 72px); margin-bottom: 24px; }
+}
+@media (max-width: 640px) {
+  .landing__header-note { display: none; }
+  .landing__hero { padding: 42px 0 38px; gap: 32px; }
+  .landing__actions { grid-template-columns: 1fr; max-width: none; }
+  .landing__how { padding: 22px; }
+  .landing__gift { align-items: flex-start; flex-direction: column; }
+  .landing__gift .button { width: 100%; }
+}
+
 @media (min-width: 760px) {
   .gift-finder__form { grid-template-columns: 1fr 1fr; }
   .gift-finder__intro, .gift-finder__form > .textarea, .gift-finder__form > .button { grid-column: 1 / -1; }
