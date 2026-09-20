@@ -8,6 +8,19 @@ export const metadata: Metadata = {
   title: "Идеи подарков — AI-помощник",
   description: "Ответьте на несколько вопросов и получите персональные идеи подарков по человеку, поводу, интересам и бюджету.",
   alternates: { canonical: "/gifts" },
+  openGraph: {
+    title: "Идеи подарков — AI-помощник",
+    description: "Персональные идеи подарков по человеку, поводу, интересам и бюджету.",
+    url: "/gifts",
+    siteName: "My Wish List",
+    locale: "ru_RU",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Идеи подарков — AI-помощник",
+    description: "Персональные идеи подарков по человеку, поводу, интересам и бюджету.",
+  },
 };
 
 const QUICK_LINKS = [
