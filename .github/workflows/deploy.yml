@@ -51,7 +51,9 @@ jobs:
           EXPECTED_TAG="$expected_tag" ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
           set -euo pipefail
           cd /opt/wishlist
-          expected_image="ghcr.io/$GHCR_OWNER/wishlist-web:$EXPECTED_TAG"
+          latest_image="$(docker compose config --images | awk '/wishlist-web/ {print $1; exit}')"
+          image_repo="${latest_image%:latest}"
+          expected_image="$image_repo:$EXPECTED_TAG"
 
           for attempt in $(seq 1 24); do
             if docker pull "$expected_image"; then
@@ -64,7 +66,7 @@ jobs:
             sleep 5
           done
 
-          docker tag "$expected_image" "ghcr.io/$GHCR_OWNER/wishlist-web:latest"
+          docker tag "$expected_image" "$latest_image"
           docker compose up -d --force-recreate web
 
           for attempt in $(seq 1 30); do
