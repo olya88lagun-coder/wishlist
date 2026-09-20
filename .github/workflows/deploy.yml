@@ -109,7 +109,7 @@ jobs:
           }
 
           assert_contains '<title>Вишлист — список желаний и подарков</title>' "$tmp/home.html" "home title"
-          assert_contains 'rel="canonical" href="https://my-wish-list.online/"' "$tmp/home.html" "home canonical"
+          assert_contains 'rel="canonical" href="https://my-wish-list.online"' "$tmp/home.html" "home canonical"
 
           assert_contains '<title>Идеи подарков — AI-помощник</title>' "$tmp/gifts.html" "gifts title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts"' "$tmp/gifts.html" "gifts canonical"
