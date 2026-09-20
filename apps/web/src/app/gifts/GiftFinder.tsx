@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-type Result = { title: string; reason: string; type: string };
+type Result = { title: string; reason: string; type: string; productUrl?: string | null; store?: string | null; price?: string | null };
 
 const PEOPLE = [["mom","Мама"],["dad","Папа"],["girlfriend","Девушка"],["boyfriend","Парень"],["wife","Жена"],["husband","Муж"],["friend","Друг / подруга"],["colleague","Коллега"],["other","Другой человек"]] as const;
 const OCCASIONS = [["birthday","День рождения"],["new-year","Новый год"],["anniversary","Годовщина"],["wedding","Свадьба"],["just-because","Просто так"],["other","Другой повод"]] as const;
@@ -121,9 +121,9 @@ export function GiftFinder() {
               <article className="panel gift-card" key={result.title}>
                 <span className="eyebrow">{result.type}</span>
                 <h3>{result.title}</h3>
-                <p className="muted">{result.reason}</p>
+                <p className="muted">{result.reason}</p>\n                {(result.store || result.price) && <p className="card__meta">{[result.store, result.price].filter(Boolean).join(" · ")}</p>}
                 <div className="card__actions">
-                  <a className="button button--small" href="/lists">Добавить в вишлист</a>
+                  {result.productUrl ? <a className="button button--small" href={result.productUrl} target="_blank" rel="noopener noreferrer">Открыть товар</a> : <a className="button button--small" href="/lists">Добавить в вишлист</a>}
                   <button className="button button--ghost button--small" type="button" onClick={() => setResults((current) => current.filter((item) => item.title !== result.title))}>Не моё</button>
                 </div>
               </article>
