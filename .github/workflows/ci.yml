@@ -44,3 +44,5 @@ jobs:
 
       - name: Build web app
         run: pnpm --filter @wishlist/web build
+
+# Trigger CI on branch pushes.
