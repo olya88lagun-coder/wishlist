@@ -256,7 +256,38 @@ export async function POST(request: Request) {
   try {
     json = JSON.parse(text);
   } catch {
-    return NextResponse.json({ error: "AI вернул некорректный ответ" }, { status: 502 });
+    // Some providers wrap an otherwise valid structured response in a markdown
+    // code fence or a short explanatory prefix. Recover the JSON object before
+    // rejecting the response.
+    const cleaned = text
+      .replace(/^\\s*```(?:json)?\\s*/i, "")
+      .replace(/\\s*```\\s*$/i, "")
+      .trim();
+    try {
+      json = JSON.parse(cleaned);
+    } catch {
+      const start = cleaned.indexOf("{");
+      const end = cleaned.lastIndexOf("}");
+      if (start >= 0 && end > start) {
+        try {
+          json = JSON.parse(cleaned.slice(start, end + 1));
+        } catch {
+          console.error("Gift AI invalid JSON", {
+            model: payload?.model,
+            finishReason: message?.finish_reason ?? payload?.choices?.[0]?.finish_reason,
+            preview: text.slice(0, 500),
+          });
+          return NextResponse.json({ error: "AI вернул некорректный ответ" }, { status: 502 });
+        }
+      } else {
+        console.error("Gift AI invalid JSON", {
+          model: payload?.model,
+          finishReason: message?.finish_reason ?? payload?.choices?.[0]?.finish_reason,
+          preview: text.slice(0, 500),
+        });
+        return NextResponse.json({ error: "AI вернул некорректный ответ" }, { status: 502 });
+      }
+    }
   }
 
   const result = outputSchema.safeParse(json);
