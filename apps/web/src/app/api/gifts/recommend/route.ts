@@ -74,9 +74,9 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
     plugins: [{
       id: "web",
       engine: "exa",
-      max_results: 4,
+      max_results: 6,
       include_domains: ["ozon.ru", "wildberries.ru", "market.yandex.ru", "goldapple.ru", "lamoda.ru"],
-      search_prompt: "Ищи 3–4 конкретные карточки товаров с названием и ценой. Только прямые страницы товаров, без статей, категорий, подборок и поиска."
+      search_prompt: "Ищи 5–6 конкретных карточек товаров с названием и ценой. Нужны только прямые страницы конкретных товаров. Не используй статьи, категории, подборки или страницы результатов поиска."
     }],
     messages: [
       { role: "system", content: systemPrompt },
@@ -278,7 +278,12 @@ export async function POST(request: Request) {
 
     const verifiedIdeas = result.data.ideas.filter((idea) => {
       const normalized = normalizeUrl(idea.productUrl);
-      return Boolean(normalized && isAllowedProductUrl(idea.productUrl) && citedUrls.has(normalized));
+      const hasValidProductPath = Boolean(normalized && isAllowedProductUrl(idea.productUrl));
+      // RouterAI documents url_citation annotations for web search. Some model/tool
+      // providers can omit annotations when the final response is a forced function call,
+      // so fall back to strict marketplace product URL validation in that case.
+      const isCited = citedUrls.size === 0 || (normalized ? citedUrls.has(normalized) : false);
+      return hasValidProductPath && isCited;
     });
 
     if (verifiedIdeas.length < 3) {
