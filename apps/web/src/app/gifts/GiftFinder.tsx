@@ -29,8 +29,8 @@ function makeIdeas(person: string, occasion: string, interests: string, budget: 
   ];
 }
 
-export function GiftFinder({ wishlists }: { wishlists: WishlistSummary[] }) {
-  const [person, setPerson] = useState("mom");
+export function GiftFinder({ wishlists, initialPerson = "mom" }: { wishlists: WishlistSummary[]; initialPerson?: (typeof PEOPLE)[number][0] }) {
+  const [person, setPerson] = useState(initialPerson);
   const [occasion, setOccasion] = useState("birthday");
   const [interests, setInterests] = useState("");
   const [budget, setBudget] = useState("5000");
@@ -97,7 +97,7 @@ export function GiftFinder({ wishlists }: { wishlists: WishlistSummary[] }) {
   }
 
   function saveButton(result: Result) {
-    if (addedTitles.includes(result.title)) {
+    if (Object.prototype.hasOwnProperty.call(addedItems, result.title)) {
       return <span className="button button--small" aria-label="Подарок уже добавлен">✓ Добавлено</span>;
     }
     if (wishlists.length === 0) {
