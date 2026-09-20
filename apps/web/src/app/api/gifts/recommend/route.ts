@@ -92,6 +92,37 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
   };
 }
 
+
+function normalizeUrl(value: string) {
+  try {
+    const url = new URL(value);
+    url.hash = "";
+    url.search = "";
+    url.pathname = url.pathname.replace(/\\/+$/, "") || "/";
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function isAllowedProductUrl(value: string) {
+  const normalized = normalizeUrl(value);
+  if (!normalized) return false;
+  const url = new URL(normalized);
+  return [
+    "ozon.ru",
+    "www.ozon.ru",
+    "wildberries.ru",
+    "www.wildberries.ru",
+    "market.yandex.ru",
+    "yandex.ru",
+    "goldapple.ru",
+    "www.goldapple.ru",
+    "lamoda.ru",
+    "www.lamoda.ru",
+  ].includes(url.hostname);
+}
+
 function openAiBody(data: z.infer<typeof inputSchema>) {
   return {
     model: process.env.OPENAI_GIFT_MODEL ?? "gpt-5.6-luna",
@@ -197,6 +228,33 @@ export async function POST(request: Request) {
   const result = outputSchema.safeParse(json);
   if (!result.success) {
     return NextResponse.json({ error: "AI вернул данные неожиданного формата" }, { status: 502 });
+  }
+
+  if (useRouterAi) {
+    const annotations = payload?.choices?.[0]?.message?.annotations;
+    const citedUrls = new Set<string>(
+      Array.isArray(annotations)
+        ? annotations
+            .map((item: any) => item?.url_citation?.url)
+            .filter((url: unknown): url is string => typeof url === "string")
+            .map(normalizeUrl)
+            .filter((url: string | null): url is string => Boolean(url))
+        : [],
+    );
+
+    const verifiedIdeas = result.data.ideas.filter((idea) => {
+      const normalized = normalizeUrl(idea.productUrl);
+      return Boolean(normalized && isAllowedProductUrl(idea.productUrl) && citedUrls.has(normalized));
+    });
+
+    if (verifiedIdeas.length < 3) {
+      return NextResponse.json(
+        { error: "Не удалось найти достаточно подтверждённых товаров. Попробуйте изменить запрос или бюджет." },
+        { status: 502 },
+      );
+    }
+
+    return NextResponse.json({ ideas: verifiedIdeas.slice(0, 6) });
   }
 
   return NextResponse.json(result.data);
