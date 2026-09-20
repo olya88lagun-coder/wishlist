@@ -17,6 +17,8 @@ const PEOPLE = [["mom","Мама"],["dad","Папа"],["girlfriend","Девуш�
 const OCCASIONS = [["birthday","День рождения"],["new-year","Новый год"],["anniversary","Годовщина"],["wedding","Свадьба"],["just-because","Просто так"],["other","Другой повод"]] as const;
 const BUDGETS = [["3000","до 3 000 ₽"],["5000","до 5 000 ₽"],["10000","до 10 000 ₽"],["20000","до 20 000 ₽"],["custom","свой бюджет"]] as const;
 
+type Person = (typeof PEOPLE)[number][0];
+
 function makeIdeas(person: string, occasion: string, interests: string, budget: string): Result[] {
   const interest = interests.trim() || "любимые занятия";
   const who = PEOPLE.find(([value]) => value === person)?.[1] ?? "этого человека";
@@ -29,8 +31,8 @@ function makeIdeas(person: string, occasion: string, interests: string, budget: 
   ];
 }
 
-export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson = "mom" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; initialPerson?: (typeof PEOPLE)[number][0] }) {
-  const [person, setPerson] = useState(initialPerson);
+export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson = "mom" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; initialPerson?: Person }) {
+  const [person, setPerson] = useState<Person>(initialPerson);
   const [occasion, setOccasion] = useState("birthday");
   const [interests, setInterests] = useState("");
   const [budget, setBudget] = useState("5000");
@@ -145,7 +147,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
 
         <div className="field">
           <label htmlFor="gift-person">Для кого подарок?</label>
-          <select id="gift-person" className="select" value={person} onChange={(e) => setPerson(e.target.value)}>
+          <select id="gift-person" className="select" value={person} onChange={(e) => setPerson(e.target.value as Person)}>
             {PEOPLE.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </div>
