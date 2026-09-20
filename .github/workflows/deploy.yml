@@ -47,12 +47,38 @@ jobs:
         if: steps.config.outputs.configured == 'true'
         shell: bash
         run: |
-          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          expected_tag="sha-${GITHUB_SHA:0:7}"
+          EXPECTED_TAG="$expected_tag" ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
           set -euo pipefail
           cd /opt/wishlist
-          docker compose pull web
+          expected_image="ghcr.io/$GHCR_OWNER/wishlist-web:$EXPECTED_TAG"
+
+          for attempt in $(seq 1 24); do
+            if docker pull "$expected_image"; then
+              break
+            fi
+            if [[ "$attempt" -eq 24 ]]; then
+              echo "Expected image $expected_image was not published in time." >&2
+              exit 1
+            fi
+            sleep 5
+          done
+
+          docker tag "$expected_image" "ghcr.io/$GHCR_OWNER/wishlist-web:latest"
           docker compose up -d --force-recreate web
-          sleep 15
+
+          for attempt in $(seq 1 30); do
+            health="$(docker inspect -f '{{.State.Health.Status}}' wishlist-web-1 2>/dev/null || true)"
+            if [[ "$health" == "healthy" ]]; then
+              break
+            fi
+            if [[ "$attempt" -eq 30 ]]; then
+              echo "wishlist-web-1 did not become healthy in time." >&2
+              docker inspect -f '{{json .State.Health}}' wishlist-web-1 || true
+              exit 1
+            fi
+            sleep 3
+          done
           test "$(docker inspect -f '{{.State.Health.Status}}' wishlist-web-1)" = "healthy"
           tmp=$(mktemp -d)
           trap 'rm -rf "$tmp"' EXIT
