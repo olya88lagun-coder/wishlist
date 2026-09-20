@@ -92,29 +92,29 @@ export async function POST(request: Request) {
       },
       signal: controller.signal,
       body: JSON.stringify({
-      model: process.env.OPENAI_GIFT_MODEL ?? "gpt-5.6-luna",
-      tools: [{ type: "web_search" }],
-      input: [
-        { role: "system", content: [{ type: "input_text", text: systemPrompt }] },
-        {
-          role: "user",
-          content: [{
-            type: "input_text",
-            text: JSON.stringify(parsed.data),
-          }],
+        model: process.env.OPENAI_GIFT_MODEL ?? "gpt-5.6-luna",
+        tools: [{ type: "web_search" }],
+        input: [
+          { role: "system", content: [{ type: "input_text", text: systemPrompt }] },
+          {
+            role: "user",
+            content: [{
+              type: "input_text",
+              text: JSON.stringify(parsed.data),
+            }],
+          },
+        ],
+        store: false,
+        max_output_tokens: 1800,
+        text: {
+          format: {
+            type: "json_schema",
+            name: "gift_recommendations",
+            strict: true,
+            schema,
+          },
         },
-      ],
-      store: false,
-      max_output_tokens: 1800,
-      text: {
-        format: {
-          type: "json_schema",
-          name: "gift_recommendations",
-          strict: true,
-          schema,
-        },
-      },
-    }),
+      }),
     });
   } catch {
     return NextResponse.json({ error: "AI сейчас недоступен. Попробуйте ещё раз." }, { status: 502 });
