@@ -132,6 +132,8 @@ jobs:
 
           ssh_args=(
             -i ~/.ssh/deploy_key
+            -4
+            -vv
             -o IdentitiesOnly=yes
             -o StrictHostKeyChecking=yes
             -o ConnectTimeout=15
