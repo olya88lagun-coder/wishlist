@@ -48,8 +48,9 @@ jobs:
         shell: bash
         run: |
           expected_tag="sha-${GITHUB_SHA:0:7}"
-          EXPECTED_TAG="$expected_tag" ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$expected_tag'" <<'REMOTE'
           set -euo pipefail
+          EXPECTED_TAG="${1:?expected tag is required}"
           cd /opt/wishlist
           latest_image="$(docker compose config --images | awk '/wishlist-web/ {print $1; exit}')"
           image_repo="${latest_image%:latest}"
