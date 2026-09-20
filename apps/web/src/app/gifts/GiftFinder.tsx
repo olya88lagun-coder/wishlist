@@ -197,10 +197,9 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
           <div className="gift-finder__cards">
             {results.map((result) => (
               <article className="panel gift-card" key={result.title}>
-                <span className="eyebrow">{result.type}</span>
                 <h3>{result.title}</h3>
                 <p className="muted">{result.reason}</p>
-                <p className="card__meta">Поиск: {result.searchQuery}</p>
+                <p className="card__meta">Поиск в магазинах: {result.searchQuery}</p>
                 <div className="card__actions">
                   {([
                     ["Ozon", `https://www.ozon.ru/search/?text=${encodeURIComponent(result.searchQuery)}`],
