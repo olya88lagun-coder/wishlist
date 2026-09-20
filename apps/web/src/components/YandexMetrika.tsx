@@ -1,7 +1,7 @@
 import Script from "next/script";
 
 export function YandexMetrika() {
-  const id = process.env.YANDEX_METRIKA_ID;
+  const id = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID;
   if (!id) return null;
 
   return (
