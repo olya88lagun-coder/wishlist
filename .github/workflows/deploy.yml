@@ -92,22 +92,38 @@ jobs:
           curl -fsS https://my-wish-list.online/sitemap.xml > "$tmp/sitemap.xml"
           curl -fsS https://my-wish-list.online/robots.txt > "$tmp/robots.txt"
 
-          grep -Fq '<title>Вишлист — список желаний и подарков | My Wish List</title>' "$tmp/home.html"
-          grep -Fq 'rel="canonical" href="https://my-wish-list.online/"' "$tmp/home.html"
+          assert_contains() {
+            local needle="$1"
+            local file="$2"
+            local label="$3"
+            if ! grep -Fq "$needle" "$file"; then
+              echo "SMOKE TEST FAILED: $label"
+              echo "Expected: $needle"
+              echo "File: $file"
+              case "$file" in
+                *.html) grep -o '<title>[^<]*</title>' "$file" | head -1 || true ;;
+                *.xml|*.txt) head -c 3000 "$file" || true; echo ;;
+              esac
+              exit 1
+            fi
+          }
 
-          grep -Fq '<title>Идеи подарков — AI-помощник | My Wish List</title>' "$tmp/gifts.html"
-          grep -Fq 'rel="canonical" href="https://my-wish-list.online/gifts"' "$tmp/gifts.html"
+          assert_contains '<title>Вишлист — список желаний и подарков | My Wish List</title>' "$tmp/home.html" "home title"
+          assert_contains 'rel="canonical" href="https://my-wish-list.online/"' "$tmp/home.html" "home canonical"
 
-          grep -Fq '<title>Что подарить маме — идеи подарков | My Wish List</title>' "$tmp/for-mom.html"
-          grep -Fq 'rel="canonical" href="https://my-wish-list.online/gifts/for-mom"' "$tmp/for-mom.html"
-          grep -Fq 'Что подарить маме?' "$tmp/for-mom.html"
-          grep -Fq '"@type":"WebPage"' "$tmp/for-mom.html"
-          grep -Fq '"@type":"BreadcrumbList"' "$tmp/for-mom.html"
-          grep -Fq 'href="/gifts/birthday"' "$tmp/for-mom.html"
+          assert_contains '<title>Идеи подарков — AI-помощник | My Wish List</title>' "$tmp/gifts.html" "gifts title"
+          assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts"' "$tmp/gifts.html" "gifts canonical"
 
-          grep -Fq 'https://my-wish-list.online/gifts/for-mom' "$tmp/sitemap.xml"
-          grep -Fq 'https://my-wish-list.online/gifts/under-20000' "$tmp/sitemap.xml"
-          grep -Fq 'Sitemap: https://my-wish-list.online/sitemap.xml' "$tmp/robots.txt"
+          assert_contains '<title>Что подарить маме — идеи подарков | My Wish List</title>' "$tmp/for-mom.html" "for-mom title"
+          assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts/for-mom"' "$tmp/for-mom.html" "for-mom canonical"
+          assert_contains 'Что подарить маме?' "$tmp/for-mom.html" "for-mom heading"
+          assert_contains '"@type":"WebPage"' "$tmp/for-mom.html" "for-mom WebPage JSON-LD"
+          assert_contains '"@type":"BreadcrumbList"' "$tmp/for-mom.html" "for-mom BreadcrumbList JSON-LD"
+          assert_contains 'href="/gifts/birthday"' "$tmp/for-mom.html" "for-mom related link"
+
+          assert_contains 'https://my-wish-list.online/gifts/for-mom' "$tmp/sitemap.xml" "sitemap for-mom"
+          assert_contains 'https://my-wish-list.online/gifts/under-20000' "$tmp/sitemap.xml" "sitemap under-20000"
+          assert_contains 'Sitemap: https://my-wish-list.online/sitemap.xml' "$tmp/robots.txt" "robots sitemap"
 
           echo "Deployment, SEO content and smoke tests passed."
           REMOTE
