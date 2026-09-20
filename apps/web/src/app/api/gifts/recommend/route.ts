@@ -82,19 +82,11 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
       { role: "system", content: systemPrompt },
       { role: "user", content: JSON.stringify(data) },
     ],
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "gift_recommendations",
-        strict: true,
-        schema,
-      },
-    },
-    structured_outputs: true,
+    response_format: { type: "json_object" },
     reasoning: { effort: "low" },
     include_reasoning: false,
     temperature: 0.2,
-    max_tokens: 1200,
+    max_tokens: 1600,
   };
 }
 
@@ -215,17 +207,28 @@ export async function POST(request: Request) {
   const payload = await response.json();
   const message = useRouterAi ? payload?.choices?.[0]?.message : null;
   const rawContent = useRouterAi ? message?.content : payload?.output_text;
+  const toolArguments = useRouterAi && Array.isArray(message?.tool_calls)
+    ? message.tool_calls
+        .map((call: unknown) => {
+          if (!call || typeof call !== "object") return "";
+          const fn = (call as { function?: { arguments?: unknown } }).function;
+          return typeof fn?.arguments === "string" ? fn.arguments : "";
+        })
+        .find(Boolean) ?? ""
+    : "";
   const text = typeof rawContent === "string"
     ? rawContent
     : Array.isArray(rawContent)
       ? rawContent
           .map((part: unknown) => {
             if (!part || typeof part !== "object") return "";
-            const item = part as { text?: unknown };
-            return typeof item.text === "string" ? item.text : "";
+            const item = part as { text?: unknown; content?: unknown };
+            if (typeof item.text === "string") return item.text;
+            if (typeof item.content === "string") return item.content;
+            return "";
           })
           .join("")
-      : "";
+      : toolArguments;
 
   if (!text.trim()) {
     const finishReason = message?.finish_reason ?? payload?.choices?.[0]?.finish_reason;
