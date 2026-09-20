@@ -36,7 +36,19 @@ export default async function GiftsPage() {
         <div className="quick-link__row">
           {QUICK_LINKS.map(([label, slug]) => <a key={slug} className="button button--ghost button--small" href={`/gifts/${slug}`}>{label}</a>)}
         </div>
-        <p className="muted">Скоро здесь появятся отдельные подборки по получателю, поводу и бюджету.</p>
+        <h3>По поводу</h3>
+        <div className="quick-link__row">
+          <a className="button button--ghost button--small" href="/gifts/birthday">День рождения</a>
+          <a className="button button--ghost button--small" href="/gifts/new-year">Новый год</a>
+          <a className="button button--ghost button--small" href="/gifts/wedding">Свадьба</a>
+          <a className="button button--ghost button--small" href="/gifts/anniversary">Годовщина</a>
+        </div>
+        <h3>По бюджету</h3>
+        <div className="quick-link__row">
+          <a className="button button--ghost button--small" href="/gifts/under-5000">До 5 000 ₽</a>
+          <a className="button button--ghost button--small" href="/gifts/under-10000">До 10 000 ₽</a>
+          <a className="button button--ghost button--small" href="/gifts/under-20000">До 20 000 ₽</a>
+        </div>
       </section>
     </main>
   );
