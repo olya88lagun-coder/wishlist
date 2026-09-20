@@ -164,9 +164,33 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
 
   const { user } = await readViewer();
   const wishlists = user ? await listWishlistsForOwner(getDb(), user.id) : [];
+  const base = process.env.APP_URL ?? "https://my-wish-list.online";
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: page.title,
+      description: page.description,
+      url: `${base}/gifts/${slug}`,
+      isPartOf: { "@type": "WebSite", name: "My Wish List", url: base },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "My Wish List", item: base },
+        { "@type": "ListItem", position: 2, name: "Идеи подарков", item: `${base}/gifts` },
+        { "@type": "ListItem", position: 3, name: page.heading, item: `${base}/gifts/${slug}` },
+      ],
+    },
+  ];
 
   return (
     <main className="page page--wide gifts-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <p className="eyebrow">my wish list · идеи подарков</p>
       <h1 className="display">{page.heading}</h1>
       <p className="gifts-page__lead">{page.intro}</p>
