@@ -14,7 +14,7 @@ type Result = {
   price?: string | null;
 };
 
-const PEOPLE = [["mom","Мама"],["dad","Папа"],["girlfriend","Девушка"],["boyfriend","Парень"],["wife","Жена"],["husband","Муж"],["friend","Друг / подруга"],["colleague","Коллега"],["other","Другой человек"]] as const;
+const PEOPLE = [["mom","Мама"],["dad","Папа"],["girlfriend","Девушка"],["boyfriend","Парень"],["wife","Жена"],["husband","Муж"],["friend","Друг / подруга"],["colleague","Коллега"],["sister","Сестра"],["brother","Брат"],["grandma","Бабушка"],["grandpa","Дедушка"],["daughter","Дочь"],["son","Сын"],["teacher","Учитель / учительница"],["boss","Руководитель"],["other","Другой человек"]] as const;
 const OCCASIONS = [["birthday","День рождения"],["new-year","Новый год"],["anniversary","Годовщина"],["wedding","Свадьба"],["just-because","Просто так"],["other","Другой повод"]] as const;
 const BUDGETS = [["3000","до 3 000 ₽"],["5000","до 5 000 ₽"],["10000","до 10 000 ₽"],["20000","до 20 000 ₽"],["custom","свой бюджет"]] as const;
 
