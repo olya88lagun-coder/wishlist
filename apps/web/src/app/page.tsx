@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { startLinks } from "@/components/start-links";
 import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
+
+export const metadata: Metadata = { title: "Вишлист — список желаний и подарков", description: "Создайте список желаний на день рождения, свадьбу, Новый год или просто так. Добавляйте товары из любых магазинов и отправляйте друзьям одну ссылку.", alternates: { canonical: "/" } };
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +23,7 @@ export default async function Home() {
 
   return (
     <main className="page landing">
-      <p className="eyebrow">вишлист</p>
+      <p className="eyebrow">my wish list</p>
       <h1 className="display">
         Подарки, которые <i>правда хочется</i>
       </h1>
