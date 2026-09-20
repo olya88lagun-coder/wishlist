@@ -54,21 +54,21 @@ const systemPrompt = `Ты — AI-помощник по подаркам для 
 2. Бюджет — жёсткое ограничение. Предлагай варианты, которые обычно реально найти в указанном бюджете. Для бюджета до 5 000 ₽ не предлагай крупную бытовую технику, дорогие впечатления, мебель, постельные комплекты и другие очевидно дорогие категории. Для меньшего бюджета выбирай компактные, доступные подарки.
 3. Не заполняй подборку generic-подарками вроде «кулинарная книга», «постельное бельё», «ароматические свечи» или «сертификат», если интересы пользователя прямо этого не подсказывают. Такие идеи допустимы только когда они логично связаны с вводными.
 4. Предлагай конкретные типы подарков, а не слишком общие категории. Лучше «набор для альтернативного кофе дома» чем просто «кофе».
-5. Сделай 5 разных идей с разными сценариями: например, полезная вещь для хобби, расходник или набор, небольшой апгрейд привычного занятия, персональный/эмоциональный подарок и впечатление — но используй только подходящие человеку варианты. Не повторяй один и тот же формат.
+5. Сделай 5 идей, которые максимально релевантны именно этим вводным. Не добавляй идею только ради разнообразия и не меняй тему подарка ради искусственного баланса. Если человек увлекается конкретным хобби, нормально предложить несколько разных подарков внутри этой темы.
 6. Не называй конкретные бренды, цены, модели или товары, наличие которых нельзя проверить.
 7. Для каждой идеи создай короткий searchQuery — 3–8 слов, по которому пользователь сможет найти подходящие варианты на Ozon, Wildberries или Яндекс Маркете. Запрос должен быть конкретным и соответствовать бюджету.
 8. searchQuery — обычный поисковый запрос на русском языке, без URL, кавычек и названий магазинов.
 9. reason — одно короткое предложение: почему эта идея подходит именно этому человеку, интересам и поводу. Не повторяй название идеи дословно.
 10. Все идеи должны заметно отличаться друг от друга и не быть вариациями одного подарка.
-11. Верни только данные по заданной JSON-схеме.`;
+11. Если интересы указаны, используй их как главный сигнал, а не как второстепенную деталь. Если интересы не указаны, не выдумывай конкретные увлечения — выбирай нейтральные, но небанальные варианты, связанные с человеком, поводом и бюджетом.\n12. Не используй «кружка», «чашка», «свеча», «календарь», «чай», «носки», «шоколад», «сертификат», «аромамасла», «уход за руками» и похожие универсальные подарки, если только интересы пользователя прямо не делают их уместными.\n13. Верни только данные по заданной JSON-схеме.`;
 
-function routerAiBody(data: z.infer<typeof inputSchema>) {
+function routerAiBody(data: z.infer<typeof inputSchema>, prompt = systemPrompt) {
   return {
     model: process.env.ROUTERAI_GIFT_MODEL && process.env.ROUTERAI_GIFT_MODEL !== "openai/gpt-5.5"
       ? process.env.ROUTERAI_GIFT_MODEL
       : "openai/gpt-oss-120b",
     messages: [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: prompt },
       { role: "user", content: JSON.stringify(data) },
     ],
     response_format: {
@@ -83,11 +83,11 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
   };
 }
 
-function openAiBody(data: z.infer<typeof inputSchema>) {
+function openAiBody(data: z.infer<typeof inputSchema>, prompt = systemPrompt) {
   return {
     model: process.env.OPENAI_GIFT_MODEL ?? "gpt-5.6-luna",
     input: [
-      { role: "system", content: [{ type: "input_text", text: systemPrompt }] },
+      { role: "system", content: [{ type: "input_text", text: prompt }] },
       { role: "user", content: [{ type: "input_text", text: JSON.stringify(data) }] },
     ],
     store: false,
@@ -96,6 +96,36 @@ function openAiBody(data: z.infer<typeof inputSchema>) {
       format: { type: "json_schema", name: "gift_ideas", strict: true, schema },
     },
   };
+}
+
+const GENERIC_GIFT_PATTERNS = [
+  "кружк", "чашк", "свеч", "календар", "чай", "носк", "шоколад",
+  "сертификат", "аромамасл", "уход за руками", "постельн", "плед",
+];
+
+function isWeakGiftSet(ideas: z.infer<typeof outputSchema>["ideas"], interests: string) {
+  const genericCount = ideas.filter((idea) => {
+    const text = [idea.title, idea.reason, idea.searchQuery].join(" ").toLowerCase();
+    return GENERIC_GIFT_PATTERNS.some((pattern) => text.includes(pattern));
+  }).length;
+  if (genericCount >= 3) return true;
+
+  const interestTokens = interests
+    .toLowerCase()
+    .split(/[,/;\n]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 4);
+
+  if (interestTokens.length > 0) {
+    const relevantCount = ideas.filter((idea) => {
+      const text = [idea.title, idea.reason, idea.searchQuery].join(" ").toLowerCase();
+      return interestTokens.some((token) => text.includes(token));
+    }).length;
+    const required = interestTokens.length >= 2 ? 3 : 2;
+    if (relevantCount < required) return true;
+  }
+
+  return false;
 }
 
 function parseJsonResponse(payload: any, useRouterAi: boolean): unknown {
@@ -203,5 +233,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "AI вернул данные неожиданного формата" }, { status: 502 });
   }
 
-  return NextResponse.json({ ideas: result.data.ideas.slice(0, 6) });
+  let ideas = result.data.ideas.slice(0, 6);
+
+  if (isWeakGiftSet(ideas, parsed.data.interests)) {
+    const retryPrompt = systemPrompt + `
+
+Предыдущая попытка была слишком общей. Перегенерируй подборку с нуля.
+Сделай интересы главным источником идей: если пользователь написал конкретное хобби или образ жизни, минимум 3 из 5 идей должны прямо использовать эту тему.
+Не используй универсальные подарки из списка запретов, если только интересы не делают их явно уместными.
+Не добавляй подарки ради разнообразия — все 5 идей должны быть релевантны человеку, поводу и бюджету.
+`;
+    const retryController = new AbortController();
+    const retryTimeout = setTimeout(() => retryController.abort(), 15_000);
+    try {
+      const retryResponse = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        signal: retryController.signal,
+        body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data, retryPrompt) : openAiBody(parsed.data, retryPrompt)),
+      });
+      if (retryResponse.ok) {
+        const retryPayload = await retryResponse.json();
+        const retryJson = parseJsonResponse(retryPayload, useRouterAi);
+        const retryResult = outputSchema.safeParse(retryJson);
+        if (retryResult.success && !isWeakGiftSet(retryResult.data.ideas, parsed.data.interests)) {
+          ideas = retryResult.data.ideas.slice(0, 6);
+        }
+      }
+    } catch (error) {
+      console.error("Gift AI quality retry failed", error);
+    } finally {
+      clearTimeout(retryTimeout);
+    }
+  }
+
+  return NextResponse.json({ ideas });
 }
