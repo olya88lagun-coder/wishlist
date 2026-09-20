@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "./GiftFinder";
+import { getDb } from "@/server/db";
+import { readViewer } from "@/server/viewer";
 
 export const metadata: Metadata = {
   title: "Идеи подарков — AI-помощник",
@@ -13,7 +16,12 @@ const QUICK_LINKS = [
   ["Другу", "for-friend"], ["Коллеге", "for-colleague"],
 ];
 
-export default function GiftsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function GiftsPage() {
+  const { user } = await readViewer();
+  const wishlists = user ? await listWishlistsForOwner(getDb(), user.id) : [];
+
   return (
     <main className="page page--wide gifts-page">
       <p className="eyebrow">my wish list · подарки</p>
@@ -21,7 +29,7 @@ export default function GiftsPage() {
       <p className="gifts-page__lead">
         Расскажите о человеке, поводе и бюджете. Подберём идеи, которые можно сохранить в вишлист.
       </p>
-      <GiftFinder />
+      <GiftFinder wishlists={wishlists} />
       <section className="gifts-page__seo">
         <p className="eyebrow">Идеи подарков</p>
         <h2>Ищете подарок конкретному человеку?</h2>
