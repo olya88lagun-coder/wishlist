@@ -29,7 +29,7 @@ export default async function GiftsPage() {
       <p className="gifts-page__lead">
         Расскажите о человеке, поводе и бюджете. Подберём идеи, которые можно сохранить в вишлист.
       </p>
-      <GiftFinder wishlists={wishlists} />
+      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} />
       <section className="gifts-page__seo">
         <p className="eyebrow">Идеи подарков</p>
         <h2>Ищете подарок конкретному человеку?</h2>
