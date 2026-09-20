@@ -1,8 +1,9 @@
 import Script from "next/script";
 
+const DEFAULT_METRIKA_ID = "112836417";
+
 export function YandexMetrika() {
-  const id = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID;
-  if (!id) return null;
+  const id = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID ?? DEFAULT_METRIKA_ID;
 
   return (
     <>
