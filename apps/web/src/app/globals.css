@@ -118,3 +118,20 @@ a { color: inherit; }
 .legal h2 { font-size: 18px; margin: 18px 0 0; }
 .legal p, .legal li { margin: 6px 0; }
 .legal .display { hyphens: auto; overflow-wrap: break-word; }
+
+.gifts-page__lead { max-width: 700px; font-size: 19px; margin: 0 0 28px; }
+.gifts-page__seo { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); }
+.gifts-page__seo h2 { font-family: var(--font-playfair), Georgia, serif; font-size: 28px; font-weight: 500; margin: 6px 0 18px; }
+.gift-finder { display: grid; gap: 24px; max-width: 760px; }
+.gift-finder__form { display: grid; gap: 16px; }
+.gift-finder__intro { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 4px; }
+.gift-finder__results { display: grid; gap: 14px; }
+.gift-finder__title { font-family: var(--font-playfair), Georgia, serif; font-size: 30px; font-weight: 500; margin: 2px 0 0; }
+.gift-finder__cards { display: grid; gap: 12px; }
+.gift-card h3 { font-family: var(--font-playfair), Georgia, serif; font-size: 23px; font-weight: 500; margin: 4px 0 0; }
+.gift-finder__note { margin: 2px 0 0; }
+@media (min-width: 760px) {
+  .gift-finder__form { grid-template-columns: 1fr 1fr; }
+  .gift-finder__intro, .gift-finder__form > .textarea, .gift-finder__form > .button { grid-column: 1 / -1; }
+  .gift-finder__form > .field:nth-of-type(3) { grid-column: 1 / -1; }
+}
