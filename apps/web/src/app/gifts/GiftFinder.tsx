@@ -29,7 +29,7 @@ function makeIdeas(person: string, occasion: string, interests: string, budget: 
   ];
 }
 
-export function GiftFinder({ wishlists, initialPerson = "mom" }: { wishlists: WishlistSummary[]; initialPerson?: (typeof PEOPLE)[number][0] }) {
+export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson = "mom" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; initialPerson?: (typeof PEOPLE)[number][0] }) {
   const [person, setPerson] = useState(initialPerson);
   const [occasion, setOccasion] = useState("birthday");
   const [interests, setInterests] = useState("");
@@ -101,7 +101,9 @@ export function GiftFinder({ wishlists, initialPerson = "mom" }: { wishlists: Wi
       return <span className="button button--small" aria-label="Подарок уже добавлен">✓ Добавлено</span>;
     }
     if (wishlists.length === 0) {
-      return <a className="button button--small" href="/login">Войти и сохранить</a>;
+      return isAuthenticated
+        ? <a className="button button--small" href="/lists">Создать вишлист</a>
+        : <a className="button button--small" href="/login">Войти и сохранить</a>;
     }
     return (
       <div className="gift-card__save">
@@ -196,7 +198,16 @@ export function GiftFinder({ wishlists, initialPerson = "mom" }: { wishlists: Wi
                 <p className="muted">{result.reason}</p>
                 {(result.store || result.price) && <p className="card__meta">{[result.store, result.price].filter(Boolean).join(" · ")}</p>}
                 <div className="card__actions">
-                  {result.productUrl && <a className="button button--ghost button--small" href={result.productUrl} target="_blank" rel="noopener noreferrer">Открыть товар</a>}
+                  {result.productUrl && (
+                    <a
+                      className="button button--ghost button--small"
+                      href={addedItems[result.title] ? `/go/${addedItems[result.title]}` : result.productUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Открыть товар
+                    </a>
+                  )}
                   {saveButton(result)}
                   <button className="button button--ghost button--small" type="button" onClick={() => setResults((current) => current.filter((item) => item.title !== result.title))}>Не моё</button>
                 </div>
