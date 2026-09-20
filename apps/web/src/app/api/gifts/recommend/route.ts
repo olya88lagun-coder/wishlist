@@ -18,7 +18,7 @@ const outputSchema = z.object({
     productUrl: z.string().url(),
     store: z.string().min(1).max(80),
     price: z.string().min(1).max(80),
-  })).min(3).max(6),
+  })).min(1).max(6),
 });
 
 const schema = {
@@ -257,6 +257,12 @@ export async function POST(request: Request) {
 
   const result = outputSchema.safeParse(json);
   if (!result.success) {
+    console.error("Gift AI unexpected format", {
+      model: payload?.model,
+      issues: result.error.issues,
+      jsonType: Array.isArray(json) ? "array" : typeof json,
+      jsonKeys: json && typeof json === "object" && !Array.isArray(json) ? Object.keys(json as Record<string, unknown>) : [],
+    });
     return NextResponse.json({ error: "AI вернул данные неожиданного формата" }, { status: 502 });
   }
 
@@ -286,9 +292,9 @@ export async function POST(request: Request) {
       return hasValidProductPath && isCited;
     });
 
-    if (verifiedIdeas.length < 3) {
+    if (verifiedIdeas.length < 1) {
       return NextResponse.json(
-        { error: "Не удалось найти достаточно подтверждённых товаров. Попробуйте изменить запрос или бюджет." },
+        { error: "Не удалось найти подтверждённые товары. Попробуйте изменить запрос или бюджет." },
         { status: 502 },
       );
     }
