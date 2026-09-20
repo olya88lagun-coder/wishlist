@@ -68,12 +68,13 @@ const systemPrompt = `Ты — AI-помощник по подаркам для 
 
 function routerAiBody(data: z.infer<typeof inputSchema>) {
   return {
-    model: process.env.ROUTERAI_GIFT_MODEL ?? "openai/gpt-5.5",
+    model: process.env.ROUTERAI_GIFT_MODEL ?? "deepseek/deepseek-v4.1-flash",
     plugins: [{
       id: "web",
-      max_results: 12,
+      engine: "exa",
+      max_results: 8,
       include_domains: ["ozon.ru", "wildberries.ru", "market.yandex.ru", "goldapple.ru", "lamoda.ru"],
-      search_prompt: "Ищи ТОЛЬКО конкретные карточки товаров. Нужны реальные страницы товаров с названием и актуальной ценой. Не используй статьи, обзоры, категории, подборки, главные страницы магазинов или поисковые страницы. Для каждого товара найди прямой URL карточки товара."
+      search_prompt: "Ищи конкретные карточки товаров с названием и ценой. Не используй статьи, категории, подборки или страницы поиска. Нужен прямой URL товара."
     }],
     messages: [
       { role: "system", content: systemPrompt },
@@ -88,7 +89,7 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
       },
     },
     structured_outputs: true,
-    max_tokens: 1800,
+    max_tokens: 900,
   };
 }
 
@@ -109,18 +110,15 @@ function isAllowedProductUrl(value: string) {
   const normalized = normalizeUrl(value);
   if (!normalized) return false;
   const url = new URL(normalized);
-  return [
-    "ozon.ru",
-    "www.ozon.ru",
-    "wildberries.ru",
-    "www.wildberries.ru",
-    "market.yandex.ru",
-    "yandex.ru",
-    "goldapple.ru",
-    "www.goldapple.ru",
-    "lamoda.ru",
-    "www.lamoda.ru",
-  ].includes(url.hostname);
+  const host = url.hostname;
+  const path = url.pathname;
+
+  if (host === "ozon.ru" || host === "www.ozon.ru") return /^\/product\/[^/]+-\d+(?:\/|$)/.test(path);
+  if (host === "wildberries.ru" || host === "www.wildberries.ru") return /^\/catalog\/\d+\/detail\.aspx/.test(path);
+  if (host === "market.yandex.ru") return /^\/product\/[^/]+\/\d+/.test(path) || /^\/product--[^/]+\/\d+/.test(path);
+  if (host === "goldapple.ru" || host === "www.goldapple.ru") return /^\/product\/[^/]+/.test(path);
+  if (host === "lamoda.ru" || host === "www.lamoda.ru") return /^\/p\/[^/]+/.test(path);
+  return false;
 }
 
 function openAiBody(data: z.infer<typeof inputSchema>) {
