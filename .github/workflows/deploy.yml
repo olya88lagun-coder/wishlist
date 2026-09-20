@@ -1,0 +1,63 @@
+name: deploy
+
+on:
+  push:
+    branches: [master, feat/product-v2-foundation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+
+    steps:
+      - name: Check deploy configuration
+        id: config
+        shell: bash
+        run: |
+          if [[ -n "$DEPLOY_HOST" && -n "$DEPLOY_USER" && -n "$DEPLOY_SSH_KEY" && -n "$DEPLOY_KNOWN_HOSTS" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Deployment secrets are not configured yet; deployment will be skipped."
+          fi
+
+      - name: Configure SSH
+        if: steps.config.outputs.configured == 'true'
+        shell: bash
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy web container
+        if: steps.config.outputs.configured == 'true'
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          cd /opt/wishlist
+          docker compose pull web
+          docker compose up -d --force-recreate web
+          sleep 15
+          test "$(docker inspect -f '{{.State.Health.Status}}' wishlist-web-1)" = "healthy"
+          curl -fsS -o /dev/null https://my-wish-list.online/
+          curl -fsS -o /dev/null https://my-wish-list.online/gifts
+          curl -fsS -o /dev/null https://my-wish-list.online/gifts/for-mom
+          curl -fsS -o /dev/null https://my-wish-list.online/sitemap.xml
+          curl -fsS -o /dev/null https://my-wish-list.online/robots.txt
+          echo "Deployment and smoke tests passed."
+          REMOTE
