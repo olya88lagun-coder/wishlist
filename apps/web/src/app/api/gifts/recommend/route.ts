@@ -68,7 +68,9 @@ const systemPrompt = `Ты — AI-помощник по подаркам для 
 
 function routerAiBody(data: z.infer<typeof inputSchema>) {
   return {
-    model: process.env.ROUTERAI_GIFT_MODEL ?? "deepseek/deepseek-v4.1-flash",
+    model: process.env.ROUTERAI_GIFT_MODEL && process.env.ROUTERAI_GIFT_MODEL !== "openai/gpt-5.5"
+      ? process.env.ROUTERAI_GIFT_MODEL
+      : "deepseek/deepseek-v4.1-flash",
     plugins: [{
       id: "web",
       engine: "exa",
