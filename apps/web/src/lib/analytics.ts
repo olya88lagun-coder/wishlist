@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-const METRIKA_ID = Number(process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID ?? "");
+const METRIKA_ID = Number(process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID ?? "112836417");
 
 export function trackEvent(event: AnalyticsEvent, params?: Record<string, string | number | boolean>) {
   if (!Number.isInteger(METRIKA_ID) || METRIKA_ID <= 0 || typeof window === "undefined" || typeof window.ym !== "function") return;
