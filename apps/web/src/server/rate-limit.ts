@@ -24,3 +24,4 @@ export function createRateLimiter(p: { limit: number; windowMs: number; now?: ()
 
 export const reservationLimiter = createRateLimiter({ limit: 20, windowMs: MINUTE_MS });
 export const editLimiter = createRateLimiter({ limit: 60, windowMs: MINUTE_MS });
+export const giftAiLimiter = createRateLimiter({ limit: 8, windowMs: MINUTE_MS });
