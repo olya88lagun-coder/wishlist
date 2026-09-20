@@ -1,8 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { WishlistSummary } from "@wishlist/db";
+import { addGiftToWishlist } from "./actions";
 
-type Result = { title: string; reason: string; type: string; productUrl?: string | null; store?: string | null; price?: string | null };
+type Result = {
+  title: string;
+  reason: string;
+  type: string;
+  productUrl?: string | null;
+  store?: string | null;
+  price?: string | null;
+};
 
 const PEOPLE = [["mom","Мама"],["dad","Папа"],["girlfriend","Девушка"],["boyfriend","Парень"],["wife","Жена"],["husband","Муж"],["friend","Друг / подруга"],["colleague","Коллега"],["other","Другой человек"]] as const;
 const OCCASIONS = [["birthday","День рождения"],["new-year","Новый год"],["anniversary","Годовщина"],["wedding","Свадьба"],["just-because","Просто так"],["other","Другой повод"]] as const;
@@ -20,14 +29,20 @@ function makeIdeas(person: string, occasion: string, interests: string, budget: 
   ];
 }
 
-export function GiftFinder() {
+export function GiftFinder({ wishlists }: { wishlists: WishlistSummary[] }) {
   const [person, setPerson] = useState("mom");
   const [occasion, setOccasion] = useState("birthday");
   const [interests, setInterests] = useState("");
   const [budget, setBudget] = useState("5000");
   const [customBudget, setCustomBudget] = useState("");
   const [results, setResults] = useState<Result[]>([]);
-  const [submitted, setSubmitted] = useState(false);\n  const [loading, setLoading] = useState(false);\n  const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [addingTitle, setAddingTitle] = useState<string | null>(null);
+  const [addedTitles, setAddedTitles] = useState<string[]>([]);
+  const [addError, setAddError] = useState("");
+  const [openWishlistFor, setOpenWishlistFor] = useState<string | null>(null);
 
   const effectiveBudget = budget === "custom" ? customBudget || "свой бюджет" : budget;
   const ideas = useMemo(() => makeIdeas(person, occasion, interests, effectiveBudget), [person, occasion, interests, effectiveBudget]);
@@ -61,6 +76,61 @@ export function GiftFinder() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function addToWishlist(result: Result, wishlistId: string) {
+    setAddingTitle(result.title);
+    setAddError("");
+    const response = await addGiftToWishlist({
+      wishlistId,
+      title: result.title,
+      productUrl: result.productUrl ?? null,
+      note: result.reason,
+    });
+    setAddingTitle(null);
+    if (!response.ok) {
+      setAddError(response.message);
+      return;
+    }
+    setAddedTitles((current) => [...current, result.title]);
+    setOpenWishlistFor(null);
+  }
+
+  function saveButton(result: Result) {
+    if (addedTitles.includes(result.title)) {
+      return <span className="button button--small" aria-label="Подарок уже добавлен">✓ Добавлено</span>;
+    }
+    if (wishlists.length === 0) {
+      return <a className="button button--small" href="/login">Войти и сохранить</a>;
+    }
+    return (
+      <div className="gift-card__save">
+        <button
+          className="button button--small"
+          type="button"
+          onClick={() => setOpenWishlistFor(openWishlistFor === result.title ? null : result.title)}
+        >
+          Добавить в вишлист
+        </button>
+        {openWishlistFor === result.title && (
+          <div className="gift-card__wishlists" role="group" aria-label={`Выберите вишлист для «${result.title}»`}>
+            <span className="muted">Куда добавить?</span>
+            {wishlists.map((wishlist) => (
+              <button
+                key={wishlist.id}
+                className="button button--ghost button--small"
+                type="button"
+                disabled={addingTitle === result.title}
+                onClick={() => addToWishlist(result, wishlist.id)}
+              >
+                {wishlist.title}
+              </button>
+            ))}
+            <a className="muted gift-card__new-list" href="/lists">+ Создать новый вишлист</a>
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -104,7 +174,8 @@ export function GiftFinder() {
           </div>
         )}
 
-        <button className="button button--block" type="submit" disabled={loading}>{loading ? "Подбираем…" : "Подобрать идеи"}</button>\n        {error && <p className="error" role="status">{error}</p>}
+        <button className="button button--block" type="submit" disabled={loading}>{loading ? "Подбираем…" : "Подобрать идеи"}</button>
+        {error && <p className="error" role="status">{error}</p>}
       </form>
 
       {submitted && (
@@ -116,20 +187,24 @@ export function GiftFinder() {
             </div>
             <span className="sticker sticker--reserved">{results.length} идеи</span>
           </div>
+          {addError && <p className="error" role="status">{addError}</p>}
           <div className="gift-finder__cards">
             {results.map((result) => (
               <article className="panel gift-card" key={result.title}>
                 <span className="eyebrow">{result.type}</span>
                 <h3>{result.title}</h3>
-                <p className="muted">{result.reason}</p>\n                {(result.store || result.price) && <p className="card__meta">{[result.store, result.price].filter(Boolean).join(" · ")}</p>}
+                <p className="muted">{result.reason}</p>
+                {(result.store || result.price) && <p className="card__meta">{[result.store, result.price].filter(Boolean).join(" · ")}</p>}
                 <div className="card__actions">
-                  {result.productUrl ? <a className="button button--small" href={result.productUrl} target="_blank" rel="noopener noreferrer">Открыть товар</a> : <a className="button button--small" href="/lists">Добавить в вишлист</a>}
+                  {result.productUrl && <a className="button button--ghost button--small" href={result.productUrl} target="_blank" rel="noopener noreferrer">Открыть товар</a>}
+                  {saveButton(result)}
                   <button className="button button--ghost button--small" type="button" onClick={() => setResults((current) => current.filter((item) => item.title !== result.title))}>Не моё</button>
                 </div>
+                {addingTitle === result.title && <p className="muted" role="status">Добавляем…</p>}
               </article>
             ))}
           </div>
-          <p className="muted gift-finder__note">Сейчас это интерфейс первого этапа. Следующим шагом подключим AI и каталог реальных товаров, чтобы карточки вели прямо к покупке.</p>
+          <p className="muted gift-finder__note">Нашли подходящий подарок — сохраните его в вишлист. Ссылка, название и заметка попадут в ваш список, а данные товара подтянутся из магазина.</p>
         </section>
       )}
     </section>
