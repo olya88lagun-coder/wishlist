@@ -27,13 +27,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { viewer } = await readViewer();
   const view = await getPublicWishlist(getDb(), slug, viewer);
   if (!view) return { title: "Вишлист", robots: { index: false, follow: false } };
-  const title = `${view.wishlist.title} — вишлист`;
+  const title = `${view.wishlist.title} — вишлист ${view.ownerName}`;
   const description = `${view.ownerName} собирает подарки. Выбирайте и бронируйте — владелец не узнает, кто что дарит.`;
   return {
     title,
     description,
-    robots: { index: false, follow: false },
-    openGraph: { title, description, type: "website", locale: "ru_RU", siteName: "Вишлист", url: `/${view.wishlist.slug}` },
+    robots: { index: true, follow: true },
+    openGraph: { title, description, type: "website", locale: "ru_RU", siteName: "My Wish List", url: `/${view.wishlist.slug}` },
     twitter: { card: "summary_large_image", title, description },
   };
 }
