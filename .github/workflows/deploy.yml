@@ -48,7 +48,9 @@ jobs:
         shell: bash
         run: |
           expected_tag="sha-${GITHUB_SHA:0:7}"
-          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$expected_tag'" <<'REMOTE'
+          remote_script="$(mktemp)"
+          trap 'rm -f "$remote_script"' EXIT
+          cat > "$remote_script" <<'REMOTE'
           set -euo pipefail
           EXPECTED_TAG="${1:?expected tag is required}"
           cd /opt/wishlist
@@ -127,3 +129,31 @@ jobs:
 
           echo "Deployment, SEO content and smoke tests passed."
           REMOTE
+
+          ssh_args=(
+            -i ~/.ssh/deploy_key
+            -o IdentitiesOnly=yes
+            -o StrictHostKeyChecking=yes
+            -o ConnectTimeout=15
+            -o ConnectionAttempts=3
+            -o ServerAliveInterval=10
+            -o ServerAliveCountMax=3
+          )
+
+          for ssh_attempt in 1 2 3; do
+            set +e
+            ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$expected_tag'" < "$remote_script"
+            ssh_rc=$?
+            set -e
+
+            if [[ "$ssh_rc" -eq 0 ]]; then
+              exit 0
+            fi
+
+            if [[ "$ssh_rc" -ne 255 || "$ssh_attempt" -eq 3 ]]; then
+              exit "$ssh_rc"
+            fi
+
+            echo "SSH connection failed (exit 255); retrying in 5 seconds (attempt $((ssh_attempt + 1))/3)." >&2
+            sleep 5
+          done
