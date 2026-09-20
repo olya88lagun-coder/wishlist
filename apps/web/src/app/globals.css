@@ -135,3 +135,20 @@ a { color: inherit; }
   .gift-finder__intro, .gift-finder__form > .textarea, .gift-finder__form > .button { grid-column: 1 / -1; }
   .gift-finder__form > .field:nth-of-type(3) { grid-column: 1 / -1; }
 }
+
+.gift-card__save { position: relative; }
+.gift-card__wishlists {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  top: calc(100% + 8px);
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: 0 12px 30px rgba(0,0,0,.10);
+}
+.gift-card__new-list { display: block; padding: 4px 0; }
