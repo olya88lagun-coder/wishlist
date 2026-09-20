@@ -98,7 +98,7 @@ function normalizeUrl(value: string) {
     const url = new URL(value);
     url.hash = "";
     url.search = "";
-    url.pathname = url.pathname.replace(/\\/+$/, "") || "/";
+    url.pathname = url.pathname.replace(/\/+$/, "") || "/";
     return url.toString();
   } catch {
     return null;
@@ -235,7 +235,11 @@ export async function POST(request: Request) {
     const citedUrls = new Set<string>(
       Array.isArray(annotations)
         ? annotations
-            .map((item: any) => item?.url_citation?.url)
+            .map((item: unknown) => {
+              if (!item || typeof item !== "object") return null;
+              const citation = (item as { url_citation?: { url?: unknown } }).url_citation;
+              return typeof citation?.url === "string" ? citation.url : null;
+            })
             .filter((url: unknown): url is string => typeof url === "string")
             .map(normalizeUrl)
             .filter((url: string | null): url is string => Boolean(url))
