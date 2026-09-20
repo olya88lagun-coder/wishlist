@@ -134,7 +134,15 @@ a { color: inherit; }
 
 .gifts-page__lead { max-width: 700px; font-size: 19px; margin: 0 0 28px; }
 .gifts-page__seo { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); }
-.gifts-page__seo h2 { font-family: var(--font-playfair), Georgia, serif; font-size: 28px; font-weight: 500; margin: 6px 0 18px; }
+.gifts-page__seo h2 { font-family: var(--font-playfair), Georgia, serif; font-size: 28px; font-weight: 500; margin: 6px 0 22px; }
+.gifts-page__seo > p:not(.eyebrow) { max-width: 760px; font-size: 16px; line-height: 1.72; margin: 0 0 22px; color: var(--ink-soft); }
+.gifts-page__seo > div { max-width: 760px; padding: 16px 0 4px; }
+.gifts-page__seo > div + div { border-top: 1px solid var(--line); }
+.gifts-page__seo h3 { font-size: 17px; line-height: 1.35; font-weight: 600; margin: 0 0 7px; }
+.gifts-page__seo > div p { max-width: 720px; font-size: 16px; line-height: 1.72; margin: 0; color: var(--ink-soft); }
+.gifts-page__seo .quick-link__row { gap: 10px 14px; margin-top: 22px; }
+.gifts-page__seo .quick-link__row .button { min-height: 36px; padding: 0 12px; font-size: 13px; border-color: var(--line); color: var(--ink-soft); }
+.gifts-page__seo .quick-link__row .button:hover { color: var(--ink); border-color: var(--ink); }
 .gift-finder { display: grid; gap: 24px; max-width: 760px; }
 .gift-finder__form { display: grid; gap: 16px; }
 .gift-finder__intro { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 4px; }
