@@ -70,7 +70,7 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
   return {
     model: process.env.ROUTERAI_GIFT_MODEL && process.env.ROUTERAI_GIFT_MODEL !== "openai/gpt-5.5"
       ? process.env.ROUTERAI_GIFT_MODEL
-      : "deepseek/deepseek-v4.1-flash",
+      : "openai/gpt-oss-120b",
     plugins: [{
       id: "web",
       engine: "exa",
@@ -82,19 +82,19 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
       { role: "system", content: systemPrompt },
       { role: "user", content: JSON.stringify(data) },
     ],
-    tools: [{
-      type: "function",
-      function: {
+    response_format: {
+      type: "json_schema",
+      json_schema: {
         name: "gift_recommendations",
-        description: "Вернуть 3–6 подтверждённых конкретных товаров для подарка.",
-        parameters: schema,
+        strict: true,
+        schema,
       },
-    }],
-    tool_choice: { type: "function", function: { name: "gift_recommendations" } },
+    },
+    structured_outputs: true,
     reasoning: { effort: "low" },
     include_reasoning: false,
     temperature: 0.2,
-    max_tokens: 1400,
+    max_tokens: 1600,
   };
 }
 
@@ -220,11 +220,14 @@ export async function POST(request: Request) {
         .map((call: unknown) => {
           if (!call || typeof call !== "object") return "";
           const fn = (call as { function?: { arguments?: unknown } }).function;
-          return typeof fn?.arguments === "string" ? fn.arguments : "";
+          if (typeof fn?.arguments === "string") return fn.arguments;
+          return fn?.arguments && typeof fn.arguments === "object"
+            ? JSON.stringify(fn.arguments)
+            : "";
         })
         .find(Boolean) ?? ""
     : "";
-  const text = typeof rawContent === "string" && rawContent.trim()
+  const contentText = typeof rawContent === "string"
     ? rawContent
     : Array.isArray(rawContent)
       ? rawContent
@@ -236,7 +239,8 @@ export async function POST(request: Request) {
             return "";
           })
           .join("")
-      : toolArguments;
+      : "";
+  const text = contentText.trim() ? contentText : toolArguments;
 
   if (!text.trim()) {
     const finishReason = message?.finish_reason ?? payload?.choices?.[0]?.finish_reason;
