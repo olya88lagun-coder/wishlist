@@ -192,7 +192,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
           <div className="row row--between">
             <div>
               <p className="eyebrow">Подборка</p>
-              <h2 className="gift-finder__title">Вот с чего можно начать</h2>
+              <h2 className="gift-finder__title">Вот что можно купить</h2>
             </div>
             <span className="sticker sticker--reserved">{results.length} идеи</span>
           </div>
@@ -223,7 +223,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
               </article>
             ))}
           </div>
-          <p className="muted gift-finder__note">Нашли подходящий подарок — сохраните его в вишлист. Ссылка, название и заметка попадут в ваш список, а данные товара подтянутся из магазина.</p>
+          <p className="muted gift-finder__note">Мы ищем реальные товары в крупных магазинах. Перед покупкой проверьте цену и наличие на странице магазина.</p>
         </section>
       )}
     </section>
