@@ -1,4 +1,4 @@
-import { getGoTarget, recordAffiliateClick } from "@wishlist/db";
+import { getAffiliateUrl, getGoTarget, recordAffiliateClick } from "@wishlist/db";
 import { redirect } from "next/navigation";
 import { getDb } from "@/server/db";
 
@@ -12,5 +12,5 @@ export default async function GiftGoPage({ params }: { params: Promise<{ itemId:
   if (!target) redirect("/gifts");
 
   await recordAffiliateClick(db, { itemId: target.itemId, store: target.store });
-  redirect(target.sourceUrl);
+  redirect(getAffiliateUrl(target.sourceUrl, target.store));
 }
