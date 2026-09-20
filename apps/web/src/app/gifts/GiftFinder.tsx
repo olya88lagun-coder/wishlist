@@ -27,15 +27,40 @@ export function GiftFinder() {
   const [budget, setBudget] = useState("5000");
   const [customBudget, setCustomBudget] = useState("");
   const [results, setResults] = useState<Result[]>([]);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(false);\n  const [loading, setLoading] = useState(false);\n  const [error, setError] = useState("");
 
   const effectiveBudget = budget === "custom" ? customBudget || "свой бюджет" : budget;
   const ideas = useMemo(() => makeIdeas(person, occasion, interests, effectiveBudget), [person, occasion, interests, effectiveBudget]);
 
-  function submit(event: React.FormEvent) {
+  async function submit(event: React.FormEvent) {
     event.preventDefault();
-    setResults(ideas);
-    setSubmitted(true);
+    setLoading(true);
+    setError("");
+    setSubmitted(false);
+    try {
+      const response = await fetch("/api/gifts/recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ person, occasion, interests, budget: effectiveBudget }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        if (payload.code === "AI_NOT_CONFIGURED") {
+          setResults(ideas);
+          setSubmitted(true);
+          setError("AI ещё не подключён в окружении. Показываем демо-подборку.");
+        } else {
+          throw new Error(payload.error || "Не удалось подобрать подарки");
+        }
+      } else {
+        setResults(payload.ideas);
+        setSubmitted(true);
+      }
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Не удалось подобрать подарки");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -79,7 +104,7 @@ export function GiftFinder() {
           </div>
         )}
 
-        <button className="button button--block" type="submit">Подобрать идеи</button>
+        <button className="button button--block" type="submit" disabled={loading}>{loading ? "Подбираем…" : "Подобрать идеи"}</button>\n        {error && <p className="error" role="status">{error}</p>}
       </form>
 
       {submitted && (
