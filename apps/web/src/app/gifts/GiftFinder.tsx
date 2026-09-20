@@ -202,11 +202,11 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
                 <p className="muted">{result.reason}</p>
                 <p className="card__meta">Поиск: {result.searchQuery}</p>
                 <div className="card__actions">
-                  {[
+                  {([
                     ["Ozon", `https://www.ozon.ru/search/?text=${encodeURIComponent(result.searchQuery)}`],
                     ["Wildberries", `https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(result.searchQuery)}`],
                     ["Яндекс Маркет", `https://market.yandex.ru/search?text=${encodeURIComponent(result.searchQuery)}`],
-                  ].map(([store, url]) => (
+                  ] as Array<[string, string]>).map(([store, url]) => (
                     <a key={store} className="button button--ghost button--small" href={url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("gift_finder_product_click", { store })}>
                       {store}
                     </a>
