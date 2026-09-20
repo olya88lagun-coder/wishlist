@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { giftAiLimiter } from "@/server/rate-limit";
+import { clientKey, readViewer } from "@/server/viewer";
 
 const inputSchema = z.object({
   person: z.string().min(1).max(40),
@@ -61,6 +63,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Некорректные данные" }, { status: 400 });
   }
 
+  const viewer = await readViewer();
+  if (!giftAiLimiter.allow(await clientKey(viewer.viewer))) {
+    return NextResponse.json(
+      { error: "Слишком много запросов. Попробуйте снова через минуту.", code: "RATE_LIMITED" },
+      { status: 429 },
+    );
+  }
+
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -69,13 +79,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25_000);
+
+  let response: Response;
+  try {
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
       model: process.env.OPENAI_GIFT_MODEL ?? "gpt-5.6-luna",
       tools: [{ type: "web_search" }],
       input: [
@@ -88,6 +104,8 @@ export async function POST(request: Request) {
           }],
         },
       ],
+      store: false,
+      max_output_tokens: 1800,
       text: {
         format: {
           type: "json_schema",
@@ -97,10 +115,18 @@ export async function POST(request: Request) {
         },
       },
     }),
-  });
+    });
+  } catch {
+    return NextResponse.json({ error: "AI сейчас недоступен. Попробуйте ещё раз." }, { status: 502 });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
-    return NextResponse.json({ error: "Не удалось получить рекомендации от AI" }, { status: 502 });
+    return NextResponse.json(
+      { error: response.status === 429 ? "AI временно перегружен. Попробуйте чуть позже." : "Не удалось получить рекомендации от AI" },
+      { status: response.status === 429 ? 503 : 502 },
+    );
   }
 
   const payload = await response.json();
