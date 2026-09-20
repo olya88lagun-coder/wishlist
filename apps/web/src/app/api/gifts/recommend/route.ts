@@ -74,9 +74,9 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
     plugins: [{
       id: "web",
       engine: "exa",
-      max_results: 8,
+      max_results: 4,
       include_domains: ["ozon.ru", "wildberries.ru", "market.yandex.ru", "goldapple.ru", "lamoda.ru"],
-      search_prompt: "Ищи конкретные карточки товаров с названием и ценой. Не используй статьи, категории, подборки или страницы поиска. Нужен прямой URL товара."
+      search_prompt: "Ищи 3–4 конкретные карточки товаров с названием и ценой. Только прямые страницы товаров, без статей, категорий, подборок и поиска."
     }],
     messages: [
       { role: "system", content: systemPrompt },
@@ -91,7 +91,10 @@ function routerAiBody(data: z.infer<typeof inputSchema>) {
       },
     },
     structured_outputs: true,
-    max_tokens: 900,
+    reasoning: { effort: "low" },
+    include_reasoning: false,
+    temperature: 0.2,
+    max_tokens: 1200,
   };
 }
 
@@ -210,12 +213,28 @@ export async function POST(request: Request) {
   }
 
   const payload = await response.json();
-  const text = useRouterAi
-    ? payload?.choices?.[0]?.message?.content
-    : payload?.output_text;
+  const message = useRouterAi ? payload?.choices?.[0]?.message : null;
+  const rawContent = useRouterAi ? message?.content : payload?.output_text;
+  const text = typeof rawContent === "string"
+    ? rawContent
+    : Array.isArray(rawContent)
+      ? rawContent
+          .map((part: unknown) => {
+            if (!part || typeof part !== "object") return "";
+            const item = part as { text?: unknown };
+            return typeof item.text === "string" ? item.text : "";
+          })
+          .join("")
+      : "";
 
-  if (typeof text !== "string" || !text) {
-    return NextResponse.json({ error: "AI вернул пустой ответ" }, { status: 502 });
+  if (!text.trim()) {
+    const finishReason = message?.finish_reason ?? payload?.choices?.[0]?.finish_reason;
+    console.error("Gift AI empty response", {
+      model: payload?.model,
+      finishReason,
+      hasAnnotations: Array.isArray(message?.annotations),
+    });
+    return NextResponse.json({ error: "AI не сформировал товары. Попробуйте ещё раз." }, { status: 502 });
   }
 
   let json: unknown;
