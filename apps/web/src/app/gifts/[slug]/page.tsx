@@ -141,6 +141,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: page.title,
     description: page.description,
     alternates: { canonical: `/gifts/${slug}` },
+    openGraph: {
+      title: page.title,
+      description: page.description,
+      url: `/gifts/${slug}`,
+      siteName: "My Wish List",
+      locale: "ru_RU",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title: page.title,
+      description: page.description,
+    },
   };
 }
 
