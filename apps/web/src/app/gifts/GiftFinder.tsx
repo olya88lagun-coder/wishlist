@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { WishlistSummary } from "@wishlist/db";
 import { addGiftToWishlist } from "./actions";
+import { trackEvent } from "@/lib/analytics";
 
 type Result = {
   title: string;
@@ -54,6 +55,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
     setLoading(true);
     setError("");
     setSubmitted(false);
+    trackEvent("gift_finder_submit", { person, occasion, budget: effectiveBudget });
     try {
       const response = await fetch("/api/gifts/recommend", {
         method: "POST",
@@ -65,6 +67,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
         if (payload.code === "AI_NOT_CONFIGURED") {
           setResults(ideas);
           setSubmitted(true);
+          trackEvent("gift_finder_result", { count: ideas.length, source: "demo" });
           setError("AI ещё не подключён в окружении. Показываем демо-подборку.");
         } else {
           throw new Error(payload.error || "Не удалось подобрать подарки");
@@ -72,6 +75,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
       } else {
         setResults(payload.ideas);
         setSubmitted(true);
+        trackEvent("gift_finder_result", { count: payload.ideas.length, source: "ai" });
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : "Не удалось подобрать подарки");
@@ -95,6 +99,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
       return;
     }
     setAddedItems((current) => ({ ...current, [result.title]: response.itemId }));
+    trackEvent("gift_finder_save", { store: result.store ?? "unknown" });
     setOpenWishlistFor(null);
   }
 
@@ -206,12 +211,13 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
                       href={addedItems[result.title] ? `/go/${addedItems[result.title]}` : result.productUrl}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackEvent("gift_finder_product_click", { store: result.store ?? "unknown" })}
                     >
                       Открыть товар
                     </a>
                   )}
                   {saveButton(result)}
-                  <button className="button button--ghost button--small" type="button" onClick={() => setResults((current) => current.filter((item) => item.title !== result.title))}>Не моё</button>
+                  <button className="button button--ghost button--small" type="button" onClick={() => { trackEvent("gift_finder_dismiss", { store: result.store ?? "unknown" }); setResults((current) => current.filter((item) => item.title !== result.title)); }}>Не моё</button>
                 </div>
                 {addingTitle === result.title && <p className="muted" role="status">Добавляем…</p>}
               </article>
