@@ -30,6 +30,12 @@ export default async function Home() {
       <p className="landing__lead">
         Соберите список желаний за минуту и поделитесь им. Друзья выберут подарок — и никто не подарит второй такой же.
       </p>
+      <div className="gifts-page__seo" style={{ marginTop: 24 }}>
+        <p className="eyebrow">Нужен подарок?</p>
+        <h2>Не знаете, что подарить?</h2>
+        <p className="muted">Ответьте на несколько вопросов — AI поможет подобрать идеи по человеку, поводу, интересам и бюджету.</p>
+        <a className="button button--ghost button--small" href="/gifts">Подобрать подарок</a>
+      </div>
       <div className="stack">
         <a className="button button--block" href={primary!.href} target="_blank" rel="noopener noreferrer">
           {primary!.label}
