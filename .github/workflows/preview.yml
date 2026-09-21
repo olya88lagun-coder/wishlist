@@ -27,8 +27,10 @@ jobs:
           docker run -d --name wishlist-preview -p 3000:3000 \
             -e APP_URL=http://127.0.0.1:3000 \
             -e DATABASE_URL=postgres://preview:preview@127.0.0.1:5432/preview \
-            -e SESSION_SECRET=preview-only-secret \
+            -e SESSION_SECRET=preview-only-session-secret-32-characters-long-1234 \
+            -e TELEGRAM_BOT_TOKEN=123456:PREVIEW_TOKEN_ONLY \
             -e TELEGRAM_BOT_USERNAME=my_wish_list1_bot \
+            -e VK_CLIENT_ID=54771492 \
             wishlist-web:preview
 
       - name: Wait for web
