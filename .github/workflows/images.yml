@@ -1,7 +1,7 @@
 name: images
 on:
   push:
-    branches: [master, feat/product-v2-foundation]
+    branches: [master]
 permissions:
   contents: read
   packages: write

@@ -2,7 +2,7 @@ name: deploy
 
 on:
   push:
-    branches: [master, feat/product-v2-foundation]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
