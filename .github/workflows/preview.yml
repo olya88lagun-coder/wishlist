@@ -1,7 +1,9 @@
 name: preview
 
 on:
-  pull_request:
+  push:
+    branches:
+      - feat/landing-visual-refresh
 
 permissions:
   contents: read
