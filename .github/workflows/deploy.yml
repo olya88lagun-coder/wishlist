@@ -1,0 +1,160 @@
+name: deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+
+    steps:
+      - name: Check deploy configuration
+        id: config
+        shell: bash
+        run: |
+          if [[ -n "$DEPLOY_HOST" && -n "$DEPLOY_USER" && -n "$DEPLOY_SSH_KEY" && -n "$DEPLOY_KNOWN_HOSTS" ]]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Deployment secrets are not configured yet; deployment will be skipped."
+          fi
+
+      - name: Configure SSH
+        if: steps.config.outputs.configured == 'true'
+        shell: bash
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Deploy web container
+        if: steps.config.outputs.configured == 'true'
+        shell: bash
+        run: |
+          expected_tag="sha-${GITHUB_SHA:0:7}"
+          remote_script="$(mktemp)"
+          trap 'rm -f "$remote_script"' EXIT
+          cat > "$remote_script" <<'REMOTE'
+          set -euo pipefail
+          EXPECTED_TAG="${1:?expected tag is required}"
+          cd /opt/wishlist
+          latest_image="$(docker compose config --images | awk '/wishlist-web/ {print $1; exit}')"
+          image_repo="${latest_image%:latest}"
+          expected_image="$image_repo:$EXPECTED_TAG"
+
+          for attempt in $(seq 1 24); do
+            if docker pull "$expected_image"; then
+              break
+            fi
+            if [[ "$attempt" -eq 24 ]]; then
+              echo "Expected image $expected_image was not published in time." >&2
+              exit 1
+            fi
+            sleep 5
+          done
+
+          docker tag "$expected_image" "$latest_image"
+          docker compose up -d --force-recreate web
+
+          for attempt in $(seq 1 30); do
+            health="$(docker inspect -f '{{.State.Health.Status}}' wishlist-web-1 2>/dev/null || true)"
+            if [[ "$health" == "healthy" ]]; then
+              break
+            fi
+            if [[ "$attempt" -eq 30 ]]; then
+              echo "wishlist-web-1 did not become healthy in time." >&2
+              docker inspect -f '{{json .State.Health}}' wishlist-web-1 || true
+              exit 1
+            fi
+            sleep 3
+          done
+          test "$(docker inspect -f '{{.State.Health.Status}}' wishlist-web-1)" = "healthy"
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+
+          curl -fsS https://my-wish-list.online/ > "$tmp/home.html"
+          curl -fsS https://my-wish-list.online/gifts > "$tmp/gifts.html"
+          curl -fsS https://my-wish-list.online/gifts/for-mom > "$tmp/for-mom.html"
+          curl -fsS https://my-wish-list.online/sitemap.xml > "$tmp/sitemap.xml"
+          curl -fsS https://my-wish-list.online/robots.txt > "$tmp/robots.txt"
+
+          assert_contains() {
+            local needle="$1"
+            local file="$2"
+            local label="$3"
+            if ! grep -Fq "$needle" "$file"; then
+              echo "SMOKE TEST FAILED: $label"
+              echo "Expected: $needle"
+              echo "File: $file"
+              case "$file" in
+                *.html) grep -o '<title>[^<]*</title>' "$file" | head -1 || true ;;
+                *.xml|*.txt) head -c 3000 "$file" || true; echo ;;
+              esac
+              exit 1
+            fi
+          }
+
+          assert_contains '<title>Вишлист — список желаний и подарков</title>' "$tmp/home.html" "home title"
+          assert_contains 'rel="canonical" href="https://my-wish-list.online"' "$tmp/home.html" "home canonical"
+
+          assert_contains '<title>Идеи подарков — AI-помощник | My Wish List</title>' "$tmp/gifts.html" "gifts title"
+          assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts"' "$tmp/gifts.html" "gifts canonical"
+
+          assert_contains '<title>Что подарить маме — идеи подарков | My Wish List</title>' "$tmp/for-mom.html" "for-mom title"
+          assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts/for-mom"' "$tmp/for-mom.html" "for-mom canonical"
+          assert_contains 'Что подарить маме?' "$tmp/for-mom.html" "for-mom heading"
+          assert_contains '"@type":"WebPage"' "$tmp/for-mom.html" "for-mom WebPage JSON-LD"
+          assert_contains '"@type":"BreadcrumbList"' "$tmp/for-mom.html" "for-mom BreadcrumbList JSON-LD"
+          assert_contains 'href="/gifts/birthday"' "$tmp/for-mom.html" "for-mom related link"
+
+          assert_contains 'https://my-wish-list.online/gifts/for-mom' "$tmp/sitemap.xml" "sitemap for-mom"
+          assert_contains 'https://my-wish-list.online/gifts/under-20000' "$tmp/sitemap.xml" "sitemap under-20000"
+          assert_contains 'Sitemap: https://my-wish-list.online/sitemap.xml' "$tmp/robots.txt" "robots sitemap"
+
+          echo "Deployment, SEO content and smoke tests passed."
+          REMOTE
+
+          ssh_args=(
+            -i ~/.ssh/deploy_key
+            -4
+            -o IdentitiesOnly=yes
+            -o StrictHostKeyChecking=yes
+            -o ConnectTimeout=15
+            -o ConnectionAttempts=3
+            -o ServerAliveInterval=10
+            -o ServerAliveCountMax=3
+          )
+
+          for ssh_attempt in 1 2 3; do
+            set +e
+            ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$expected_tag'" < "$remote_script"
+            ssh_rc=$?
+            set -e
+
+            if [[ "$ssh_rc" -eq 0 ]]; then
+              exit 0
+            fi
+
+            if [[ "$ssh_rc" -ne 255 || "$ssh_attempt" -eq 3 ]]; then
+              exit "$ssh_rc"
+            fi
+
+            echo "SSH connection failed (exit 255); retrying in 5 seconds (attempt $((ssh_attempt + 1))/3)." >&2
+            sleep 5
+          done

@@ -1,4 +1,4 @@
-import { getGoTarget, recordAffiliateClick } from "@wishlist/db";
+import { getAffiliateUrl, getGoTarget, recordAffiliateClick } from "@wishlist/db";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/server/db";
 import { readViewer } from "@/server/viewer";
@@ -11,7 +11,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const target = await getGoTarget(getDb(), itemId);
   if (!target || !isSafeRedirect(target.sourceUrl)) return new NextResponse("Подарок не найден", { status: 404 });
 
-  const response = NextResponse.redirect(target.sourceUrl, 302);
+  const redirectUrl = getAffiliateUrl(target.sourceUrl, target.store);
+  const response = NextResponse.redirect(redirectUrl, 302);
   const { viewer } = await readViewer();
   const cookie = goCookieName(target.itemId);
   // Клики владельца по своему списку и повторные клики за сутки не считаем
