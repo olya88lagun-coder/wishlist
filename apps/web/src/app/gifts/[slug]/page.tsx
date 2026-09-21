@@ -813,7 +813,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
             ) : (
               <div className="gifts-page__visual-media">
                 <Image
-                  src={visual.src}
+                  src={"src" in visual ? visual.src : ""}
                   alt={visual.alt}
                   width={1200}
                   height={800}
