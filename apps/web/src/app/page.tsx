@@ -36,7 +36,7 @@ export default async function Home() {
         </div>
 
         <div className="premium-hero-art" aria-hidden="true">
-          <img src="/hero-premium.svg" alt="" />
+          <img src="/hero-premium.png.png" alt="" />
         </div>
      </section>
 
