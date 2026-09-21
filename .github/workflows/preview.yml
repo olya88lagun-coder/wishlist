@@ -1,0 +1,76 @@
+name: preview
+
+on:
+  push:
+    branches:
+      - feat/landing-visual-refresh
+  pull_request:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build web image
+        run: docker build --target web -t wishlist-web:preview .
+
+      - name: Start preview container
+        run: |
+          docker run -d --name wishlist-preview -p 3000:3000 \
+            -e APP_URL=http://127.0.0.1:3000 \
+            -e DATABASE_URL=postgres://preview:preview@127.0.0.1:5432/preview \
+            -e SESSION_SECRET=preview-only-secret \
+            -e TELEGRAM_BOT_USERNAME=my_wish_list1_bot \
+            wishlist-web:preview
+
+      - name: Wait for web
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then
+              echo "Preview is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs wishlist-preview
+          exit 1
+
+      - name: Capture homepage screenshot
+        run: |
+          docker run --rm --network host \
+            -v "$PWD:/work" -w /work \
+            mcr.microsoft.com/playwright:v1.55.0-noble \
+            node - <<'NODE'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({headless: true});
+            const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+            await page.goto('http://127.0.0.1:3000/', { waitUntil: 'networkidle', timeout: 30000 });
+            await page.screenshot({ path: 'preview-homepage.png', fullPage: true });
+            await browser.close();
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+
+      - name: Upload preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wishlist-preview-${{ github.sha }}
+          path: preview-homepage.png
+          retention-days: 7
+
+      - name: Preview summary
+        run: |
+          echo "## Landing preview" >> "$GITHUB_STEP_SUMMARY"
+          echo "Rendered successfully from ${GITHUB_SHA}." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f wishlist-preview 2>/dev/null || true
