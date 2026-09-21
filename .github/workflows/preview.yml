@@ -1,9 +1,6 @@
 name: preview
 
 on:
-  push:
-    branches:
-      - feat/landing-visual-refresh
   pull_request:
 
 permissions:
@@ -13,7 +10,7 @@ permissions:
 jobs:
   preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -104,17 +101,17 @@ jobs:
             echo "It remains available while this job is running."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Keep public preview alive
+      - name: Keep public preview alive for review
         run: |
           echo "Preview is live at: $PREVIEW_URL"
-          echo "Cancel this workflow when finished reviewing the preview."
-          while true; do
+          for i in {1..12}; do
             if ! curl -fsS http://127.0.0.1:3000/ >/dev/null; then
               echo "Preview application stopped."
               exit 1
             fi
             sleep 30
           done
+          echo "Review window finished successfully."
 
       - name: Cleanup
         if: always()
