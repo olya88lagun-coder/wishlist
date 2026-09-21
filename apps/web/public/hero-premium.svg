@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 760" fill="none">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eee3d4"/><stop offset=".48" stop-color="#fffaf1"/><stop offset="1" stop-color="#eadcc9"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#fff" stop-opacity=".95"/><stop offset=".55" stop-color="#e4bd7d" stop-opacity=".2"/><stop offset="1" stop-opacity="0"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0bf"/><stop offset=".45" stop-color="#c99748"/><stop offset="1" stop-color="#8e6125"/></linearGradient>
+ <linearGradient id="box" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffdf7"/><stop offset="1" stop-color="#dfd1bd"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#f8ecda" stop-opacity=".52"/></linearGradient>
+ <filter id="shadow"><feGaussianBlur stdDeviation="18"/></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="5"/></filter>
+ <filter id="spark"><feGaussianBlur stdDeviation="2"/></filter>
+</defs>
+<rect width="1100" height="760" rx="38" fill="url(#bg)"/>
+<ellipse cx="620" cy="390" rx="410" ry="260" fill="url(#glow)"/>
+<g opacity=".72" stroke="url(#gold)" stroke-width="2">
+ <ellipse cx="650" cy="390" rx="390" ry="145" transform="rotate(-12 650 390)"/>
+ <ellipse cx="650" cy="390" rx="355" ry="205" transform="rotate(20 650 390)"/>
+ <ellipse cx="650" cy="390" rx="300" ry="115" transform="rotate(43 650 390)"/>
+</g>
+<g fill="url(#gold)">
+ <circle cx="350" cy="330" r="9"/><circle cx="920" cy="300" r="10"/><circle cx="850" cy="565" r="7"/><circle cx="430" cy="540" r="6"/>
+</g>
+<g opacity=".65" fill="#fff"><circle cx="470" cy="215" r="5"/><circle cx="780" cy="165" r="4"/><circle cx="950" cy="475" r="5"/><circle cx="575" cy="595" r="4"/></g>
+<ellipse cx="650" cy="590" rx="230" ry="45" fill="#a77a3e" opacity=".14" filter="url(#shadow)"/>
+<!-- gift -->
+<g transform="translate(475 275)">
+ <path d="M0 65h310v235H0z" fill="url(#box)"/>
+ <path d="M-14 42h338v70H-14z" fill="#fffdf8"/>
+ <path d="M0 42h310v18H0z" fill="#f1e5d2"/>
+ <path d="M139 42v258h38V42z" fill="url(#gold)"/>
+ <path d="M-14 76h338v25H-14z" fill="#c79b55" opacity=".7"/>
+ <path d="M155 45c-72-10-100-45-72-63 25-16 57 18 72 43 15-25 47-59 72-43 28 18 0 53-72 63Z" fill="url(#gold)"/>
+ <path d="M155 48c-31-37-70-45-80-25-9 19 42 37 80 30Zm0 0c31-37 70-45 80-25 9 19-42 37-80 30Z" fill="none" stroke="#e2bd7b" stroke-width="8"/>
+</g>
+<!-- cards -->
+<g font-family="Arial,sans-serif">
+ <g transform="translate(110 115) rotate(-7 130 70)">
+  <rect width="270" height="140" rx="24" fill="url(#glass)" stroke="#fff" stroke-width="2"/>
+  <rect x="20" y="20" width="82" height="82" rx="18" fill="#eee7dc"/>
+  <path d="M42 53c0-17 38-17 38 0v32H42z" fill="#fff"/><path d="M50 47v-7M72 47v-7" stroke="#c9c1b6" stroke-width="5"/>
+  <text x="125" y="60" font-size="19" fill="#292724">Наушники</text><text x="125" y="88" font-size="16" fill="#716b63">18 990 ₽</text><text x="235" y="34" font-size="24" fill="#b88a45">♡</text>
+ </g>
+ <g transform="translate(760 100) rotate(7 130 70)">
+  <rect width="270" height="140" rx="24" fill="url(#glass)" stroke="#fff" stroke-width="2"/>
+  <rect x="20" y="20" width="82" height="82" rx="18" fill="#eee7dc"/>
+  <rect x="46" y="42" width="31" height="43" rx="7" fill="#f3d1b2" stroke="#bd8d55" stroke-width="2"/><rect x="53" y="31" width="18" height="12" rx="3" fill="#bd8d55"/>
+  <text x="125" y="60" font-size="19" fill="#292724">Парфюм</text><text x="125" y="88" font-size="16" fill="#716b63">7 490 ₽</text><text x="235" y="34" font-size="24" fill="#b88a45">♡</text>
+ </g>
+ <g transform="translate(190 505) rotate(7 130 70)">
+  <rect width="270" height="140" rx="24" fill="url(#glass)" stroke="#fff" stroke-width="2"/>
+  <rect x="20" y="20" width="82" height="82" rx="18" fill="#eee7dc"/>
+  <circle cx="61" cy="61" r="25" fill="#242321" stroke="#c8a05f" stroke-width="3"/><path d="M61 42v19l13 8" stroke="#eee" stroke-width="3"/>
+  <text x="125" y="60" font-size="19" fill="#292724">Часы</text><text x="125" y="88" font-size="16" fill="#716b63">24 900 ₽</text><text x="235" y="34" font-size="24" fill="#b88a45">♡</text>
+ </g>
+ <g transform="translate(790 490) rotate(-6 130 70)">
+  <rect width="270" height="140" rx="24" fill="url(#glass)" stroke="#fff" stroke-width="2"/>
+  <rect x="20" y="20" width="82" height="82" rx="18" fill="#eee7dc"/>
+  <path d="M34 72a28 28 0 0 1 54 0" fill="none" stroke="#bca98f" stroke-width="8"/><rect x="28" y="69" width="20" height="27" rx="8" fill="#d8cab7"/><rect x="74" y="69" width="20" height="27" rx="8" fill="#d8cab7"/>
+  <text x="125" y="60" font-size="19" fill="#292724">Наушники</text><text x="125" y="88" font-size="16" fill="#716b63">12 990 ₽</text><text x="235" y="34" font-size="24" fill="#b88a45">♡</text>
+ </g>
+</g>
+<g fill="#fff">
+ <circle cx="600" cy="190" r="4"/><circle cx="705" cy="255" r="5"/><circle cx="860" cy="420" r="4"/>
+</g>
+</svg>
