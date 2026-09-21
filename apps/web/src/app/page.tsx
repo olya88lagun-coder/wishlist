@@ -12,26 +12,6 @@ const STEPS = [
   { title: "Получайте то, что хотели", text: "Друзья бронируют подарки без регистрации. Вы не узнаете, кто что дарит, а подарки не повторятся." },
 ] as const;
 
-function GiftIcon() {
-  return (
-    <svg viewBox="0 0 96 96" aria-hidden="true">
-      <defs><linearGradient id="gift-gold" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#fff1c7" /><stop offset="0.45" stopColor="#d9aa58" /><stop offset="1" stopColor="#9b6b28" /></linearGradient></defs>
-      <path d="M18 39h60v39H18z" fill="#fbf7ed" stroke="url(#gift-gold)" strokeWidth="2" />
-      <path d="M48 39v39" stroke="url(#gift-gold)" strokeWidth="6" />
-      <path d="M14 31h68v12H14z" fill="#fffaf0" stroke="url(#gift-gold)" strokeWidth="2" />
-      <path d="M48 31c-2-16-22-18-23-6-1 9 13 10 23 6Zm0 0c2-16 22-18 23-6 1 9-13 10-23 6Z" fill="none" stroke="url(#gift-gold)" strokeWidth="3" />
-      <path d="M48 31v-7" stroke="url(#gift-gold)" strokeWidth="3" />
-    </svg>
-  );
-}
-
-function ProductIcon({ type }: { type: "buds" | "perfume" | "watch" | "headphones" }) {
-  if (type === "perfume") return <span className="product-icon product-icon--perfume" aria-hidden="true"><span /></span>;
-  if (type === "watch") return <span className="product-icon product-icon--watch" aria-hidden="true"><span /></span>;
-  if (type === "headphones") return <span className="product-icon product-icon--headphones" aria-hidden="true"><span /></span>;
-  return <span className="product-icon product-icon--buds" aria-hidden="true"><span /><i /></span>;
-}
-
 export default async function Home() {
   const { user } = await readViewer();
   if (user) redirect("/lists");
