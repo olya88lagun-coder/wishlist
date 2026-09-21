@@ -146,3 +146,296 @@ a { color: inherit; }
 @keyframes wish-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 @media (min-width: 700px) { .landing { max-width: 820px; } .landing__hero { grid-template-columns: 0.9fr 1.1fr; align-items: center; gap: 34px; padding-top: 22px; } .wish-orbit { height: 330px; margin: 0; } .wish-card--headphones { left: 3%; } .wish-card--perfume { right: 2%; } }
 @media (prefers-reduced-motion: reduce) { .wish-orbit__glow, .wish-card, .wish-orbit__gift { animation: none; } .landing .button, .landing__step { transition: none; } }
+
+
+ /* Premium landing direction */
+.landing {
+  --lux-bg: #f4eee3;
+  --lux-card: rgba(255, 252, 245, 0.78);
+  --lux-gold: #b88a45;
+  --lux-gold-soft: #dfc18d;
+  --lux-shadow: 0 28px 70px rgb(91 66 34 / 0.12);
+  max-width: 1180px;
+  padding-top: 42px;
+}
+.landing__hero {
+  min-height: 590px;
+  grid-template-columns: minmax(360px, .82fr) minmax(520px, 1.18fr);
+  gap: 44px;
+  align-items: center;
+}
+.landing__hero-copy { max-width: 510px; }
+.landing__eyebrow {
+  letter-spacing: .28em;
+  font-size: 11px;
+  color: #94754b;
+  margin-bottom: 18px;
+}
+.landing__eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--lux-gold);
+  vertical-align: middle;
+  margin-right: 10px;
+}
+.landing__title {
+  font-size: clamp(58px, 6.2vw, 88px);
+  line-height: .93;
+  letter-spacing: -.045em;
+  margin: 0 0 28px;
+}
+.landing__title i { color: #b38a52; }
+.landing__lead {
+  max-width: 450px;
+  color: #5d5a55;
+  font-size: 18px;
+  line-height: 1.65;
+  margin-bottom: 28px;
+}
+.landing__actions { display: grid; gap: 12px; max-width: 440px; }
+.landing__actions .button {
+  justify-content: space-between;
+  min-height: 58px;
+  padding: 0 22px;
+  font-size: 16px;
+}
+.landing__primary {
+  border-color: #272522;
+  background: #292825;
+  box-shadow: 0 14px 30px rgb(40 38 34 / .16);
+}
+.landing__primary:hover { box-shadow: 0 18px 38px rgb(40 38 34 / .22) !important; }
+.landing__secondary {
+  border-color: #9e9a92;
+  color: #34322f;
+  background: rgb(255 253 248 / .28);
+}
+.button__mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 17px;
+  background: rgb(255 255 255 / .12);
+}
+.button__mark--outline { background: transparent; border: 1px solid #aaa49a; }
+
+.wish-orbit {
+  height: 570px;
+  margin: 0;
+  border-radius: 38px;
+  background:
+    radial-gradient(circle at 52% 48%, rgb(255 249 232 / .95) 0 14%, transparent 42%),
+    radial-gradient(circle at 78% 20%, rgb(220 191 145 / .28), transparent 34%),
+    linear-gradient(145deg, #eee5d7, #f8f3ea 58%, #e9dfcf);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .75), var(--lux-shadow);
+  overflow: hidden;
+}
+.wish-orbit::before,
+.wish-orbit::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.wish-orbit::before {
+  width: 76%;
+  height: 76%;
+  left: 12%;
+  top: 12%;
+  background: radial-gradient(circle, rgb(255 255 255 / .52), transparent 62%);
+  filter: blur(10px);
+}
+.wish-orbit::after {
+  width: 140%;
+  height: 70%;
+  left: -20%;
+  top: 15%;
+  border-top: 1px solid rgb(184 138 69 / .20);
+  border-bottom: 1px solid rgb(184 138 69 / .12);
+  transform: rotate(-17deg);
+  animation: luxury-orbit 18s linear infinite;
+}
+.wish-orbit__halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.wish-orbit__halo--one {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgb(255 255 255 / .92), rgb(222 190 133 / .13) 48%, transparent 70%);
+  filter: blur(3px);
+}
+.wish-orbit__halo--two {
+  width: 330px;
+  height: 330px;
+  border: 1px solid rgb(184 138 69 / .11);
+  box-shadow: 0 0 55px rgb(184 138 69 / .12);
+}
+.wish-orbit__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 440px;
+  height: 205px;
+  border: 1px solid rgb(184 138 69 / .34);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-17deg);
+  pointer-events: none;
+}
+.wish-orbit__ring--two {
+  width: 390px;
+  height: 175px;
+  transform: translate(-50%, -50%) rotate(28deg);
+  border-color: rgb(184 138 69 / .16);
+  animation: luxury-ring 20s linear infinite;
+}
+.wish-orbit__pearl {
+  position: absolute;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #fff, #d7b67d 48%, #9b6e35);
+  box-shadow: 0 3px 12px rgb(126 87 34 / .28);
+}
+.wish-orbit__pearl--one { left: 19%; top: 48%; }
+.wish-orbit__pearl--two { right: 18%; top: 29%; width: 15px; height: 15px; }
+.wish-orbit__pearl--three { right: 24%; bottom: 19%; width: 7px; height: 7px; }
+
+.wish-card {
+  z-index: 4;
+  width: 205px;
+  min-height: 104px;
+  padding: 16px 15px;
+  grid-template-columns: 68px 1fr 20px;
+  column-gap: 11px;
+  border: 1px solid rgb(255 255 255 / .82);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgb(255 254 249 / .88), rgb(248 239 225 / .62));
+  box-shadow: 0 22px 42px rgb(77 57 34 / .13), inset 0 1px 0 #fff;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+.wish-card__copy { display: grid; align-content: center; gap: 5px; }
+.wish-card__copy b { font-size: 13px; font-weight: 600; }
+.wish-card__copy small { color: #6d665d; font-family: var(--font-playfair), Georgia, serif; font-size: 13px; }
+.wish-card__heart { align-self: start; color: #b88a45; font-size: 19px; }
+.wish-card--buds { left: 7%; top: 15%; animation: luxury-float-a 7s ease-in-out infinite; transform: rotate(-7deg); }
+.wish-card--perfume { right: 4%; top: 12%; animation: luxury-float-b 8s ease-in-out infinite; transform: rotate(6deg); }
+.wish-card--watch { right: 8%; bottom: 16%; animation: luxury-float-c 7.5s ease-in-out infinite; transform: rotate(-5deg); }
+.wish-card--headphones { left: 8%; bottom: 12%; animation: luxury-float-d 8.5s ease-in-out infinite; transform: rotate(6deg); }
+
+.product-icon {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  display: block;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #f9f6ef, #e8ded0);
+  box-shadow: inset 0 1px 0 #fff, 0 8px 18px rgb(67 50 30 / .08);
+}
+.product-icon--buds::before,
+.product-icon--buds::after {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 31px;
+  top: 13px;
+  background: linear-gradient(90deg, #fff, #d9d4cb);
+  border-radius: 9px 9px 10px 10px;
+  box-shadow: 0 4px 8px rgb(30 28 25 / .14);
+}
+.product-icon--buds::before { left: 18px; transform: rotate(8deg); }
+.product-icon--buds::after { right: 17px; transform: rotate(-8deg); }
+.product-icon--buds span {
+  position: absolute; left: 19px; bottom: 12px; width: 31px; height: 18px;
+  border-radius: 6px 6px 10px 10px; background: #f8f7f4; border: 1px solid #ddd8cf;
+}
+.product-icon--perfume::before {
+  content: ""; position: absolute; left: 20px; top: 22px; width: 28px; height: 35px;
+  border-radius: 7px 7px 10px 10px; background: linear-gradient(145deg,#fff,#e8caa5);
+  box-shadow: 0 6px 10px rgb(90 60 30 / .13);
+}
+.product-icon--perfume::after {
+  content: ""; position: absolute; left: 28px; top: 13px; width: 13px; height: 11px;
+  border-radius: 3px 3px 1px 1px; background: linear-gradient(#d8b477,#9d733a);
+}
+.product-icon--perfume span { position:absolute; left:26px; top:8px; width:17px; height:7px; border-radius:3px; background:#ead7b8; }
+.product-icon--watch::before {
+  content: ""; position:absolute; left:27px; top:3px; width:15px; height:62px; border-radius:8px; background:linear-gradient(90deg,#d6c4a7,#f5ead7,#c8af8b);
+}
+.product-icon--watch span {
+  position:absolute; left:15px; top:18px; width:39px; height:32px; border-radius:10px;
+  background:linear-gradient(145deg,#2e2d2a,#151514); border:2px solid #c8ad7d; box-shadow:0 5px 12px rgb(30 25 18 / .25);
+}
+.product-icon--watch span::after { content:""; position:absolute; inset:6px; border:1px solid rgb(255 255 255 / .18); border-radius:7px; }
+.product-icon--headphones::before {
+  content:""; position:absolute; left:13px; top:11px; width:42px; height:42px; border:6px solid #cbb99e;
+  border-bottom-color:transparent; border-radius:50%;
+}
+.product-icon--headphones::after {
+  content:""; position:absolute; left:9px; bottom:11px; width:17px; height:25px; border-radius:9px; background:linear-gradient(#e8dfd2,#bfae96);
+  box-shadow:33px 0 0 #bfae96;
+}
+
+.wish-orbit__gift {
+  z-index: 5;
+  width: 132px;
+  height: 132px;
+  background: linear-gradient(145deg, #fffaf0, #eee1cb);
+  border: 1px solid rgb(255 255 255 / .95);
+  box-shadow: 0 30px 70px rgb(105 73 28 / .20), 0 0 0 1px rgb(184 138 69 / .12);
+  animation: luxury-gift 4.5s ease-in-out infinite;
+}
+.wish-orbit__gift svg { width: 88px; height: 88px; position: relative; z-index: 2; }
+.wish-orbit__gift-glow {
+  position: absolute; inset: -18px; border-radius: 50%;
+  background: radial-gradient(circle, rgb(214 173 100 / .25), transparent 65%);
+  animation: luxury-glow 4.5s ease-in-out infinite;
+}
+.landing__steps { margin-top: 72px; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.landing__step { grid-template-columns: 50px 1fr; padding-top: 18px; border-top: 1px solid #d9d0c1; }
+.landing__number { color: #b88a45; font-size: 27px; }
+.landing__step-title { font-family: var(--font-playfair), Georgia, serif; font-size: 20px; font-weight: 500; }
+
+@keyframes luxury-float-a { 0%,100% { transform: translate3d(0,0,0) rotate(-7deg); } 50% { transform: translate3d(9px,-15px,0) rotate(-3deg); } }
+@keyframes luxury-float-b { 0%,100% { transform: translate3d(0,0,0) rotate(6deg); } 50% { transform: translate3d(-10px,13px,0) rotate(9deg); } }
+@keyframes luxury-float-c { 0%,100% { transform: translate3d(0,0,0) rotate(-5deg); } 50% { transform: translate3d(-8px,-12px,0) rotate(-1deg); } }
+@keyframes luxury-float-d { 0%,100% { transform: translate3d(0,0,0) rotate(6deg); } 50% { transform: translate3d(10px,11px,0) rotate(3deg); } }
+@keyframes luxury-gift { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.035); } }
+@keyframes luxury-glow { 0%,100% { opacity:.55; transform:scale(.94); } 50% { opacity:1; transform:scale(1.08); } }
+@keyframes luxury-orbit { to { transform: rotate(-17deg) translateX(4px); } }
+@keyframes luxury-ring { to { transform: translate(-50%,-50%) rotate(388deg); } }
+
+@media (max-width: 899px) {
+  .landing { padding-top: 24px; }
+  .landing__hero { min-height: 0; grid-template-columns: 1fr; gap: 28px; }
+  .landing__title { font-size: clamp(50px, 13vw, 72px); }
+  .wish-orbit { height: 430px; }
+  .landing__steps { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .landing { padding-left: 14px; padding-right: 14px; }
+  .landing__title { font-size: clamp(44px, 14vw, 62px); }
+  .landing__lead { font-size: 16px; }
+  .wish-orbit { height: 390px; border-radius: 28px; }
+  .wish-card { width: 166px; min-height: 88px; grid-template-columns: 52px 1fr 16px; padding: 11px; border-radius: 16px; }
+  .product-icon { width: 52px; height: 52px; transform: scale(.78); transform-origin: center; }
+  .wish-card--buds { left: 1%; top: 10%; }
+  .wish-card--perfume { right: -1%; top: 10%; }
+  .wish-card--watch { right: 1%; bottom: 10%; }
+  .wish-card--headphones { left: 1%; bottom: 10%; }
+  .wish-orbit__gift { width: 104px; height: 104px; }
+  .wish-orbit__gift svg { width: 72px; height: 72px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wish-orbit::after, .wish-card, .wish-orbit__gift, .wish-orbit__gift-glow, .wish-orbit__ring--two { animation: none; }
+}
