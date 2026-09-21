@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   },
   description:
     "Создайте вишлист, добавьте подарки из любимых магазинов и поделитесь ссылкой. Друзья смогут забронировать подарок, сохранив сюрприз.",
-  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "ru_RU",
