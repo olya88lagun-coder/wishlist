@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "../GiftFinder";
@@ -681,6 +682,27 @@ function getSeoContent(slug: string, page: (typeof PAGES)[Slug]): SeoContent {
   };
 }
 
+const SEO_VISUALS = [
+  {
+    src: "/gifts/seo/gift-hobby.svg",
+    title: "Для хобби",
+    text: "Подарок, который продолжает любимое занятие: книги, творчество, спорт, дача, техника или другое увлечение.",
+    alt: "Иллюстрация подарка для хобби: книга и творческие предметы",
+  },
+  {
+    src: "/gifts/seo/gift-home.svg",
+    title: "Для дома",
+    text: "Полезная вещь для повседневности — то, что делает привычный ритуал удобнее, уютнее или приятнее.",
+    alt: "Иллюстрация подарка для дома: уютные предметы и чашка",
+  },
+  {
+    src: "/gifts/seo/gift-personal.svg",
+    title: "Персональный подарок",
+    text: "Вариант с личным смыслом: впечатление, памятная вещь или подарок, связанный с общей историей.",
+    alt: "Иллюстрация персонального подарка: коробка с сердцем и открыткой",
+  },
+] as const;
+
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -744,6 +766,26 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
       <p className="eyebrow">my wish list · идеи подарков</p>
       <h1 className="display">{page.heading}</h1>
       <p className="gifts-page__lead">{page.intro}</p>
+
+      <section className="gifts-page__visuals" aria-label="Направления для выбора подарка">
+        {SEO_VISUALS.map((visual) => (
+          <article className="gifts-page__visual-card" key={visual.src}>
+            <div className="gifts-page__visual-media">
+              <Image
+                src={visual.src}
+                alt={visual.alt}
+                width={1200}
+                height={800}
+                sizes="(max-width: 760px) 100vw, 33vw"
+              />
+            </div>
+            <div className="gifts-page__visual-copy">
+              <h2>{visual.title}</h2>
+              <p>{visual.text}</p>
+            </div>
+          </article>
+        ))}
+      </section>
 
       <section className="gifts-page__seo">
         <h2>Как подойти к выбору</h2>
