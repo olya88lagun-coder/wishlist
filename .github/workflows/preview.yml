@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build web image
-        run: docker build --target web -t wishlist-web:preview .
+        run: docker build --target web -f apps/web/Dockerfile -t wishlist-web:preview .
 
       - name: Start preview container
         run: |
