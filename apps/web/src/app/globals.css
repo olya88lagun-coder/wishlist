@@ -842,3 +842,73 @@ a { color: inherit; }
   .landing-step-card,
   .landing-article-card { transition: none; }
 }
+
+
+/* Approved concept: render the landing exactly as the supplied artwork */
+.landing-concept-page {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: #f4ecdf;
+}
+.landing-concept {
+  position: relative;
+  width: 100%;
+  line-height: 0;
+}
+.landing-concept__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  margin: 0;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.landing-concept__hotspots,
+.landing-concept__content-links {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.landing-hotspot {
+  position: absolute;
+  display: block;
+  pointer-events: auto;
+  border-radius: 999px;
+}
+.landing-hotspot--home { left: 35%; top: 2%; width: 4.5%; height: 7%; }
+.landing-hotspot--articles { left: 40%; top: 2%; width: 5%; height: 7%; }
+.landing-hotspot--how { left: 45%; top: 2%; width: 9%; height: 7%; }
+.landing-hotspot--login { left: 73%; top: 2%; width: 5%; height: 7%; }
+.landing-hotspot--create { left: 79%; top: 1.5%; width: 11%; height: 8%; }
+.landing-hotspot--telegram { left: 9.5%; top: 68.5%; width: 24%; height: 7.8%; }
+.landing-hotspot--site { left: 9.5%; top: 76.3%; width: 24%; height: 7.8%; }
+.landing-hotspot:focus-visible {
+  outline: 2px solid #9f7742;
+  outline-offset: 3px;
+}
+.landing-concept__semantic {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.landing-concept__footer { display: none; }
+
+@media (max-width: 900px) {
+  .landing-concept {
+    width: 1120px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}
+@media (max-width: 560px) {
+  .landing-concept {
+    width: 980px;
+  }
+}
