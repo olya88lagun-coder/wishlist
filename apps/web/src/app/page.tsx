@@ -12,6 +12,26 @@ const STEPS = [
   { title: "Получайте то, что хотели", text: "Друзья бронируют подарки без регистрации. Вы не узнаете, кто что дарит, а подарки не повторятся." },
 ] as const;
 
+function GiftIcon() {
+  return (
+    <svg viewBox="0 0 96 96" aria-hidden="true">
+      <defs><linearGradient id="gift-gold" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#fff1c7" /><stop offset="0.45" stopColor="#d9aa58" /><stop offset="1" stopColor="#9b6b28" /></linearGradient></defs>
+      <path d="M18 39h60v39H18z" fill="#fbf7ed" stroke="url(#gift-gold)" strokeWidth="2" />
+      <path d="M48 39v39" stroke="url(#gift-gold)" strokeWidth="6" />
+      <path d="M14 31h68v12H14z" fill="#fffaf0" stroke="url(#gift-gold)" strokeWidth="2" />
+      <path d="M48 31c-2-16-22-18-23-6-1 9 13 10 23 6Zm0 0c2-16 22-18 23-6 1 9-13 10-23 6Z" fill="none" stroke="url(#gift-gold)" strokeWidth="3" />
+      <path d="M48 31v-7" stroke="url(#gift-gold)" strokeWidth="3" />
+    </svg>
+  );
+}
+
+function ProductIcon({ type }: { type: "buds" | "perfume" | "watch" | "headphones" }) {
+  if (type === "perfume") return <span className="product-icon product-icon--perfume" aria-hidden="true"><span /></span>;
+  if (type === "watch") return <span className="product-icon product-icon--watch" aria-hidden="true"><span /></span>;
+  if (type === "headphones") return <span className="product-icon product-icon--headphones" aria-hidden="true"><span /></span>;
+  return <span className="product-icon product-icon--buds" aria-hidden="true"><span /><i /></span>;
+}
+
 export default async function Home() {
   const { user } = await readViewer();
   if (user) redirect("/lists");
@@ -22,52 +42,40 @@ export default async function Home() {
     <main className="page landing">
       <section className="landing__hero" aria-labelledby="landing-title">
         <div className="landing__hero-copy">
-          <p className="eyebrow">вишлист</p>
-          <h1 id="landing-title" className="display">
-            Подарки, которые <i>правда хочется</i>
-          </h1>
-          <p className="landing__lead">
-            Соберите список желаний за минуту и поделитесь им. Друзья выберут подарок — и никто не подарит второй такой же.
-          </p>
+          <p className="eyebrow landing__eyebrow">ПОДАРКИ</p>
+          <h1 id="landing-title" className="display landing__title">Подарки, которые <i>правда хочется</i></h1>
+          <p className="landing__lead">Соберите список желаний за минуту и поделитесь им. Друзья выберут подарок — и никто не подарит второй такой же.</p>
+          <div className="landing__actions">
+            <a className="button button--block landing__primary" href={primary!.href} target="_blank" rel="noopener noreferrer">
+              <span className="button__mark" aria-hidden="true">↗</span>{primary!.label}<span aria-hidden="true">→</span>
+            </a>
+            <a className="button button--ghost button--block landing__secondary" href={secondary!.href}>
+              <span className="button__mark button__mark--outline" aria-hidden="true">◎</span>{secondary!.label}<span aria-hidden="true">→</span>
+            </a>
+          </div>
         </div>
+
         <div className="wish-orbit" aria-hidden="true">
-          <div className="wish-orbit__glow" />
-          <div className="wish-card wish-card--headphones">
-            <span className="wish-card__icon">🎧</span>
-            <span className="wish-card__name">Наушники</span>
-            <span className="wish-card__price">18 990 ₽</span>
-          </div>
-          <div className="wish-card wish-card--perfume">
-            <span className="wish-card__icon">🌸</span>
-            <span className="wish-card__name">Парфюм</span>
-            <span className="wish-card__price">7 490 ₽</span>
-          </div>
-          <div className="wish-card wish-card--watch">
-            <span className="wish-card__icon">⌚</span>
-            <span className="wish-card__name">Часы</span>
-            <span className="wish-card__price">24 900 ₽</span>
-          </div>
-          <div className="wish-orbit__gift">🎁</div>
+          <div className="wish-orbit__halo wish-orbit__halo--one" />
+          <div className="wish-orbit__halo wish-orbit__halo--two" />
+          <div className="wish-orbit__ring wish-orbit__ring--one" />
+          <div className="wish-orbit__ring wish-orbit__ring--two" />
+          <span className="wish-orbit__pearl wish-orbit__pearl--one" />
+          <span className="wish-orbit__pearl wish-orbit__pearl--two" />
+          <span className="wish-orbit__pearl wish-orbit__pearl--three" />
+          <div className="wish-card wish-card--buds"><ProductIcon type="buds" /><span className="wish-card__copy"><b>Наушники</b><small>18 990 ₽</small></span><span className="wish-card__heart">♡</span></div>
+          <div className="wish-card wish-card--perfume"><ProductIcon type="perfume" /><span className="wish-card__copy"><b>Парфюм</b><small>7 490 ₽</small></span><span className="wish-card__heart">♡</span></div>
+          <div className="wish-card wish-card--watch"><ProductIcon type="watch" /><span className="wish-card__copy"><b>Часы</b><small>24 900 ₽</small></span><span className="wish-card__heart">♡</span></div>
+          <div className="wish-card wish-card--headphones"><ProductIcon type="headphones" /><span className="wish-card__copy"><b>Наушники</b><small>12 990 ₽</small></span><span className="wish-card__heart">♡</span></div>
+          <div className="wish-orbit__gift"><span className="wish-orbit__gift-glow" /><GiftIcon /></div>
         </div>
       </section>
-      <div className="stack">
-        <a className="button button--block" href={primary!.href} target="_blank" rel="noopener noreferrer">
-          {primary!.label}
-        </a>
-        <a className="button button--ghost button--block" href={secondary!.href}>
-          {secondary!.label}
-        </a>
-      </div>
+
       <ol className="landing__steps">
         {STEPS.map((step, index) => (
           <li key={step.title} className="landing__step">
-            <span className="landing__number serif">{index + 1}</span>
-            <div>
-              <h2 className="landing__step-title">{step.title}</h2>
-              <p className="muted" style={{ margin: 0 }}>
-                {step.text}
-              </p>
-            </div>
+            <span className="landing__number serif">{String(index + 1).padStart(2, "0")}</span>
+            <div><h2 className="landing__step-title">{step.title}</h2><p className="muted" style={{ margin: 0 }}>{step.text}</p></div>
           </li>
         ))}
       </ol>
