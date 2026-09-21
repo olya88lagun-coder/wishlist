@@ -20,13 +20,36 @@ export default async function Home() {
 
   return (
     <main className="page landing">
-      <p className="eyebrow">вишлист</p>
-      <h1 className="display">
-        Подарки, которые <i>правда хочется</i>
-      </h1>
-      <p className="landing__lead">
-        Соберите список желаний за минуту и поделитесь им. Друзья выберут подарок — и никто не подарит второй такой же.
-      </p>
+      <section className="landing__hero" aria-labelledby="landing-title">
+        <div className="landing__hero-copy">
+          <p className="eyebrow">вишлист</p>
+          <h1 id="landing-title" className="display">
+            Подарки, которые <i>правда хочется</i>
+          </h1>
+          <p className="landing__lead">
+            Соберите список желаний за минуту и поделитесь им. Друзья выберут подарок — и никто не подарит второй такой же.
+          </p>
+        </div>
+        <div className="wish-orbit" aria-hidden="true">
+          <div className="wish-orbit__glow" />
+          <div className="wish-card wish-card--headphones">
+            <span className="wish-card__icon">🎧</span>
+            <span className="wish-card__name">Наушники</span>
+            <span className="wish-card__price">18 990 ₽</span>
+          </div>
+          <div className="wish-card wish-card--perfume">
+            <span className="wish-card__icon">🌸</span>
+            <span className="wish-card__name">Парфюм</span>
+            <span className="wish-card__price">7 490 ₽</span>
+          </div>
+          <div className="wish-card wish-card--watch">
+            <span className="wish-card__icon">⌚</span>
+            <span className="wish-card__name">Часы</span>
+            <span className="wish-card__price">24 900 ₽</span>
+          </div>
+          <div className="wish-orbit__gift">🎁</div>
+        </div>
+      </section>
       <div className="stack">
         <a className="button button--block" href={primary!.href} target="_blank" rel="noopener noreferrer">
           {primary!.label}
