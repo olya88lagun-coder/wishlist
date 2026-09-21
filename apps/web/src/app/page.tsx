@@ -55,21 +55,10 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="wish-orbit" aria-hidden="true">
-          <div className="wish-orbit__halo wish-orbit__halo--one" />
-          <div className="wish-orbit__halo wish-orbit__halo--two" />
-          <div className="wish-orbit__ring wish-orbit__ring--one" />
-          <div className="wish-orbit__ring wish-orbit__ring--two" />
-          <span className="wish-orbit__pearl wish-orbit__pearl--one" />
-          <span className="wish-orbit__pearl wish-orbit__pearl--two" />
-          <span className="wish-orbit__pearl wish-orbit__pearl--three" />
-          <div className="wish-card wish-card--buds"><ProductIcon type="buds" /><span className="wish-card__copy"><b>Наушники</b><small>18 990 ₽</small></span><span className="wish-card__heart">♡</span></div>
-          <div className="wish-card wish-card--perfume"><ProductIcon type="perfume" /><span className="wish-card__copy"><b>Парфюм</b><small>7 490 ₽</small></span><span className="wish-card__heart">♡</span></div>
-          <div className="wish-card wish-card--watch"><ProductIcon type="watch" /><span className="wish-card__copy"><b>Часы</b><small>24 900 ₽</small></span><span className="wish-card__heart">♡</span></div>
-          <div className="wish-card wish-card--headphones"><ProductIcon type="headphones" /><span className="wish-card__copy"><b>Наушники</b><small>12 990 ₽</small></span><span className="wish-card__heart">♡</span></div>
-          <div className="wish-orbit__gift"><span className="wish-orbit__gift-glow" /><GiftIcon /></div>
+        <div className="premium-hero-art" aria-hidden="true">
+          <img src="/hero-premium.svg" alt="" />
         </div>
-      </section>
+     </section>
 
       <ol className="landing__steps">
         {STEPS.map((step, index) => (
