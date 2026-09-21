@@ -19,7 +19,7 @@ export default async function Home() {
       <div className="landing-concept">
         <Image
           className="landing-concept__image"
-          src="/hero-premium.png.png"
+          src="/hero-premium.png"
           alt="MyWishList — сервис списков желаний: подарки, которые правда хочется"
           width={1868}
           height={842}
