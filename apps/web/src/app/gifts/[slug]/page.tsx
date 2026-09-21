@@ -687,24 +687,30 @@ const SEO_VISUALS = [
     src: "/gifts/seo/gift-hobby-editorial.svg",
     title: "Для любимого занятия",
     text: "Книги, творчество, сад, спорт или другое увлечение — хороший подарок продолжает то, чем маме уже нравится заниматься.",
-    alt: "Тёплая редакционная иллюстрация подарка для любимого занятия: книги, кисти и палитра",
+    alt: "Подарок для любимого занятия: книги, кисти и краски",
   },
   {
     src: "/gifts/seo/gift-home-editorial.svg",
     title: "Для дома и отдыха",
     text: "Уютная вещь для повседневности: чайные ритуалы, отдых, кухня или маленькая деталь, которая делает привычный день приятнее.",
-    alt: "Тёплая редакционная иллюстрация подарка для дома и отдыха: свеча, поднос и растения",
+    alt: "Подарок для дома и отдыха: свеча и уютная композиция",
   },
   {
     src: "/gifts/seo/gift-personal-editorial.svg",
     title: "С личным смыслом",
     text: "Памятная вещь, впечатление или подарок с семейной историей — вариант, который важен не только своей практичностью.",
-    alt: "Тёплая редакционная иллюстрация персонального подарка: коробка с памятным фото и медальоном",
+    alt: "Персональный подарок с памятной фотографией и украшением",
   },
 ] as const;
 
+const MOM_PHOTO_VISUALS = [
+  { src: "data:image/jpeg;base64,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", title: "Для любимого занятия", text: SEO_VISUALS[0].text, alt: "Фотография подарка для любимого занятия" },
+  { src: "data:image/jpeg;base64,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", title: "Для дома и отдыха", text: SEO_VISUALS[1].text, alt: "Фотография подарка для дома и отдыха" },
+  { src: "data:image/jpeg;base64,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", title: "С личным смыслом", text: SEO_VISUALS[2].text, alt: "Фотография персонального подарка" },
+] as const;
+
 function getVisuals(slug: string) {
-  if (slug === "for-mom") return SEO_VISUALS;
+  if (slug === "for-mom") return MOM_PHOTO_VISUALS;
 
   return SEO_VISUALS.map((visual) => ({
     ...visual,
@@ -797,8 +803,9 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
               <Image
                 src={visual.src}
                 alt={visual.alt}
-                width={1200}
-                height={800}
+                width={120}
+                height={120}
+                unoptimized
                 sizes="(max-width: 760px) 100vw, 33vw"
               />
             </div>
