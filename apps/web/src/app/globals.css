@@ -137,7 +137,29 @@ a { color: inherit; }
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-  margin: 8px 0 8px;
+  margin: 18px 0 8px;
+}
+
+.gifts-page__visuals-intro {
+  grid-column: 1 / -1;
+  max-width: 760px;
+  margin-bottom: 2px;
+}
+
+.gifts-page__visuals-intro h2 {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(28px, 4vw, 36px);
+  line-height: 1.08;
+  font-weight: 500;
+  margin: 6px 0 10px;
+}
+
+.gifts-page__visuals-intro > p:last-child {
+  max-width: 680px;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.65;
 }
 
 .gifts-page__visual-card {
@@ -184,7 +206,20 @@ a { color: inherit; }
   .gifts-page__visuals {
     grid-template-columns: 1fr;
     gap: 14px;
-    margin-top: 4px;
+    margin-top: 8px;
+  }
+
+  .gifts-page__visuals-intro {
+    margin-bottom: 4px;
+  }
+
+  .gifts-page__visuals-intro h2 {
+    font-size: 28px;
+  }
+
+  .gifts-page__visuals-intro > p:last-child {
+    font-size: 15px;
+    line-height: 1.58;
   }
 
   .gifts-page__visual-card {
