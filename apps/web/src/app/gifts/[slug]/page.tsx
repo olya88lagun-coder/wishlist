@@ -810,9 +810,10 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                         : "/gifts/seo/mom-photo-strip.jpg"
                   }
                   alt={visual.alt}
-                  width={visual.title === "Для любимого занятия" || visual.title === "Для дома и отдыха" ? 320 : 1200}
-                  height={visual.title === "Для любимого занятия" || visual.title === "Для дома и отдыха" ? 213 : 800}
+                  width={1200}
+                  height={800}
                   sizes="(max-width: 760px) 100vw, 33vw"
+                  unoptimized
                 />
               </div>
             ) : (
