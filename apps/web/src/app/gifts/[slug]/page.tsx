@@ -800,16 +800,19 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
         {getVisuals(slug).map((visual) => (
           <article className="gifts-page__visual-card" key={visual.title}>
             {slug === "for-mom" ? (
-              <div
-                className="gifts-page__visual-media"
-                role="img"
-                aria-label={visual.alt}
-                style={{
-                  backgroundImage: 'url("/gifts/seo/mom-photo-strip.jpg")',
-                  backgroundSize: "300% 100%",
-                  backgroundPosition: "position" in visual ? visual.position : "center center",
-                }}
-              />
+              <div className="gifts-page__visual-media">
+                <Image
+                  src={
+                    visual.title === "Для любимого занятия"
+                      ? "/gifts/seo/mom-1.webp"
+                      : "/gifts/seo/mom-photo-strip.jpg"
+                  }
+                  alt={visual.alt}
+                  width={visual.title === "Для любимого занятия" ? 320 : 1200}
+                  height={visual.title === "Для любимого занятия" ? 213 : 800}
+                  sizes="(max-width: 760px) 100vw, 33vw"
+                />
+              </div>
             ) : (
               <div className="gifts-page__visual-media">
                 <Image
