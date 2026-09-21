@@ -722,7 +722,7 @@ function getVisuals(slug: string) {
       visual.title === "Для любимого занятия"
         ? "Подарок, который продолжает любимое занятие: книги, творчество, спорт, дача, техника или другое увлечение."
         : visual.title === "Для дома и отдыха"
-                        ? "data:image/jpeg;base64,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"
+                        ? "Подарок для дома и отдыха: уютная вещь, полезная деталь или приятный ритуал для повседневной жизни."
           : "Вариант с личным смыслом: впечатление, памятная вещь или подарок, связанный с общей историей.",
   }));
 }
@@ -806,8 +806,8 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                     visual.title === "Для любимого занятия"
                       ? "/gifts/seo/mom-1.webp"
                       : visual.title === "Для дома и отдыха"
-                        ? "/gifts/seo/mom-2.webp"
-                        : "/gifts/seo/mom-photo-strip.jpg"
+                        ? "/gifts/seo/mom-2.png"
+                        : "/gifts/seo/mom-3.png"
                   }
                   alt={visual.alt}
                   width={1200}
