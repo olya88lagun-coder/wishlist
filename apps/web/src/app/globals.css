@@ -442,3 +442,43 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .wish-orbit::after, .wish-card, .wish-orbit__gift, .wish-orbit__gift-glow, .wish-orbit__ring--two { animation: none; }
 }
+
+
+/* Premium hero artwork */
+.premium-hero-art {
+  position: relative;
+  width: 100%;
+  min-height: 570px;
+  border-radius: 38px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgb(91 66 34 / .13);
+  background: #f3e8d8;
+}
+.premium-hero-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 72% 48%, transparent 0 32%, rgb(255 250 240 / .10) 65%, rgb(255 250 240 / .24));
+  pointer-events: none;
+}
+.premium-hero-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 570px;
+  object-fit: cover;
+  animation: premium-art-breathe 10s ease-in-out infinite;
+}
+@keyframes premium-art-breathe {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.018); }
+}
+@media (max-width: 899px) {
+  .premium-hero-art, .premium-hero-art img { min-height: 430px; }
+}
+@media (max-width: 560px) {
+  .premium-hero-art, .premium-hero-art img { min-height: 390px; border-radius: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .premium-hero-art img { animation: none; }
+}
