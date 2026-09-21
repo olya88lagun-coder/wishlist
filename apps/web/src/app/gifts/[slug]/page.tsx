@@ -798,17 +798,29 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
           <p>Не ищите подарок вслепую. Сначала выберите направление, которое ближе человеку, а затем уточните интересы и бюджет в подборщике ниже.</p>
         </div>
         {getVisuals(slug).map((visual) => (
-          <article className="gifts-page__visual-card" key={visual.src}>
-            <div
-              className="gifts-page__visual-media"
-              role="img"
-              aria-label={visual.alt}
-              style={{
-                backgroundImage: 'url("/gifts/seo/mom-photo-strip.jpg")',
-                backgroundSize: "300% 100%",
-                backgroundPosition: visual.position,
-              }}
-            />
+          <article className="gifts-page__visual-card" key={visual.title}>
+            {slug === "for-mom" ? (
+              <div
+                className="gifts-page__visual-media"
+                role="img"
+                aria-label={visual.alt}
+                style={{
+                  backgroundImage: 'url("/gifts/seo/mom-photo-strip.jpg")',
+                  backgroundSize: "300% 100%",
+                  backgroundPosition: "position" in visual ? visual.position : "center center",
+                }}
+              />
+            ) : (
+              <div className="gifts-page__visual-media">
+                <Image
+                  src={visual.src}
+                  alt={visual.alt}
+                  width={1200}
+                  height={800}
+                  sizes="(max-width: 760px) 100vw, 33vw"
+                />
+              </div>
+            )}
             <div className="gifts-page__visual-copy">
               <h2>{visual.title}</h2>
               <p>{visual.text}</p>
