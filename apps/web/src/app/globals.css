@@ -313,7 +313,9 @@ a { color: inherit; }
 .wish-card {
   z-index: 4;
   width: 205px;
-  min-height: 104px;
+  height: 104px;
+  min-height: 0;
+  max-height: 104px;
   padding: 16px 15px;
   grid-template-columns: 68px 1fr 20px;
   column-gap: 11px;
@@ -324,6 +326,7 @@ a { color: inherit; }
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
 }
+.wish-card { align-content: center; overflow: hidden; }
 .wish-card__copy { display: grid; align-content: center; gap: 5px; }
 .wish-card__copy b { font-size: 13px; font-weight: 600; }
 .wish-card__copy small { color: #6d665d; font-family: var(--font-playfair), Georgia, serif; font-size: 13px; }
