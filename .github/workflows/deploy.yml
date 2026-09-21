@@ -110,13 +110,13 @@ jobs:
             fi
           }
 
-          assert_contains '<title>Вишлист — список желаний и подарков</title>' "$tmp/home.html" "home title"
+          assert_contains '<title>Вишлист онлайн — список желаний и подарков | MyWishList</title>' "$tmp/home.html" "home title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online"' "$tmp/home.html" "home canonical"
 
-          assert_contains '<title>Идеи подарков — AI-помощник | My Wish List</title>' "$tmp/gifts.html" "gifts title"
+          assert_contains '<title>Идеи подарков — AI-помощник | MyWishList</title>' "$tmp/gifts.html" "gifts title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts"' "$tmp/gifts.html" "gifts canonical"
 
-          assert_contains '<title>Что подарить маме — идеи подарков | My Wish List</title>' "$tmp/for-mom.html" "for-mom title"
+          assert_contains '<title>Что подарить маме — идеи подарков | MyWishList</title>' "$tmp/for-mom.html" "for-mom title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts/for-mom"' "$tmp/for-mom.html" "for-mom canonical"
           assert_contains 'Что подарить маме?' "$tmp/for-mom.html" "for-mom heading"
           assert_contains '"@type":"WebPage"' "$tmp/for-mom.html" "for-mom WebPage JSON-LD"
