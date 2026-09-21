@@ -804,7 +804,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                 <Image
                   src={
                     visual.title === "Для любимого занятия"
-                      ? "/gifts/seo/mom-1.webp"
+                      ? "/gifts/seo/mom-1.png"
                       : visual.title === "Для дома и отдыха"
                         ? "/gifts/seo/mom-2.png"
                         : "/gifts/seo/mom-3.png"
