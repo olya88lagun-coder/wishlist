@@ -13,10 +13,14 @@ import "./home.css";
 const HOME_DESCRIPTION =
   "Создайте вишлист на день рождения, свадьбу или Новый год. Добавляйте товары из Wildberries, Ozon и любых магазинов, делитесь одной ссылкой — друзья выберут подарок без повторов.";
 
-// Коды подтверждения Яндекс Вебмастера и Search Console читаются при запросе: при сборке образа .env ещё нет
+// Коды подтверждения Яндекс Вебмастера и Search Console публичны (попадают в HTML),
+// поэтому известные значения лежат в коде; переменные окружения могут их переопределить
+const DEFAULT_YANDEX_VERIFICATION = "a4b37b24e60c31e9";
+const DEFAULT_GOOGLE_SITE_VERIFICATION = "WoYcX61EDftCLKgkNKcej5GQCO9TZQuo2Lr0TEvcS_4";
+
 export function generateMetadata(): Metadata {
-  const yandex = process.env.YANDEX_VERIFICATION;
-  const google = process.env.GOOGLE_SITE_VERIFICATION;
+  const yandex = process.env.YANDEX_VERIFICATION || DEFAULT_YANDEX_VERIFICATION;
+  const google = process.env.GOOGLE_SITE_VERIFICATION || DEFAULT_GOOGLE_SITE_VERIFICATION;
   return {
     title: { absolute: "Вишлист онлайн — список желаний и подарков | MyWishList" },
     description: HOME_DESCRIPTION,
