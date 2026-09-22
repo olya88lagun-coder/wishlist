@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
+import { GIFT_IDEAS, giftIdeaSearchLinks, giftIdeasCountLabel } from "@/content/gift-ideas";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "../GiftFinder";
 import { getDb } from "@/server/db";
 import { readViewer } from "@/server/viewer";
+import "../gift-ideas.css";
 
 const PAGES = {
   "for-mom": {
@@ -734,12 +736,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const page = PAGES[slug as Slug];
   if (!page) return {};
+  const ideas = GIFT_IDEAS[slug];
+  const title = ideas ? `${page.heading.replace("?", "")}: ${giftIdeasCountLabel(ideas)} с ценами` : page.title;
   return {
-    title: page.title,
+    title,
     description: page.description,
     alternates: { canonical: `/gifts/${slug}` },
     openGraph: {
-      title: page.title,
+      title,
       description: page.description,
       url: `/gifts/${slug}`,
       siteName: SITE_NAME,
@@ -750,7 +754,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: {
       card: "summary_large_image",
       images: ["/opengraph-image.jpg"],
-      title: page.title,
+      title,
       description: page.description,
     },
   };
@@ -761,6 +765,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
   const page = PAGES[slug as Slug];
   if (!page) notFound();
 
+  const ideas = GIFT_IDEAS[slug];
   const { user } = await readViewer();
   const wishlists = user ? await listWishlistsForOwner(getDb(), user.id) : [];
   const base = process.env.APP_URL ?? "https://my-wish-list.online";
@@ -807,15 +812,16 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                 <Image
                   src={
                     visual.title === "Для любимого занятия"
-                      ? "/gifts/seo/mom-1.png"
+                      ? "/gifts/seo/mom-1.webp"
                       : visual.title === "Для дома и отдыха"
-                        ? "/gifts/seo/mom-2.png"
-                        : "/gifts/seo/mom-3.png"
+                        ? "/gifts/seo/mom-2.webp"
+                        : "/gifts/seo/mom-3.webp"
                   }
                   alt={visual.alt}
                   width={1200}
                   height={800}
                   sizes="(max-width: 760px) 100vw, 33vw"
+                  loading="eager"
                   unoptimized
                 />
               </div>
@@ -844,6 +850,44 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
           {page.tips.map((tip) => <li key={tip}>{tip}</li>)}
         </ul>
       </section>
+
+      {ideas ? (
+        <section className="gift-ideas" aria-labelledby="gift-ideas-title">
+          <h2 id="gift-ideas-title">{ideas.title}</h2>
+          <p className="gift-ideas__intro">{ideas.intro}</p>
+          {ideas.groups.map((group) => (
+            <div className="gift-ideas__group" key={group.title}>
+              <h3>{group.title}</h3>
+              <ul className="gift-ideas__list">
+                {group.ideas.map((idea) => (
+                  <li className="gift-idea" key={idea.name}>
+                    <div className="gift-idea__head">
+                      <h4>{idea.name}</h4>
+                      <span className="gift-idea__price">{idea.price}</span>
+                    </div>
+                    <p>{idea.why}</p>
+                    <p className="gift-idea__stores">
+                      <span>Найти:</span>
+                      {giftIdeaSearchLinks(idea.query).map((link) => (
+                        <a key={link.store} href={link.href} target="_blank" rel="nofollow noopener noreferrer">{link.store}</a>
+                      ))}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <div className="gift-ideas__avoid">
+            <h3>Чего лучше не дарить</h3>
+            <ul>
+              {ideas.avoid.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+          <p className="gift-ideas__note">
+            Цены — ориентир по крупным маркетплейсам. Понравившиеся варианты можно сохранить в вишлист и отправить близким одной ссылкой.
+          </p>
+        </section>
+      ) : null}
 
       <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} initialPerson={page.person} />
 

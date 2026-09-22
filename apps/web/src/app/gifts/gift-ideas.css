@@ -1,0 +1,26 @@
+/* Блок конкретных идей на страницах /gifts/* — использует токены темы из globals.css */
+.gift-ideas { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); }
+.gift-ideas h2 { margin: 6px 0 12px; font-family: var(--font-playfair), Georgia, serif; font-size: 30px; font-weight: 500; }
+.gift-ideas__intro { max-width: 760px; margin: 0 0 8px; font-size: 16px; line-height: 1.7; color: var(--ink-soft); }
+.gift-ideas__group { margin-top: 32px; }
+.gift-ideas__group h3 { margin: 0 0 14px; font-size: 19px; font-weight: 600; }
+.gift-ideas__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gift-idea { display: flex; flex-direction: column; gap: 8px; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.gift-idea__head { display: flex; flex-direction: column; gap: 4px; }
+.gift-idea h4 { margin: 0; font-size: 16px; line-height: 1.35; font-weight: 600; }
+.gift-idea__price { font-size: 13px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
+.gift-idea p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+.gift-idea .gift-idea__stores { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: auto; padding-top: 6px; font-size: 13px; }
+.gift-idea__stores span { color: var(--ink-faint); }
+.gift-idea__stores a { color: var(--ink); text-underline-offset: 3px; }
+.gift-ideas__avoid { max-width: 760px; margin-top: 36px; }
+.gift-ideas__avoid h3 { margin: 0 0 10px; font-size: 19px; font-weight: 600; }
+.gift-ideas__avoid ul { margin: 0; padding-left: 20px; color: var(--ink-soft); line-height: 1.7; }
+.gift-ideas__note { max-width: 760px; margin: 20px 0 0; font-size: 13px; color: var(--ink-faint); }

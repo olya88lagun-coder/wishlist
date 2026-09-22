@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { ARTICLES } from "@/content/articles";
+import { GIFT_IDEAS } from "@/content/gift-ideas";
 
 const GIFT_SLUGS = [
   "for-mom","for-dad","for-girlfriend","for-boyfriend","for-wife","for-husband","for-friend","for-colleague","for-sister","for-brother","for-grandma","for-grandpa","for-daughter","for-son","for-teacher","for-boss",
@@ -8,6 +9,8 @@ const GIFT_SLUGS = [
 
 // Дата последней правки главной и страниц подарков; обновлять при заметных изменениях содержания
 const CONTENT_UPDATED = new Date("2026-09-21");
+// Страницы, на которые добавлены конкретные идеи подарков
+const GIFT_IDEAS_UPDATED = new Date("2026-09-22");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = (process.env.APP_URL ?? "https://my-wish-list.online").replace(/\/$/, "");
@@ -17,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/gifts`, lastModified: CONTENT_UPDATED, changeFrequency: "weekly", priority: 0.9 },
     ...GIFT_SLUGS.map((slug) => ({
       url: `${baseUrl}/gifts/${slug}`,
-      lastModified: CONTENT_UPDATED,
+      lastModified: GIFT_IDEAS[slug] ? GIFT_IDEAS_UPDATED : CONTENT_UPDATED,
       changeFrequency: "monthly" as const,
       priority: slug.startsWith("for-") ? 0.7 : 0.65,
     })),
