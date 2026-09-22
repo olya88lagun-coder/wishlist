@@ -119,9 +119,10 @@ jobs:
           assert_contains '<title>Идеи подарков — AI-помощник | MyWishList</title>' "$tmp/gifts.html" "gifts title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts"' "$tmp/gifts.html" "gifts canonical"
 
-          assert_contains '<title>Что подарить маме — идеи подарков | MyWishList</title>' "$tmp/for-mom.html" "for-mom title"
+          assert_contains '<title>Что подарить маме: 14 идей с ценами | MyWishList</title>' "$tmp/for-mom.html" "for-mom title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts/for-mom"' "$tmp/for-mom.html" "for-mom canonical"
           assert_contains 'Что подарить маме?' "$tmp/for-mom.html" "for-mom heading"
+          assert_contains 'Идеи подарков маме' "$tmp/for-mom.html" "for-mom gift ideas block"
           assert_contains '"@type":"WebPage"' "$tmp/for-mom.html" "for-mom WebPage JSON-LD"
           assert_contains '"@type":"BreadcrumbList"' "$tmp/for-mom.html" "for-mom BreadcrumbList JSON-LD"
           assert_contains 'href="/gifts/birthday"' "$tmp/for-mom.html" "for-mom related link"
