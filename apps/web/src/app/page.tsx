@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
+import { EditorialMenu } from "@/components/EditorialMenu";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
 import { getEnv } from "@/server/env";
@@ -84,7 +85,7 @@ export default async function Home() {
         </Link>
         <nav className="home-nav" aria-label="Разделы сайта">
           <Link href="/" aria-current="page">Главная</Link>
-          <Link href="/gifts">Каталог</Link>
+          <EditorialMenu />
           <a href="#how">Как это работает</a>
           <a href="#about">О нас</a>
         </nav>

@@ -2,7 +2,7 @@ import { themeInterestAction } from "./actions";
 
 export function ThemeInterest({ wishlistId, voted }: { wishlistId: string; voted: boolean }) {
   return (
-    <section className="panel stack" aria-label="Оформление списка" style={{ marginTop: 16 }}>
+    <section className="panel stack owner-theme-card" aria-label="Оформление списка">
       <div className="row row--between">
         <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Оформление</h2>
         <span className="muted">«Журнал»</span>
