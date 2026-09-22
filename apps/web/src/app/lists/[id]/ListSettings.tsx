@@ -11,9 +11,9 @@ export function ListSettings({ wishlist }: { wishlist: Pick<WishlistSummary, "id
   const [state, action] = useActionState(updateListAction.bind(null, wishlist.id), initialFormState);
   const values = state.status === "error" ? state.values : { title: wishlist.title, occasion: wishlist.occasion, eventDate: wishlist.eventDate ?? "" };
   return (
-    <details className="panel" style={{ marginTop: 32 }}>
-      <summary className="muted" style={{ cursor: "pointer" }}>Настройки списка</summary>
-      <form action={action} className="stack" style={{ marginTop: 14 }} noValidate>
+    <details className="panel owner-settings-card">
+      <summary>Настройки списка <span aria-hidden="true">→</span></summary>
+      <form action={action} className="stack owner-settings-card__form" noValidate>
         <div className="field">
           <label htmlFor="list-title">Название</label>
           <input id="list-title" name="title" className="input" maxLength={80} defaultValue={values.title ?? ""} />
@@ -35,7 +35,7 @@ export function ListSettings({ wishlist }: { wishlist: Pick<WishlistSummary, "id
         {state.message && <p className={state.status === "error" ? "error" : "muted"} role="status">{state.message}</p>}
         <SubmitButton pendingText="Сохраняем…" variant="ghost">Сохранить</SubmitButton>
       </form>
-      <div style={{ marginTop: 16 }}>
+      <div className="owner-settings-card__danger">
         <ConfirmButton action={deleteListAction.bind(null, wishlist.id)} question="Удалить список со всеми подарками и бронями? Это нельзя отменить.">
           Удалить список
         </ConfirmButton>

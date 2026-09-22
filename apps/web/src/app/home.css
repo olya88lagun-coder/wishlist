@@ -35,14 +35,16 @@
   letter-spacing: -0.01em;
 }
 .home-nav { display: flex; gap: 36px; margin-left: 40px; font-size: 15px; }
-.home-nav a {
+.home-nav a,
+.home-nav .editorial-menu > summary {
   padding: 6px 0;
   border-bottom: 1px solid transparent;
   color: var(--home-soft);
   text-decoration: none;
   transition: color 0.2s, border-color 0.2s;
 }
-.home-nav a:hover { color: var(--home-ink); }
+.home-nav a:hover,
+.home-nav .editorial-menu > summary:hover { color: var(--home-ink); }
 .home-nav a[aria-current="page"] { color: var(--home-gold); border-bottom-color: var(--home-gold); }
 .home-header__actions { display: flex; align-items: center; gap: 28px; margin-left: auto; font-size: 15px; }
 .home-login { color: var(--home-soft); text-decoration: none; }

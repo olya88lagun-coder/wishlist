@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/SiteFooter";
+import { EditorialMenu } from "@/components/EditorialMenu";
 
 export default function ArticlesLayout({ children }: { children: ReactNode }) {
   return (
@@ -9,7 +10,7 @@ export default function ArticlesLayout({ children }: { children: ReactNode }) {
         <Link className="editorial-brand" href="/">MyWishList</Link>
         <nav aria-label="Разделы сайта">
           <Link href="/">Главная</Link>
-          <Link href="/articles">Статьи</Link>
+          <EditorialMenu />
           <Link href="/#how-it-works">Как это работает</Link>
         </nav>
         <Link className="editorial-create" href="/lists">Создать список</Link>
