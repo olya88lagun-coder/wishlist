@@ -30,6 +30,8 @@ describe("gift recipient editorial images", () => {
   test.each([
     ["for-dad", ["/gifts/seo/dad-1.webp", "/gifts/seo/dad-2.webp", "/gifts/seo/dad-3.webp"]],
     ["for-girlfriend", ["/gifts/seo/girlfriend-1.webp", "/gifts/seo/girlfriend-2.webp", "/gifts/seo/girlfriend-3.webp"]],
+    ["for-boyfriend", ["/gifts/seo/boyfriend-1.webp", "/gifts/seo/boyfriend-2.webp", "/gifts/seo/boyfriend-3.webp"]],
+    ["new-year", ["/gifts/seo/new-year-1.webp", "/gifts/seo/new-year-2.webp", "/gifts/seo/new-year-3.webp"]],
   ])("uses the dedicated image series for %s", async (slug, expectedSources) => {
     const page = await GiftRecipientPage({ params: Promise.resolve({ slug }) });
 
