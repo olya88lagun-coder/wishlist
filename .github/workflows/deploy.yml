@@ -132,6 +132,22 @@ jobs:
           assert_contains 'Sitemap: https://my-wish-list.online/sitemap.xml' "$tmp/robots.txt" "robots sitemap"
 
           echo "Deployment, SEO content and smoke tests passed."
+
+          # Диск общий с трекером питания: удаляем только старые образы сайта.
+          # Оставляем текущий релиз и один предыдущий, чтобы можно было откатиться.
+          mapfile -t old_tags < <(
+            docker images "$image_repo" --format '{{.CreatedAt}}\t{{.Tag}}' |
+              sort -r |
+              awk -F '\t' -v current="$EXPECTED_TAG" '$2 ~ /^sha-/ && $2 != current {print $2}' |
+              tail -n +2
+          )
+          for tag in "${old_tags[@]}"; do
+            docker rmi "$image_repo:$tag" >/dev/null || echo "Could not remove $image_repo:$tag" >&2
+          done
+          echo "Removed ${#old_tags[@]} old web image(s)."
+          # Слои без тегов старше суток ни на что не ссылаются
+          docker image prune -f --filter "until=24h" >/dev/null || true
+          df -h / | awk 'NR == 2 {print "Disk usage: " $3 " of " $2 " (" $5 ")"}'
           REMOTE
 
           ssh_args=(
