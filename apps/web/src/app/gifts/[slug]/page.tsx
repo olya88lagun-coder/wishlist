@@ -706,14 +706,26 @@ const SEO_VISUALS = [
   },
 ] as const;
 
-const MOM_PHOTO_VISUALS = [
-  { title: "Для любимого занятия", text: SEO_VISUALS[0].text, alt: "Фотография подарка для любимого занятия", position: "left center" },
-  { title: "Для дома и отдыха", text: SEO_VISUALS[1].text, alt: "Фотография подарка для дома и отдыха", position: "center center" },
-  { title: "С личным смыслом", text: SEO_VISUALS[2].text, alt: "Фотография персонального подарка", position: "right center" },
-] as const;
+const PHOTO_VISUALS = {
+  "for-mom": [
+    { src: "/gifts/seo/mom-1.webp", title: "Для любимого занятия", text: SEO_VISUALS[0].text, alt: "Фотография подарка для любимого занятия" },
+    { src: "/gifts/seo/mom-2.webp", title: "Для дома и отдыха", text: SEO_VISUALS[1].text, alt: "Фотография подарка для дома и отдыха" },
+    { src: "/gifts/seo/mom-3.webp", title: "С личным смыслом", text: SEO_VISUALS[2].text, alt: "Фотография персонального подарка" },
+  ],
+  "for-dad": [
+    { src: "/gifts/seo/dad-1.webp", title: "Для увлечения", text: "Подарок, который поддерживает любимое занятие: рыбалку, путешествия, фотографию или активный отдых.", alt: "Подарки папе для рыбалки, путешествий и активного отдыха" },
+    { src: "/gifts/seo/dad-2.webp", title: "Для дома", text: "Полезные вещи для ежедневных ритуалов, домашнего комфорта и небольших задач, которыми приятно заниматься самому.", alt: "Практичные подарки папе для дома и повседневного комфорта" },
+    { src: "/gifts/seo/dad-3.webp", title: "Персональный вариант", text: "Памятная вещь, связанная с семейной историей, путешествиями или важным личным моментом.", alt: "Персональный подарок папе с фотографиями и памятными вещами" },
+  ],
+  "for-girlfriend": [
+    { src: "/gifts/seo/girlfriend-1.webp", title: "Для увлечения", text: "Подарок для творчества, фотографии, путешествий или другого занятия, которому она с удовольствием посвящает время.", alt: "Подарки девушке для творчества, фотографии и путешествий" },
+    { src: "/gifts/seo/girlfriend-2.webp", title: "Для дома", text: "Красивые вещи для ухода за собой, спокойного отдыха и уютных ежедневных ритуалов.", alt: "Подарки девушке для ухода за собой и домашнего уюта" },
+    { src: "/gifts/seo/girlfriend-3.webp", title: "Персональный вариант", text: "Украшение, совместное воспоминание или небольшой подарок, который говорит о ваших чувствах без лишних слов.", alt: "Персональный подарок девушке с украшением и общими воспоминаниями" },
+  ],
+} as const;
 
 function getVisuals(slug: string) {
-  if (slug === "for-mom") return MOM_PHOTO_VISUALS;
+  if (slug in PHOTO_VISUALS) return PHOTO_VISUALS[slug as keyof typeof PHOTO_VISUALS];
 
   return SEO_VISUALS.map((visual) => ({
     ...visual,
@@ -807,35 +819,17 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
         </div>
         {getVisuals(slug).map((visual) => (
           <article className="gifts-page__visual-card" key={visual.title}>
-            {slug === "for-mom" ? (
-              <div className="gifts-page__visual-media">
-                <Image
-                  src={
-                    visual.title === "Для любимого занятия"
-                      ? "/gifts/seo/mom-1.webp"
-                      : visual.title === "Для дома и отдыха"
-                        ? "/gifts/seo/mom-2.webp"
-                        : "/gifts/seo/mom-3.webp"
-                  }
-                  alt={visual.alt}
-                  width={1200}
-                  height={800}
-                  sizes="(max-width: 760px) 100vw, 33vw"
-                  loading="eager"
-                  unoptimized
-                />
-              </div>
-            ) : (
-              <div className="gifts-page__visual-media">
-                <Image
-                  src={"src" in visual ? visual.src : ""}
-                  alt={visual.alt}
-                  width={1200}
-                  height={800}
-                  sizes="(max-width: 760px) 100vw, 33vw"
-                />
-              </div>
-            )}
+            <div className="gifts-page__visual-media">
+              <Image
+                src={visual.src}
+                alt={visual.alt}
+                width={1200}
+                height={800}
+                sizes="(max-width: 760px) 100vw, 33vw"
+                loading={slug in PHOTO_VISUALS ? "eager" : undefined}
+                unoptimized={slug in PHOTO_VISUALS}
+              />
+            </div>
             <div className="gifts-page__visual-copy">
               <h2>{visual.title}</h2>
               <p>{visual.text}</p>
