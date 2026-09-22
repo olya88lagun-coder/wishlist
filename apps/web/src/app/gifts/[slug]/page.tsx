@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { listWishlistsForOwner } from "@wishlist/db";
@@ -741,12 +742,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: page.title,
       description: page.description,
       url: `/gifts/${slug}`,
-      siteName: "My Wish List",
+      siteName: SITE_NAME,
+      images: DEFAULT_OG_IMAGES,
       locale: "ru_RU",
       type: "website",
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
+      images: ["/opengraph-image.jpg"],
       title: page.title,
       description: page.description,
     },
@@ -768,13 +771,13 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
       name: page.title,
       description: page.description,
       url: `${base}/gifts/${slug}`,
-      isPartOf: { "@type": "WebSite", name: "My Wish List", url: base },
+      isPartOf: { "@type": "WebSite", name: "MyWishList", url: base },
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "My Wish List", item: base },
+        { "@type": "ListItem", position: 1, name: "MyWishList", item: base },
         { "@type": "ListItem", position: 2, name: "Идеи подарков", item: `${base}/gifts` },
         { "@type": "ListItem", position: 3, name: page.heading, item: `${base}/gifts/${slug}` },
       ],

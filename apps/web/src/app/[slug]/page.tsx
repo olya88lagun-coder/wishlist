@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     robots: { index: true, follow: true },
-    openGraph: { title, description, type: "website", locale: "ru_RU", siteName: "My Wish List", url: `/${view.wishlist.slug}` },
+    openGraph: { title, description, type: "website", locale: "ru_RU", siteName: "MyWishList", url: `/${view.wishlist.slug}` },
     twitter: { card: "summary_large_image", title, description },
   };
 }

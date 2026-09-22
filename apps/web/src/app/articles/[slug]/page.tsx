@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGES } from "@/content/og";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ARTICLES, getArticle } from "@/content/articles";
@@ -27,6 +28,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
       url: `/articles/${article.slug}`,
+      images: DEFAULT_OG_IMAGES,
     },
   };
 }
