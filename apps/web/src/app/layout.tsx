@@ -28,15 +28,12 @@ export const metadata: Metadata = {
     title: "MyWishList — подарки, которые правда хочется",
     description:
       "Соберите список желаний за минуту и поделитесь им без повторяющихся подарков.",
-    images: [{ url: "/hero-premium.png", width: 1868, height: 842, alt: "MyWishList" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "MyWishList — подарки, которые правда хочется",
     description: "Удобные списки желаний для вас и ваших близких.",
-    images: ["/hero-premium.png"],
   },
-  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

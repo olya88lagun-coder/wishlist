@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "./GiftFinder";
 import { getDb } from "@/server/db";
@@ -12,12 +13,14 @@ export const metadata: Metadata = {
     title: "Идеи подарков — AI-помощник",
     description: "Персональные идеи подарков по человеку, поводу, интересам и бюджету.",
     url: "/gifts",
-    siteName: "My Wish List",
+    siteName: SITE_NAME,
+    images: DEFAULT_OG_IMAGES,
     locale: "ru_RU",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
+    images: ["/opengraph-image.jpg"],
     title: "Идеи подарков — AI-помощник",
     description: "Персональные идеи подарков по человеку, поводу, интересам и бюджету.",
   },

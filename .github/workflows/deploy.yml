@@ -112,6 +112,9 @@ jobs:
 
           assert_contains '<title>Вишлист онлайн — список желаний и подарков | MyWishList</title>' "$tmp/home.html" "home title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online"' "$tmp/home.html" "home canonical"
+          assert_contains 'name="yandex-verification"' "$tmp/home.html" "home yandex verification"
+          assert_contains 'name="google-site-verification"' "$tmp/home.html" "home google verification"
+          assert_contains 'property="og:image"' "$tmp/home.html" "home og:image"
 
           assert_contains '<title>Идеи подарков — AI-помощник | MyWishList</title>' "$tmp/gifts.html" "gifts title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online/gifts"' "$tmp/gifts.html" "gifts canonical"

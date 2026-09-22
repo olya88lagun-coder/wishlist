@@ -10,14 +10,59 @@ import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
 import "./home.css";
 
-export const metadata: Metadata = {
-  title: { absolute: "Вишлист онлайн — список желаний и подарков | MyWishList" },
-  description:
-    "Создайте вишлист на день рождения, свадьбу или Новый год. Добавляйте товары из Wildberries, Ozon и любых магазинов, делитесь одной ссылкой — друзья выберут подарок без повторов.",
-  alternates: { canonical: "/" },
-};
+const HOME_DESCRIPTION =
+  "Создайте вишлист на день рождения, свадьбу или Новый год. Добавляйте товары из Wildberries, Ozon и любых магазинов, делитесь одной ссылкой — друзья выберут подарок без повторов.";
+
+// Коды подтверждения Яндекс Вебмастера и Search Console публичны (попадают в HTML),
+// поэтому известные значения лежат в коде; переменные окружения могут их переопределить
+const DEFAULT_YANDEX_VERIFICATION = "a4b37b24e60c31e9";
+const DEFAULT_GOOGLE_SITE_VERIFICATION = "WoYcX61EDftCLKgkNKcej5GQCO9TZQuo2Lr0TEvcS_4";
+
+export function generateMetadata(): Metadata {
+  const yandex = process.env.YANDEX_VERIFICATION || DEFAULT_YANDEX_VERIFICATION;
+  const google = process.env.GOOGLE_SITE_VERIFICATION || DEFAULT_GOOGLE_SITE_VERIFICATION;
+  return {
+    title: { absolute: "Вишлист онлайн — список желаний и подарков | MyWishList" },
+    description: HOME_DESCRIPTION,
+    alternates: { canonical: "/" },
+    verification: {
+      ...(google ? { google } : {}),
+      ...(yandex ? { yandex } : {}),
+    },
+  };
+}
 
 export const dynamic = "force-dynamic";
+
+function homeJsonLd(baseUrl: string) {
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "MyWishList",
+      alternateName: "Мой вишлист",
+      url: baseUrl,
+      inLanguage: "ru-RU",
+      description: HOME_DESCRIPTION,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "MyWishList",
+      url: baseUrl,
+      logo: `${baseUrl}/apple-icon.png`,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "MyWishList",
+      url: baseUrl,
+      applicationCategory: "LifestyleApplication",
+      operatingSystem: "Web, Telegram",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" },
+    },
+  ];
+}
 
 const STEPS = [
   {
@@ -78,6 +123,10 @@ export default async function Home() {
 
   return (
     <div className="home">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd(env.APP_URL.replace(/\/$/, ""))).replace(/</g, "\\u003c") }}
+      />
       <header className="home-header">
         <Link className="home-brand" href="/" aria-label="MyWishList — на главную">
           <GiftIcon />
