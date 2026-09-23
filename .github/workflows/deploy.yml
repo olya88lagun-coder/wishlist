@@ -158,18 +158,52 @@ jobs:
 
           echo "Deployment, SEO content and smoke tests passed."
 
-          # Диск общий с трекером питания: удаляем только старые образы сайта.
-          # Оставляем текущий релиз и один предыдущий, чтобы можно было откатиться.
-          mapfile -t old_tags < <(
-            docker images "$image_repo" --format '{{.CreatedAt}}\t{{.Tag}}' |
-              sort -r |
-              awk -F '\t' -v current="$EXPECTED_TAG" '$2 ~ /^sha-/ && $2 != current {print $2}' |
-              tail -n +2
-          )
-          for tag in "${old_tags[@]}"; do
-            docker rmi "$image_repo:$tag" >/dev/null || echo "Could not remove $image_repo:$tag" >&2
+          # Воркер (бот, уведомления, напоминания) обновляется тем же релизом, но только после того,
+          # как сайт прошёл проверки: сломанный релиз не должен останавливать бота.
+          worker_latest="$(docker compose config --images | awk '/wishlist-worker/ {print $1; exit}')"
+          if [[ -z "$worker_latest" ]]; then
+            echo "Worker service is missing from docker-compose.yml." >&2
+            exit 1
+          fi
+          worker_repo="${worker_latest%:latest}"
+          worker_image="$worker_repo:$EXPECTED_TAG"
+          for attempt in $(seq 1 24); do
+            if docker pull "$worker_image"; then
+              break
+            fi
+            if [[ "$attempt" -eq 24 ]]; then
+              echo "Worker image $worker_image was not published in time." >&2
+              exit 1
+            fi
+            sleep 5
           done
-          echo "Removed ${#old_tags[@]} old web image(s)."
+          docker tag "$worker_image" "$worker_latest"
+          docker compose up -d --force-recreate worker
+
+          # Своей проверки здоровья у воркера нет: ждём и убеждаемся, что процесс жив и не перезапускается
+          sleep 15
+          worker_state="$(docker inspect -f '{{.State.Running}} {{.RestartCount}}' wishlist-worker-1)"
+          if [[ "$worker_state" != "true 0" ]]; then
+            echo "Worker is not running steadily after the update (running, restarts: $worker_state)." >&2
+            docker logs --tail 40 wishlist-worker-1 >&2 || true
+            exit 1
+          fi
+          echo "Worker updated to $EXPECTED_TAG."
+
+          # Диск общий с трекером питания: удаляем только старые образы сайта и воркера.
+          # Оставляем текущий релиз и один предыдущий, чтобы можно было откатиться.
+          for repo in "$image_repo" "$worker_repo"; do
+            mapfile -t old_tags < <(
+              docker images "$repo" --format '{{.CreatedAt}}\t{{.Tag}}' |
+                sort -r |
+                awk -F '\t' -v current="$EXPECTED_TAG" '$2 ~ /^sha-/ && $2 != current {print $2}' |
+                tail -n +2
+            )
+            for tag in "${old_tags[@]}"; do
+              docker rmi "$repo:$tag" >/dev/null || echo "Could not remove $repo:$tag" >&2
+            done
+            echo "Removed ${#old_tags[@]} old image(s) of ${repo##*/}."
+          done
           # Слои без тегов старше суток ни на что не ссылаются
           docker image prune -f --filter "until=24h" >/dev/null || true
           df -h / | awk 'NR == 2 {print "Disk usage: " $3 " of " $2 " (" $5 ")"}'

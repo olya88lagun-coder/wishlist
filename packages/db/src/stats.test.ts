@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, expect, test } from "vitest";
-import { recordAffiliateClick } from "./affiliate";
+import { recordAffiliateClick, recordStoreSearchClick } from "./affiliate";
+import { recordAiUsage } from "./ai-usage";
 import { FEATURE_THEMES, registerInterest } from "./interest";
 import { addItem, deleteItem } from "./items";
 import { reservations, users, wishlists } from "./schema";
@@ -60,6 +61,8 @@ test("counts totals and what happened since the given moment", async () => {
         { store: "goldapple", count: 1 },
       ],
     },
+    storeSearches: { new: 0, byStore: [], topSources: [] },
+    ai: { requests: 0, attempts: 0, failedAttempts: 0, costMicroRub: 0 },
     themeInterest: 1,
   });
 });
@@ -74,4 +77,27 @@ test("cancelled reservations and deleted items do not make a list 'with reservat
   await db.insert(reservations).values({ itemId: b, guestToken: "t2", guestName: "Петя", cancelToken: "c-b" });
   await deleteItem(db, masha, b);
   expect((await adminStats(db, SINCE)).wishlists.withReservations).toBe(0);
+});
+
+test("counts store searches by store and source, and AI spend", async () => {
+  await recordStoreSearchClick(db, { store: "ozon", source: "gifts/for-mom", query: "плед" });
+  await recordStoreSearchClick(db, { store: "ozon", source: "gifts/for-mom", query: "чай" });
+  await recordStoreSearchClick(db, { store: "wildberries", source: "finder", query: "секатор" });
+
+  const aiRow = { clientHash: "h", signedIn: false, provider: "routerai", model: "m", inputTokens: 0, outputTokens: 0, reasoningTokens: 0, latencyMs: 0 };
+  await recordAiUsage(db, { ...aiRow, attempt: 1, costMicroRub: 14_000, outcome: "invalid" });
+  await recordAiUsage(db, { ...aiRow, attempt: 2, costMicroRub: 14_000, outcome: "ok" });
+  await recordAiUsage(db, { ...aiRow, attempt: 1, costMicroRub: 12_000, outcome: "ok" });
+
+  const stats = await adminStats(db, SINCE);
+  expect(stats.storeSearches.new).toBe(3);
+  expect(stats.storeSearches.byStore).toEqual([{ store: "ozon", count: 2 }, { store: "wildberries", count: 1 }]);
+  expect(stats.storeSearches.topSources[0]).toEqual({ source: "gifts/for-mom", count: 2 });
+  expect(stats.ai).toEqual({ requests: 2, attempts: 3, failedAttempts: 1, costMicroRub: 40_000 });
+});
+
+test("reports zero AI spend and no searches on an empty database", async () => {
+  const stats = await adminStats(db, SINCE);
+  expect(stats.storeSearches).toEqual({ new: 0, byStore: [], topSources: [] });
+  expect(stats.ai).toEqual({ requests: 0, attempts: 0, failedAttempts: 0, costMicroRub: 0 });
 });

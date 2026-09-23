@@ -1,6 +1,6 @@
 import { and, count, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import { countInterest, FEATURE_THEMES } from "./interest";
-import { affiliateClicks, items, reservations, users, wishlists } from "./schema";
+import { affiliateClicks, aiUsage, items, reservations, storeSearchClicks, users, wishlists } from "./schema";
 import type { Database } from "./types";
 
 export type AdminStats = {
@@ -9,8 +9,13 @@ export type AdminStats = {
   items: { new: number };
   reservations: { new: number };
   storeVisits: { new: number; byStore: { store: string; count: number }[] };
+  // Переходы в поиск магазина из подборщика и со страниц подарков
+  storeSearches: { new: number; byStore: { store: string; count: number }[]; topSources: { source: string; count: number }[] };
+  ai: { requests: number; attempts: number; failedAttempts: number; costMicroRub: number };
   themeInterest: number;
 };
+
+const TOP_SOURCES = 5;
 
 const MIN_ITEMS_FOR_ACTIVE_LIST = 3;
 
@@ -43,12 +48,42 @@ export async function adminStats(db: Database, since: Date): Promise<AdminStats>
     .groupBy(sql`coalesce(${affiliateClicks.store}, 'other')`)
     .orderBy(desc(sql`count(*)`));
 
+  const searchesByStore = await db
+    .select({ store: storeSearchClicks.store, count: sql<number>`count(*)::int` })
+    .from(storeSearchClicks)
+    .where(gte(storeSearchClicks.clickedAt, since))
+    .groupBy(storeSearchClicks.store)
+    .orderBy(desc(sql`count(*)`));
+  const topSources = await db
+    .select({ source: storeSearchClicks.source, count: sql<number>`count(*)::int` })
+    .from(storeSearchClicks)
+    .where(gte(storeSearchClicks.clickedAt, since))
+    .groupBy(storeSearchClicks.source)
+    .orderBy(desc(sql`count(*)`))
+    .limit(TOP_SOURCES);
+  const [ai] = await db
+    .select({
+      requests: sql<number>`count(*) filter (where ${aiUsage.attempt} = 1)::int`,
+      attempts: sql<number>`count(*)::int`,
+      failedAttempts: sql<number>`count(*) filter (where ${aiUsage.outcome} <> 'ok')::int`,
+      costMicroRub: sql<number>`coalesce(sum(${aiUsage.costMicroRub}), 0)::bigint`,
+    })
+    .from(aiUsage)
+    .where(gte(aiUsage.createdAt, since));
+
   return {
     users: { total: usersTotal?.n ?? 0, new: usersNew?.n ?? 0 },
     wishlists: { total: listsTotal?.n ?? 0, new: listsNew?.n ?? 0, withThreeItems: active?.n ?? 0, withReservations: reserved?.n ?? 0 },
     items: { new: itemsNew?.n ?? 0 },
     reservations: { new: reservationsNew?.n ?? 0 },
     storeVisits: { new: byStore.reduce((sum, row) => sum + row.count, 0), byStore },
+    storeSearches: { new: searchesByStore.reduce((sum, row) => sum + row.count, 0), byStore: searchesByStore, topSources },
+    ai: {
+      requests: Number(ai?.requests ?? 0),
+      attempts: Number(ai?.attempts ?? 0),
+      failedAttempts: Number(ai?.failedAttempts ?? 0),
+      costMicroRub: Number(ai?.costMicroRub ?? 0),
+    },
     themeInterest: await countInterest(db, FEATURE_THEMES),
   };
 }
