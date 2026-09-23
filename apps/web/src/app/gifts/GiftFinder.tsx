@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import type { WishlistSummary } from "@wishlist/db";
 import { addGiftToWishlist } from "./actions";
 import { trackEvent } from "@/lib/analytics";
+import { SEARCH_STORES, STORE_LABELS, storeSearchHref } from "@/app/go/store-search";
 
 type Result = {
   title: string;
@@ -201,13 +202,16 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
                 <p className="muted">{result.reason}</p>
                 <p className="card__meta">Поиск в магазинах: {result.searchQuery}</p>
                 <div className="card__actions">
-                  {([
-                    ["Ozon", `https://www.ozon.ru/search/?text=${encodeURIComponent(result.searchQuery)}`],
-                    ["Wildberries", `https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(result.searchQuery)}`],
-                    ["Яндекс Маркет", `https://market.yandex.ru/search?text=${encodeURIComponent(result.searchQuery)}`],
-                  ] as Array<[string, string]>).map(([store, url]) => (
-                    <a key={store} className="button button--ghost button--small" href={url} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("gift_finder_product_click", { store })}>
-                      {store}
+                  {SEARCH_STORES.map((store) => (
+                    <a
+                      key={store}
+                      className="button button--ghost button--small"
+                      href={storeSearchHref(store, result.searchQuery, "finder")}
+                      target="_blank"
+                      rel="nofollow noopener noreferrer"
+                      onClick={() => trackEvent("gift_finder_product_click", { store })}
+                    >
+                      {STORE_LABELS[store] ?? store}
                     </a>
                   ))}
                   {saveButton(result)}

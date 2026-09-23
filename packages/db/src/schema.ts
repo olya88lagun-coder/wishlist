@@ -122,6 +122,20 @@ export const affiliateClicks = pgTable(
   (t) => [index("affiliate_clicks_item_idx").on(t.itemId), index("affiliate_clicks_time_idx").on(t.clickedAt)],
 );
 
+// Переходы в поиск магазина из подборщика и блоков идей: подарка ещё нет, поэтому отдельная таблица
+export const storeSearchClicks = pgTable(
+  "store_search_clicks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    store: text("store").notNull(),
+    // Откуда ушёл клик: slug страницы подарков или "finder"
+    source: text("source").notNull(),
+    query: text("query").notNull(),
+    clickedAt: timestamp("clicked_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("store_search_clicks_time_idx").on(t.clickedAt), index("store_search_clicks_source_idx").on(t.source)],
+);
+
 // Расход на AI-подбор подарков: токены и стоимость каждой попытки.
 // Клиент хранится хешем — нужен только для дневного лимита, восстановить IP по нему нельзя.
 export const aiUsage = pgTable(

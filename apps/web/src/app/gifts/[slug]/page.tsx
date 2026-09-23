@@ -892,7 +892,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                     <p>{idea.why}</p>
                     <p className="gift-idea__stores">
                       <span>Найти:</span>
-                      {giftIdeaSearchLinks(idea.query).map((link) => (
+                      {giftIdeaSearchLinks(idea.query, `gifts/${slug}`).map((link) => (
                         <a key={link.store} href={link.href} target="_blank" rel="nofollow noopener noreferrer">{link.store}</a>
                       ))}
                     </p>

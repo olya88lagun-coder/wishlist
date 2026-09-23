@@ -3,6 +3,7 @@ import { CORE_GIFT_IDEAS } from "./core";
 import { FAMILY_GIFT_IDEAS } from "./family";
 import { OCCASION_GIFT_IDEAS } from "./occasions";
 import { PEOPLE_GIFT_IDEAS } from "./people";
+import { SEARCH_STORES, STORE_LABELS, storeSearchHref } from "@/app/go/store-search";
 import type { GiftIdeasContent } from "./types";
 
 export type { GiftIdea, GiftIdeaGroup, GiftIdeasContent } from "./types";
@@ -28,11 +29,9 @@ export function giftIdeasCountLabel(content: GiftIdeasContent): string {
   return `${count} ${word}`;
 }
 
-export function giftIdeaSearchLinks(query: string) {
-  const text = encodeURIComponent(query);
-  return [
-    { store: "Ozon", href: `https://www.ozon.ru/search/?text=${text}` },
-    { store: "Wildberries", href: `https://www.wildberries.ru/catalog/0/search.aspx?search=${text}` },
-    { store: "Яндекс Маркет", href: `https://market.yandex.ru/search?text=${text}` },
-  ];
+export function giftIdeaSearchLinks(query: string, source: string) {
+  return SEARCH_STORES.map((store) => ({
+    store: STORE_LABELS[store] ?? store,
+    href: storeSearchHref(store, query, source),
+  }));
 }
