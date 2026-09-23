@@ -61,8 +61,14 @@ describe("giftIdeasCountLabel", () => {
   });
 });
 
-test("search links encode the query for each store", () => {
-  const links = giftIdeaSearchLinks("плед & чай");
+test("search links go through the click redirect and keep the source page", () => {
+  const links = giftIdeaSearchLinks("плед & чай", "gifts/for-mom");
   expect(links.map((link) => link.store)).toEqual(["Ozon", "Wildberries", "Яндекс Маркет"]);
-  for (const link of links) expect(link.href).toContain(encodeURIComponent("плед & чай"));
+  for (const link of links) {
+    const url = new URL(link.href, "https://my-wish-list.online");
+    expect(url.pathname).toBe("/go/search");
+    expect(url.searchParams.get("q")).toBe("плед & чай");
+    expect(url.searchParams.get("from")).toBe("gifts/for-mom");
+    expect(["ozon", "wildberries", "yandex_market"]).toContain(url.searchParams.get("store"));
+  }
 });
