@@ -82,7 +82,7 @@ export function readLimits(env: NodeJS.ProcessEnv = process.env): BudgetLimits {
   return {
     guestPerDay: int(env.AI_DAILY_LIMIT_GUEST, 5),
     userPerDay: int(env.AI_DAILY_LIMIT_USER, 30),
-    dailyBudgetMicroRub: Math.round((Number.isFinite(rub) && rub >= 0 ? rub : 150) * MICRO_RUB),
+    dailyBudgetMicroRub: Math.round((Number.isFinite(rub) && rub >= 0 ? rub : 50) * MICRO_RUB),
   };
 }
 

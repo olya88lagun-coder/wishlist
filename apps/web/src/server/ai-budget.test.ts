@@ -50,7 +50,7 @@ describe("costMicroRub", () => {
 
 describe("readLimits", () => {
   test("uses defaults when nothing is configured", () => {
-    expect(readLimits({} as unknown as NodeJS.ProcessEnv)).toEqual({ guestPerDay: 5, userPerDay: 30, dailyBudgetMicroRub: 150_000_000 });
+    expect(readLimits({} as unknown as NodeJS.ProcessEnv)).toEqual({ guestPerDay: 5, userPerDay: 30, dailyBudgetMicroRub: 50_000_000 });
   });
 
   test("reads the configured values", () => {
@@ -60,12 +60,12 @@ describe("readLimits", () => {
 
   test("ignores broken values", () => {
     expect(readLimits({ AI_DAILY_LIMIT_GUEST: "-3", AI_DAILY_BUDGET_RUB: "nope" } as unknown as NodeJS.ProcessEnv))
-      .toEqual({ guestPerDay: 5, userPerDay: 30, dailyBudgetMicroRub: 150_000_000 });
+      .toEqual({ guestPerDay: 5, userPerDay: 30, dailyBudgetMicroRub: 50_000_000 });
   });
 });
 
 describe("decideBudget", () => {
-  const limits = { guestPerDay: 5, userPerDay: 30, dailyBudgetMicroRub: 150_000_000 };
+  const limits = { guestPerDay: 5, userPerDay: 30, dailyBudgetMicroRub: 50_000_000 };
 
   test("lets a guest through under the limit", () => {
     expect(decideBudget({ signedIn: false, requestsToday: 4, spentTodayMicroRub: 0, limits })).toEqual({ allowed: true });
@@ -77,7 +77,7 @@ describe("decideBudget", () => {
   });
 
   test("stops everyone once the daily budget is spent", () => {
-    expect(decideBudget({ signedIn: true, requestsToday: 0, spentTodayMicroRub: 150_000_000, limits })).toEqual({ allowed: false, reason: "daily_budget" });
+    expect(decideBudget({ signedIn: true, requestsToday: 0, spentTodayMicroRub: 50_000_000, limits })).toEqual({ allowed: false, reason: "daily_budget" });
   });
 });
 
