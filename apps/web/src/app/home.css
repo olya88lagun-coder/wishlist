@@ -71,6 +71,10 @@
   padding: 0 clamp(16px, 4vw, 48px);
 }
 .hero__copy { position: relative; z-index: 1; padding: 48px 0 64px; }
+.hero__copy > * { animation: hero-rise 720ms cubic-bezier(.2, .7, .2, 1) both; }
+.hero__copy > *:nth-child(2) { animation-delay: 70ms; }
+.hero__copy > *:nth-child(3) { animation-delay: 140ms; }
+.hero__copy > *:nth-child(4) { animation-delay: 210ms; }
 .hero__eyebrow {
   display: flex;
   align-items: center;
@@ -134,6 +138,17 @@
   /* Края сцены растворяются в фоне страницы — без видимой рамки картинки */
   -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 70%, transparent 100%);
   mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 70%, transparent 100%);
+  animation: hero-scene-drift 12s ease-in-out infinite alternate;
+}
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hero-scene-drift {
+  from { transform: scale(1.01) translate3d(0, 0, 0); }
+  to { transform: scale(1.045) translate3d(-1.2%, -.8%, 0); }
 }
 
 .home-section { max-width: 1320px; margin: 0 auto; padding: 72px clamp(16px, 4vw, 48px) 0; }
@@ -226,4 +241,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-button, .hero-button__arrow, .home-articles a, .home-create { transition: none; }
+  .hero__copy > *, .hero__scene img { animation: none; }
 }
