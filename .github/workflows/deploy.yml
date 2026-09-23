@@ -91,7 +91,9 @@ jobs:
             sleep 5
           done
           docker tag "$migrate_image" "$migrate_latest"
-          docker compose --profile tools run --rm migrate
+          # Скрипт приходит на сервер через stdin (bash -s). Без -T и </dev/null compose run
+          # дочитает остаток скрипта как свой ввод, и bash молча завершится после миграции.
+          docker compose --profile tools run --rm -T migrate </dev/null
 
           docker compose up -d --force-recreate web
 
@@ -171,6 +173,8 @@ jobs:
           # Слои без тегов старше суток ни на что не ссылаются
           docker image prune -f --filter "until=24h" >/dev/null || true
           df -h / | awk 'NR == 2 {print "Disk usage: " $3 " of " $2 " (" $5 ")"}'
+          # Раннер проверяет эту строку: код 0 без неё значит, что скрипт оборвался на середине
+          echo "DEPLOY_SCRIPT_COMPLETE"
           REMOTE
 
           ssh_args=(
@@ -184,14 +188,19 @@ jobs:
             -o ServerAliveCountMax=3
           )
 
+          deploy_log="$(mktemp)"
           for ssh_attempt in 1 2 3; do
             set +e
-            ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$expected_tag'" < "$remote_script"
-            ssh_rc=$?
+            ssh "${ssh_args[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- '$expected_tag'" < "$remote_script" | tee "$deploy_log"
+            ssh_rc=${PIPESTATUS[0]}
             set -e
 
             if [[ "$ssh_rc" -eq 0 ]]; then
-              exit 0
+              if grep -q "DEPLOY_SCRIPT_COMPLETE" "$deploy_log"; then
+                exit 0
+              fi
+              echo "Deploy script exited early without reaching the end; the site may still run the previous release." >&2
+              exit 1
             fi
 
             if [[ "$ssh_rc" -ne 255 || "$ssh_attempt" -eq 3 ]]; then
