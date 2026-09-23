@@ -190,9 +190,10 @@ jobs:
           fi
           echo "Worker updated to $EXPECTED_TAG."
 
-          # Диск общий с трекером питания: удаляем только старые образы сайта и воркера.
+          # Диск общий с трекером питания: удаляем только старые образы сайта, воркера и миграций.
           # Оставляем текущий релиз и один предыдущий, чтобы можно было откатиться.
-          for repo in "$image_repo" "$worker_repo"; do
+          migrate_repo="${migrate_latest%:latest}"
+          for repo in "$image_repo" "$worker_repo" "$migrate_repo"; do
             mapfile -t old_tags < <(
               docker images "$repo" --format '{{.CreatedAt}}\t{{.Tag}}' |
                 sort -r |
