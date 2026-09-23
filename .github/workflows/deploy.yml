@@ -73,22 +73,25 @@ jobs:
 
           # Миграции применяются до перезапуска сайта: иначе новый код обратится к ещё не созданным таблицам.
           # Drizzle пропускает уже применённые миграции, поэтому шаг безопасно повторять.
-          migrate_latest="$(docker compose config --images | awk '/wishlist-migrate/ {print $1; exit}')"
-          if [[ -n "$migrate_latest" ]]; then
-            migrate_image="${migrate_latest%:latest}:$EXPECTED_TAG"
-            for attempt in $(seq 1 24); do
-              if docker pull "$migrate_image"; then
-                break
-              fi
-              if [[ "$attempt" -eq 24 ]]; then
-                echo "Migration image $migrate_image was not published in time." >&2
-                exit 1
-              fi
-              sleep 5
-            done
-            docker tag "$migrate_image" "$migrate_latest"
-            docker compose --profile tools run --rm migrate
+          # Сервис миграций объявлен с профилем tools, без него compose не покажет образ
+          migrate_latest="$(docker compose --profile tools config --images | awk '/wishlist-migrate/ {print $1; exit}')"
+          if [[ -z "$migrate_latest" ]]; then
+            echo "Migration service is missing from docker-compose.yml." >&2
+            exit 1
           fi
+          migrate_image="${migrate_latest%:latest}:$EXPECTED_TAG"
+          for attempt in $(seq 1 24); do
+            if docker pull "$migrate_image"; then
+              break
+            fi
+            if [[ "$attempt" -eq 24 ]]; then
+              echo "Migration image $migrate_image was not published in time." >&2
+              exit 1
+            fi
+            sleep 5
+          done
+          docker tag "$migrate_image" "$migrate_latest"
+          docker compose --profile tools run --rm migrate
 
           docker compose up -d --force-recreate web
 
