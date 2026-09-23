@@ -1,26 +1,7 @@
-// Конкретные идеи подарков для самых частых запросов. Цены — ориентир по крупным
-// маркетплейсам, а не обещание: поиск открывает актуальные предложения магазина.
+import type { GiftIdeasContent } from "./types";
 
-export type GiftIdea = {
-  name: string;
-  why: string;
-  price: string;
-  query: string;
-};
-
-export type GiftIdeaGroup = {
-  title: string;
-  ideas: GiftIdea[];
-};
-
-export type GiftIdeasContent = {
-  title: string;
-  intro: string;
-  groups: GiftIdeaGroup[];
-  avoid: string[];
-};
-
-export const GIFT_IDEAS: Partial<Record<string, GiftIdeasContent>> = {
+// Шесть самых частых запросов: маме, папе, девушке, парню, на Новый год и до 3 000 ₽
+export const CORE_GIFT_IDEAS: Record<string, GiftIdeasContent> = {
   "for-mom": {
     title: "Идеи подарков маме",
     intro: "Варианты сгруппированы по тому, чем мама живёт каждый день. Выберите группу, которая ближе всего, и смотрите на конкретную вещь внутри неё.",
@@ -278,25 +259,3 @@ export const GIFT_IDEAS: Partial<Record<string, GiftIdeasContent>> = {
     ],
   },
 };
-
-export function countGiftIdeas(content: GiftIdeasContent): number {
-  return content.groups.reduce((total, group) => total + group.ideas.length, 0);
-}
-
-// «21 идея», «12 идей», «3 идеи»
-export function giftIdeasCountLabel(content: GiftIdeasContent): string {
-  const count = countGiftIdeas(content);
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  const word = mod10 === 1 && mod100 !== 11 ? "идея" : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) ? "идеи" : "идей";
-  return `${count} ${word}`;
-}
-
-export function giftIdeaSearchLinks(query: string) {
-  const text = encodeURIComponent(query);
-  return [
-    { store: "Ozon", href: `https://www.ozon.ru/search/?text=${text}` },
-    { store: "Wildberries", href: `https://www.wildberries.ru/catalog/0/search.aspx?search=${text}` },
-    { store: "Яндекс Маркет", href: `https://market.yandex.ru/search?text=${text}` },
-  ];
-}
