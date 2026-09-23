@@ -182,6 +182,23 @@ function parseJsonResponse(payload: any, useRouterAi: boolean): unknown {
   }
 }
 
+export type ReadIdeasResult =
+  | { success: true; ideas: z.infer<typeof outputSchema>["ideas"] }
+  | { success: false; issues: string[] };
+
+// Ответ модели считается пригодным, только если это валидный JSON нужной формы
+export function readIdeas(payload: unknown, useRouterAi: boolean): ReadIdeasResult {
+  const json = parseJsonResponse(payload, useRouterAi);
+  if (!json) return { success: false, issues: ["empty or unparsable response"] };
+  const parsedIdeas = outputSchema.safeParse(json);
+  if (!parsedIdeas.success) return { success: false, issues: parsedIdeas.error.issues.map((issue) => issue.message) };
+  return { success: true, ideas: parsedIdeas.data.ideas };
+}
+
+const formatRetryPrompt = systemPrompt + `
+
+Предыдущий ответ не прошёл проверку формата. Верни строго JSON по заданной схеме: объект с полем ideas и пятью элементами, каждый с полями title, reason, type и searchQuery. Без пояснений, комментариев и текста вокруг JSON.`;
+
 export async function POST(request: Request) {
   const parsed = inputSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Некорректные данные" }, { status: 400 });
@@ -259,6 +276,9 @@ export async function POST(request: Request) {
     }
   }
 
+  // Номер попытки: по первым попыткам считается дневной лимит клиента
+  let attempts = 1;
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20_000);
   const startedAt = Date.now();
@@ -287,25 +307,49 @@ export async function POST(request: Request) {
   }
 
   const payload = await response.json();
-  const json = parseJsonResponse(payload, useRouterAi);
-  await record(1, payload, json ? "ok" : "invalid", Date.now() - startedAt);
+  let result = readIdeas(payload, useRouterAi);
+  await record(1, payload, result.success ? "ok" : "invalid", Date.now() - startedAt);
 
-  if (!json) {
-    console.error("Gift AI invalid or empty JSON", {
+  // Модель иногда отвечает не по схеме. Для человека это выглядит как ошибка сервиса,
+  // поэтому повторяем один раз сами, прежде чем показывать сообщение.
+  if (!result.success) {
+    console.error("Gift AI bad response, retrying once", {
       model: payload?.model,
       finishReason: payload?.choices?.[0]?.finish_reason,
-      preview: String(payload?.choices?.[0]?.message?.content ?? payload?.output_text ?? "").slice(0, 500),
+      issues: result.issues,
+      preview: String(payload?.choices?.[0]?.message?.content ?? payload?.output_text ?? "").slice(0, 300),
     });
+
+    const formatController = new AbortController();
+    const formatTimeout = setTimeout(() => formatController.abort(), 15_000);
+    const formatStartedAt = Date.now();
+    try {
+      const formatResponse = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        signal: formatController.signal,
+        body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data, formatRetryPrompt) : openAiBody(parsed.data, formatRetryPrompt)),
+      });
+      if (formatResponse.ok) {
+        const formatPayload = await formatResponse.json();
+        result = readIdeas(formatPayload, useRouterAi);
+        await record(++attempts, formatPayload, result.success ? "ok" : "invalid", Date.now() - formatStartedAt);
+      } else {
+        await record(++attempts, null, "error", Date.now() - formatStartedAt);
+      }
+    } catch (error) {
+      console.error("Gift AI format retry failed", error);
+      await record(++attempts, null, "error", Date.now() - formatStartedAt);
+    } finally {
+      clearTimeout(formatTimeout);
+    }
+  }
+
+  if (!result.success) {
     return NextResponse.json({ error: "AI не смог подобрать идеи. Попробуйте ещё раз." }, { status: 502 });
   }
 
-  const result = outputSchema.safeParse(json);
-  if (!result.success) {
-    console.error("Gift AI unexpected format", { model: payload?.model, issues: result.error.issues });
-    return NextResponse.json({ error: "AI вернул данные неожиданного формата" }, { status: 502 });
-  }
-
-  let ideas = result.data.ideas.slice(0, 6);
+  let ideas = result.ideas.slice(0, 6);
 
   if (isWeakGiftSet(ideas, parsed.data.interests)) {
     const retryPrompt = systemPrompt + `
@@ -329,16 +373,16 @@ export async function POST(request: Request) {
         const retryPayload = await retryResponse.json();
         const retryJson = parseJsonResponse(retryPayload, useRouterAi);
         const retryResult = outputSchema.safeParse(retryJson);
-        await record(2, retryPayload, retryResult.success ? "ok" : "invalid", Date.now() - retryStartedAt);
+        await record(++attempts, retryPayload, retryResult.success ? "ok" : "invalid", Date.now() - retryStartedAt);
         if (retryResult.success && !isWeakGiftSet(retryResult.data.ideas, parsed.data.interests)) {
           ideas = retryResult.data.ideas.slice(0, 6);
         }
       } else {
-        await record(2, null, "error", Date.now() - retryStartedAt);
+        await record(++attempts, null, "error", Date.now() - retryStartedAt);
       }
     } catch (error) {
       console.error("Gift AI quality retry failed", error);
-      await record(2, null, "error", Date.now() - retryStartedAt);
+      await record(++attempts, null, "error", Date.now() - retryStartedAt);
     } finally {
       clearTimeout(retryTimeout);
     }
