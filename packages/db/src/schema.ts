@@ -122,6 +122,29 @@ export const affiliateClicks = pgTable(
   (t) => [index("affiliate_clicks_item_idx").on(t.itemId), index("affiliate_clicks_time_idx").on(t.clickedAt)],
 );
 
+// Расход на AI-подбор подарков: токены и стоимость каждой попытки.
+// Клиент хранится хешем — нужен только для дневного лимита, восстановить IP по нему нельзя.
+export const aiUsage = pgTable(
+  "ai_usage",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientHash: text("client_hash").notNull(),
+    signedIn: boolean("signed_in").notNull().default(false),
+    provider: text("provider").notNull(),
+    model: text("model").notNull(),
+    attempt: integer("attempt").notNull().default(1),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    reasoningTokens: integer("reasoning_tokens").notNull().default(0),
+    // Микрорубли: целые числа, чтобы не хранить деньги во float
+    costMicroRub: integer("cost_micro_rub").notNull().default(0),
+    latencyMs: integer("latency_ms").notNull().default(0),
+    outcome: text("outcome").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("ai_usage_time_idx").on(t.createdAt), index("ai_usage_client_idx").on(t.clientHash, t.createdAt)],
+);
+
 // Интерес к будущим функциям: один голос пользователя на функцию
 export const featureInterest = pgTable(
   "feature_interest",
