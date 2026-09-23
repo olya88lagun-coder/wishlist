@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { SiteFooter } from "@/components/SiteFooter";
 import { EditorialMenu } from "@/components/EditorialMenu";
+import { SiteFooter } from "@/components/SiteFooter";
 
-export default function ArticlesLayout({ children }: { children: ReactNode }) {
+export default function GiftsLayout({ children }: { children: ReactNode }) {
   return (
     <div className="editorial-shell">
       <header className="editorial-header">
@@ -12,6 +12,7 @@ export default function ArticlesLayout({ children }: { children: ReactNode }) {
           <Link href="/">Главная</Link>
           <EditorialMenu />
           <Link href="/#how">Как это работает</Link>
+          <Link href="/#about">О нас</Link>
         </nav>
         <Link className="editorial-create" href="/lists">Создать список</Link>
       </header>
