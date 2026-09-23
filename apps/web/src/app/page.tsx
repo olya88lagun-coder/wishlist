@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { EditorialMenu } from "@/components/EditorialMenu";
 import { startLinks } from "@/components/start-links";
@@ -116,9 +115,11 @@ function Arrow() {
 
 export default async function Home() {
   const { user } = await readViewer();
-  if (user) redirect("/lists");
   const env = getEnv();
-  const [telegram, site] = startLinks(env.TELEGRAM_BOT_USERNAME, false);
+  const signedIn = Boolean(user);
+  const start = startLinks(env.TELEGRAM_BOT_USERNAME, signedIn);
+  const [telegram, site] = signedIn ? [null, null] : start;
+  const listLink = signedIn ? start[0] : null;
   const articles = ARTICLES.slice(0, 3);
 
   return (
@@ -139,8 +140,8 @@ export default async function Home() {
           <a href="#about">О нас</a>
         </nav>
         <div className="home-header__actions">
-          <Link className="home-login" href="/login">Войти</Link>
-          <Link className="home-create" href="/login">Создать список</Link>
+          {signedIn ? <Link className="home-login" href="/me">Профиль</Link> : <Link className="home-login" href="/login">Войти</Link>}
+          <Link className="home-create" href={signedIn ? "/lists" : "/login"}>{signedIn ? "Мои списки" : "Создать список"}</Link>
         </div>
       </header>
 
@@ -155,16 +156,33 @@ export default async function Home() {
               Соберите список желаний за минуту и поделитесь им. Друзья выберут подарок — и никто не подарит второй такой же.
             </p>
             <div className="hero__actions">
-              <a className="hero-button hero-button--dark" href={telegram!.href} target="_blank" rel="noopener noreferrer">
-                <TelegramIcon />
-                <span>{telegram!.label}</span>
-                <Arrow />
-              </a>
-              <Link className="hero-button hero-button--light" href={site!.href}>
-                <GlobeIcon />
-                <span>{site!.label}</span>
-                <Arrow />
-              </Link>
+              {signedIn ? (
+                <>
+                  <Link className="hero-button hero-button--dark" href={listLink!.href}>
+                    <GlobeIcon />
+                    <span>{listLink!.label}</span>
+                    <Arrow />
+                  </Link>
+                  <Link className="hero-button hero-button--light" href="/me">
+                    <GlobeIcon />
+                    <span>Профиль</span>
+                    <Arrow />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <a className="hero-button hero-button--dark" href={telegram!.href} target="_blank" rel="noopener noreferrer">
+                    <TelegramIcon />
+                    <span>{telegram!.label}</span>
+                    <Arrow />
+                  </a>
+                  <Link className="hero-button hero-button--light" href={site!.href}>
+                    <GlobeIcon />
+                    <span>{site!.label}</span>
+                    <Arrow />
+                  </Link>
+                </>
+              )}
             </div>
           </div>
           <div className="hero__scene">
