@@ -31,6 +31,8 @@ test("owner shares a list, a guest reserves and cancels, the owner never sees wh
   const guestPage = await guest.newPage();
   await guestPage.goto(publicHref!);
   await expect(guestPage.getByRole("heading", { name: giftTitle })).toBeVisible();
+  // Список открыт по ссылке, но не должен попадать в поиск
+  await expect(guestPage.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, nofollow");
   await guestPage.getByRole("button", { name: "Я подарю" }).first().click();
   await guestPage.getByLabel("Как вас подписать").fill("Тайный гость");
   await guestPage.getByRole("dialog").getByRole("button", { name: "Я подарю" }).click();

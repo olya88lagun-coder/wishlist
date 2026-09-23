@@ -32,7 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    robots: { index: true, follow: true },
+    // Список открыт по ссылке, но в поиске ему не место: владелец не давал согласия
+    // на публикацию своего имени и желаний. Превью в мессенджерах это не ломает.
+    robots: { index: false, follow: false },
     openGraph: { title, description, type: "website", locale: "ru_RU", siteName: "MyWishList", url: `/${view.wishlist.slug}` },
     twitter: { card: "summary_large_image", title, description },
   };
