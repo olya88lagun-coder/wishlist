@@ -1,5 +1,17 @@
+import { countAiRequestsSince, recordAiUsage, sumAiCostSince } from "@wishlist/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import {
+  costMicroRub,
+  decideBudget,
+  formatRub,
+  hashClientKey,
+  priceFor,
+  readLimits,
+  readTokenUsage,
+  startOfUtcDay,
+} from "@/server/ai-budget";
+import { getDb } from "@/server/db";
 import { giftAiLimiter } from "@/server/rate-limit";
 import { clientKey, readViewer } from "@/server/viewer";
 
@@ -175,8 +187,39 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Некорректные данные" }, { status: 400 });
 
   const viewer = await readViewer();
-  if (!giftAiLimiter.allow(await clientKey(viewer.viewer))) {
+  const key = await clientKey(viewer.viewer);
+  if (!giftAiLimiter.allow(key)) {
     return NextResponse.json({ error: "Слишком много запросов. Попробуйте снова через минуту.", code: "RATE_LIMITED" }, { status: 429 });
+  }
+
+  // Дневные лимиты и бюджет живут в базе: они переживают перезапуск и общие для всех процессов
+  const db = getDb();
+  const signedIn = Boolean(viewer.user);
+  const clientHash = hashClientKey(key);
+  const since = startOfUtcDay();
+  const limits = readLimits();
+  const [requestsToday, spentTodayMicroRub] = await Promise.all([
+    countAiRequestsSince(db, clientHash, since),
+    sumAiCostSince(db, since),
+  ]);
+  const decision = decideBudget({ signedIn, requestsToday, spentTodayMicroRub, limits });
+  if (!decision.allowed) {
+    if (decision.reason === "daily_budget") {
+      console.warn("Gift AI daily budget reached", { spentRub: formatRub(spentTodayMicroRub) });
+      return NextResponse.json(
+        { error: "AI-подбор сегодня недоступен: исчерпан дневной лимит сервиса. Попробуйте завтра.", code: "AI_BUDGET_REACHED" },
+        { status: 503 },
+      );
+    }
+    return NextResponse.json(
+      {
+        error: signedIn
+          ? "Вы использовали все подборки на сегодня. Попробуйте завтра."
+          : "Бесплатные подборки на сегодня закончились. Войдите, чтобы получить больше, или попробуйте завтра.",
+        code: "AI_DAILY_LIMIT",
+      },
+      { status: 429 },
+    );
   }
 
   const routerAiKey = process.env.ROUTERAI_API_KEY;
@@ -191,8 +234,34 @@ export async function POST(request: Request) {
     ? `${process.env.ROUTERAI_BASE_URL ?? "https://routerai.ru/api/v1"}/chat/completions`
     : "https://api.openai.com/v1/responses";
 
+  const provider = useRouterAi ? "routerai" : "openai";
+  const requestedModel = useRouterAi ? routerAiBody(parsed.data).model : openAiBody(parsed.data).model;
+
+  // Каждая попытка попадает в ai_usage: по ней считаются дневной бюджет и стоимость сессии
+  async function record(attempt: number, payload: unknown, outcome: "ok" | "invalid" | "error", latencyMs: number) {
+    const usage = readTokenUsage(payload);
+    const payloadModel = (payload as { model?: unknown } | null)?.model;
+    const model = typeof payloadModel === "string" ? payloadModel : requestedModel;
+    try {
+      await recordAiUsage(db, {
+        clientHash,
+        signedIn,
+        provider,
+        model,
+        attempt,
+        ...usage,
+        costMicroRub: costMicroRub(usage, priceFor(provider, model)),
+        latencyMs,
+        outcome,
+      });
+    } catch (error) {
+      console.error("Gift AI usage not recorded", error);
+    }
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20_000);
+  const startedAt = Date.now();
   let response: Response;
 
   try {
@@ -203,12 +272,14 @@ export async function POST(request: Request) {
       body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data) : openAiBody(parsed.data)),
     });
   } catch {
+    await record(1, null, "error", Date.now() - startedAt);
     return NextResponse.json({ error: "AI сейчас недоступен. Попробуйте ещё раз." }, { status: 502 });
   } finally {
     clearTimeout(timeout);
   }
 
   if (!response.ok) {
+    await record(1, null, "error", Date.now() - startedAt);
     return NextResponse.json(
       { error: response.status === 429 ? "AI временно перегружен. Попробуйте чуть позже." : "Не удалось получить рекомендации от AI" },
       { status: response.status === 429 ? 503 : 502 },
@@ -217,6 +288,7 @@ export async function POST(request: Request) {
 
   const payload = await response.json();
   const json = parseJsonResponse(payload, useRouterAi);
+  await record(1, payload, json ? "ok" : "invalid", Date.now() - startedAt);
 
   if (!json) {
     console.error("Gift AI invalid or empty JSON", {
@@ -245,6 +317,7 @@ export async function POST(request: Request) {
 `;
     const retryController = new AbortController();
     const retryTimeout = setTimeout(() => retryController.abort(), 15_000);
+    const retryStartedAt = Date.now();
     try {
       const retryResponse = await fetch(endpoint, {
         method: "POST",
@@ -256,12 +329,16 @@ export async function POST(request: Request) {
         const retryPayload = await retryResponse.json();
         const retryJson = parseJsonResponse(retryPayload, useRouterAi);
         const retryResult = outputSchema.safeParse(retryJson);
+        await record(2, retryPayload, retryResult.success ? "ok" : "invalid", Date.now() - retryStartedAt);
         if (retryResult.success && !isWeakGiftSet(retryResult.data.ideas, parsed.data.interests)) {
           ideas = retryResult.data.ideas.slice(0, 6);
         }
+      } else {
+        await record(2, null, "error", Date.now() - retryStartedAt);
       }
     } catch (error) {
       console.error("Gift AI quality retry failed", error);
+      await record(2, null, "error", Date.now() - retryStartedAt);
     } finally {
       clearTimeout(retryTimeout);
     }

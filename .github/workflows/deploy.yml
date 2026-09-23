@@ -70,6 +70,26 @@ jobs:
           done
 
           docker tag "$expected_image" "$latest_image"
+
+          # Миграции применяются до перезапуска сайта: иначе новый код обратится к ещё не созданным таблицам.
+          # Drizzle пропускает уже применённые миграции, поэтому шаг безопасно повторять.
+          migrate_latest="$(docker compose config --images | awk '/wishlist-migrate/ {print $1; exit}')"
+          if [[ -n "$migrate_latest" ]]; then
+            migrate_image="${migrate_latest%:latest}:$EXPECTED_TAG"
+            for attempt in $(seq 1 24); do
+              if docker pull "$migrate_image"; then
+                break
+              fi
+              if [[ "$attempt" -eq 24 ]]; then
+                echo "Migration image $migrate_image was not published in time." >&2
+                exit 1
+              fi
+              sleep 5
+            done
+            docker tag "$migrate_image" "$migrate_latest"
+            docker compose --profile tools run --rm migrate
+          fi
+
           docker compose up -d --force-recreate web
 
           for attempt in $(seq 1 30); do
