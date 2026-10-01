@@ -30,6 +30,12 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       url: `/articles/${article.slug}`,
       images: DEFAULT_OG_IMAGES,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.description,
+      images: ["/opengraph-image.jpg"],
+    },
   };
 }
 

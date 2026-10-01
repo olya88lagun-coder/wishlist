@@ -62,6 +62,8 @@ export default async function GiftsPage() {
         Расскажите о человеке, поводе и бюджете. Подберём идеи, которые можно сохранить в вишлист.
       </p>
 
+      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} />
+
       <section className="gifts-page__how" aria-labelledby="gift-how-title">
         <div className="gifts-page__how-copy">
           <p className="eyebrow">умный ориентир</p>
@@ -82,13 +84,12 @@ export default async function GiftsPage() {
         </div>
       </section>
 
-      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} />
       <section className="gifts-page__seo">
         <p className="eyebrow">Идеи подарков</p>
         <h2>Ищете подарок конкретному человеку?</h2>
         <p>
-          Ниже собраны быстрые входы в SEO-подборки по получателю, поводу и бюджету.
-          Они помогают начать с конкретного запроса и затем уточнить идею в AI-форме выше.
+          Выберите подборку по получателю, поводу или бюджету.
+          Найдите подходящее направление и уточните идеи в помощнике выше.
         </p>
         <div className="quick-link__row">
           {QUICK_LINKS.map(([label, slug]) => <a key={slug} className="button button--ghost button--small" href={`/gifts/${slug}`}>{label}</a>)}

@@ -11,13 +11,14 @@ const GIFT_SLUGS = [
 const CONTENT_UPDATED = new Date("2026-09-21");
 // Страницы, на которые добавлены конкретные идеи подарков
 const GIFT_IDEAS_UPDATED = new Date("2026-09-22");
+const PUBLIC_PAGES_UPDATED = new Date("2026-10-01");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = (process.env.APP_URL ?? "https://my-wish-list.online").replace(/\/$/, "");
 
   return [
-    { url: baseUrl, lastModified: CONTENT_UPDATED, changeFrequency: "weekly", priority: 1 },
-    { url: `${baseUrl}/gifts`, lastModified: CONTENT_UPDATED, changeFrequency: "weekly", priority: 0.9 },
+    { url: baseUrl, lastModified: PUBLIC_PAGES_UPDATED, changeFrequency: "weekly", priority: 1 },
+    { url: `${baseUrl}/gifts`, lastModified: PUBLIC_PAGES_UPDATED, changeFrequency: "weekly", priority: 0.9 },
     ...GIFT_SLUGS.map((slug) => ({
       url: `${baseUrl}/gifts/${slug}`,
       lastModified: GIFT_IDEAS[slug] ? GIFT_IDEAS_UPDATED : CONTENT_UPDATED,
