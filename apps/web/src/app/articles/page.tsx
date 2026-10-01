@@ -1,12 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ARTICLES } from "@/content/articles";
+import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 
 export const metadata: Metadata = {
   title: "Идеи подарков и полезные статьи",
   description:
     "Практические подборки подарков, советы по созданию вишлистов и идеи для разных поводов и бюджетов.",
   alternates: { canonical: "/articles" },
+  openGraph: {
+    title: "Идеи подарков и полезные статьи",
+    description: "Практические подборки подарков, советы по созданию вишлистов и идеи для разных поводов и бюджетов.",
+    url: "/articles",
+    siteName: SITE_NAME,
+    images: DEFAULT_OG_IMAGES,
+    locale: "ru_RU",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Идеи подарков и полезные статьи",
+    description: "Практические подборки подарков, советы по созданию вишлистов и идеи для разных поводов и бюджетов.",
+    images: ["/opengraph-image.jpg"],
+  },
 };
 
 export default function ArticlesPage() {

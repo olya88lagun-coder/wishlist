@@ -867,7 +867,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
           <h2 id="gift-visuals-title">От чего оттолкнуться при выборе</h2>
           <p>Не ищите подарок вслепую. Сначала выберите направление, которое ближе человеку, а затем уточните интересы и бюджет в подборщике ниже.</p>
         </div>
-        {getVisuals(slug).map((visual) => (
+        {getVisuals(slug).map((visual, index) => (
           <article className="gifts-page__visual-card" key={visual.title}>
             <div className="gifts-page__visual-media">
               <Image
@@ -875,9 +875,8 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                 alt={visual.alt}
                 width={1200}
                 height={800}
-                sizes="(max-width: 760px) 100vw, 33vw"
-                loading={slug in PHOTO_VISUALS ? "eager" : undefined}
-                unoptimized={slug in PHOTO_VISUALS}
+                sizes="(max-width: 760px) 132px, (max-width: 899px) 160px, 320px"
+                loading={index === 0 ? "eager" : "lazy"}
               />
             </div>
             <div className="gifts-page__visual-copy">

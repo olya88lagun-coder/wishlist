@@ -150,34 +150,6 @@ export default async function Home() {
   const [telegram, site] = signedIn ? [null, null] : start;
   const listLink = signedIn ? start[0] : null;
   const articles = ARTICLES.slice(0, 3);
-  const baseUrl = env.APP_URL.replace(/\/$/, "");
-  const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "MyWishList",
-      url: baseUrl,
-      logo: `${baseUrl}/hero-premium.png`,
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: "MyWishList",
-      url: baseUrl,
-      inLanguage: "ru-RU",
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      name: "MyWishList",
-      applicationCategory: "LifestyleApplication",
-      operatingSystem: "Web, Telegram",
-      url: baseUrl,
-      description:
-        "Сервис для создания вишлистов, добавления подарков из любых магазинов и бронирования подарков без повторов.",
-      offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" },
-    },
-  ];
 
   return (
     <div className="home">
@@ -203,10 +175,6 @@ export default async function Home() {
       </header>
 
       <main>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__copy">
             <p className="hero__eyebrow">Подарки</p>

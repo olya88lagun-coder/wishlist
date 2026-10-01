@@ -45,7 +45,13 @@ describe("Home", () => {
     const html = renderToStaticMarkup(await Home());
 
     expect(html).toContain('type="application/ld+json"');
-    expect(html).toContain('"@type":"SoftwareApplication"');
+    const scripts = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)];
+    expect(scripts).toHaveLength(1);
+    const schema = JSON.parse(scripts[0]![1]!);
+    expect(schema.map((item: { "@type": string }) => item["@type"])).toEqual([
+      "WebSite", "Organization", "WebApplication",
+    ]);
+    expect(schema[1].logo).toBe("https://my-wish-list.online/apple-icon.png");
     expect(html).toContain("Подарки не повторяются");
     expect(html).toContain("День рождения");
     expect(html).toContain('href="/gifts/birthday"');
