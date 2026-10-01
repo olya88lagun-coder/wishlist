@@ -21,7 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/gifts`, lastModified: PUBLIC_PAGES_UPDATED, changeFrequency: "weekly", priority: 0.9 },
     ...GIFT_SLUGS.map((slug) => ({
       url: `${baseUrl}/gifts/${slug}`,
-      lastModified: GIFT_IDEAS[slug] ? GIFT_IDEAS_UPDATED : CONTENT_UPDATED,
+      lastModified: slug === "under-3000" ? PUBLIC_PAGES_UPDATED : GIFT_IDEAS[slug] ? GIFT_IDEAS_UPDATED : CONTENT_UPDATED,
       changeFrequency: "monthly" as const,
       priority: slug.startsWith("for-") ? 0.7 : 0.65,
     })),

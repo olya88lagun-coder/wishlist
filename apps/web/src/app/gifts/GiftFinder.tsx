@@ -18,6 +18,7 @@ const OCCASIONS = [["birthday","День рождения"],["new-year","Нов�
 const BUDGETS = [["3000","до 3 000 ₽"],["5000","до 5 000 ₽"],["10000","до 10 000 ₽"],["20000","до 20 000 ₽"],["custom","свой бюджет"]] as const;
 
 type Person = (typeof PEOPLE)[number][0];
+type Budget = (typeof BUDGETS)[number][0];
 
 function makeIdeas(person: string, occasion: string, interests: string): Result[] {
   const interest = interests.trim() || "любимые занятия";
@@ -30,11 +31,11 @@ function makeIdeas(person: string, occasion: string, interests: string): Result[
   ];
 }
 
-export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson = "mom" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; initialPerson?: Person }) {
+export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson = "mom", initialBudget = "5000" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; initialPerson?: Person; initialBudget?: Budget }) {
   const [person, setPerson] = useState<Person>(initialPerson);
   const [occasion, setOccasion] = useState("birthday");
   const [interests, setInterests] = useState("");
-  const [budget, setBudget] = useState("5000");
+  const [budget, setBudget] = useState<string>(initialBudget);
   const [customBudget, setCustomBudget] = useState("");
   const [results, setResults] = useState<Result[]>([]);
   const [submitted, setSubmitted] = useState(false);
