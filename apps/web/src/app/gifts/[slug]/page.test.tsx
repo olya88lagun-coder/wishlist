@@ -1,4 +1,5 @@
 import { Children, isValidElement, type ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test, vi } from "vitest";
 
 vi.mock("@/server/viewer", () => ({
@@ -14,6 +15,12 @@ vi.mock("@wishlist/db", () => ({
 }));
 
 import GiftRecipientPage from "./page";
+
+test("starts gift selection within the 3000-ruble page budget", async () => {
+  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "under-3000" }) }));
+  expect(html).toContain('<option value="3000" selected="">');
+  expect(html).not.toContain('<option value="5000" selected="">');
+});
 
 function collectImageSources(node: ReactNode, sources: string[] = []): string[] {
   if (!isValidElement<{ src?: unknown; children?: ReactNode }>(node)) return sources;
