@@ -33,6 +33,21 @@ const QUICK_LINKS = [
   ["Бабушке", "for-grandma"], ["Дедушке", "for-grandpa"], ["Дочери", "for-daughter"], ["Сыну", "for-son"], ["Учителю", "for-teacher"], ["Руководителю", "for-boss"],
 ];
 
+const FINDER_STEPS = [
+  {
+    title: "Персональные идеи",
+    text: "Укажите получателя, повод, бюджет и интересы — подборка отталкивается от реального человека, а не от случайной витрины.",
+  },
+  {
+    title: "Поиск в магазинах",
+    text: "Каждая идея превращается в готовый поисковый запрос для Ozon, Wildberries и Яндекс Маркета.",
+  },
+  {
+    title: "Сохранение без суеты",
+    text: "Подарок можно сохранить в вишлист, чтобы вернуться к нему позже или поделиться с близкими.",
+  },
+] as const;
+
 export const dynamic = "force-dynamic";
 
 export default async function GiftsPage() {
@@ -46,10 +61,35 @@ export default async function GiftsPage() {
       <p className="gifts-page__lead">
         Расскажите о человеке, поводе и бюджете. Подберём идеи, которые можно сохранить в вишлист.
       </p>
+
+      <section className="gifts-page__how" aria-labelledby="gift-how-title">
+        <div className="gifts-page__how-copy">
+          <p className="eyebrow">умный ориентир</p>
+          <h2 id="gift-how-title">Как работает AI-подбор подарков</h2>
+          <p>
+            Вместо универсальных списков помощник собирает направления под конкретного человека:
+            его привычки, интересы, повод и комфортный бюджет.
+          </p>
+        </div>
+        <div className="gifts-page__how-grid">
+          {FINDER_STEPS.map((step, index) => (
+            <article className="gifts-page__how-card" key={step.title}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} />
       <section className="gifts-page__seo">
         <p className="eyebrow">Идеи подарков</p>
         <h2>Ищете подарок конкретному человеку?</h2>
+        <p>
+          Ниже собраны быстрые входы в SEO-подборки по получателю, поводу и бюджету.
+          Они помогают начать с конкретного запроса и затем уточнить идею в AI-форме выше.
+        </p>
         <div className="quick-link__row">
           {QUICK_LINKS.map(([label, slug]) => <a key={slug} className="button button--ghost button--small" href={`/gifts/${slug}`}>{label}</a>)}
         </div>
