@@ -78,6 +78,35 @@ const STEPS = [
   },
 ] as const;
 
+const TRUST_ITEMS = [
+  { value: "1 ссылка", label: "для Telegram, VK, MAX и гостей" },
+  { value: "0 дублей", label: "подарки бронируются без регистрации" },
+  { value: "любой магазин", label: "Wildberries, Ozon, маркетплейсы и локальные бренды" },
+] as const;
+
+const OCCASIONS = [
+  {
+    title: "День рождения",
+    text: "Соберите желания разного бюджета и отправьте близким один аккуратный ориентир.",
+    href: "/gifts/birthday",
+  },
+  {
+    title: "Свадьба",
+    text: "Гости видят свободные идеи, а пара не получает два одинаковых подарка.",
+    href: "/gifts/wedding",
+  },
+  {
+    title: "Новый год",
+    text: "Подготовьте семейный список заранее и сохраните интригу до праздника.",
+    href: "/gifts/new-year",
+  },
+  {
+    title: "Подарок маме",
+    text: "Начните с интересов, привычек и маленьких ежедневных радостей.",
+    href: "/gifts/for-mom",
+  },
+] as const;
+
 function GiftIcon() {
   return (
     <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
@@ -121,6 +150,34 @@ export default async function Home() {
   const [telegram, site] = signedIn ? [null, null] : start;
   const listLink = signedIn ? start[0] : null;
   const articles = ARTICLES.slice(0, 3);
+  const baseUrl = env.APP_URL.replace(/\/$/, "");
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "MyWishList",
+      url: baseUrl,
+      logo: `${baseUrl}/hero-premium.png`,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "MyWishList",
+      url: baseUrl,
+      inLanguage: "ru-RU",
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "MyWishList",
+      applicationCategory: "LifestyleApplication",
+      operatingSystem: "Web, Telegram",
+      url: baseUrl,
+      description:
+        "Сервис для создания вишлистов, добавления подарков из любых магазинов и бронирования подарков без повторов.",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" },
+    },
+  ];
 
   return (
     <div className="home">
@@ -146,6 +203,10 @@ export default async function Home() {
       </header>
 
       <main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__copy">
             <p className="hero__eyebrow">Подарки</p>
@@ -194,6 +255,30 @@ export default async function Home() {
               sizes="(max-width: 899px) 100vw, 55vw"
               preload
             />
+          </div>
+        </section>
+
+        <section className="home-trust" aria-label="Почему удобно использовать MyWishList">
+          {TRUST_ITEMS.map((item) => (
+            <div className="home-trust__item" key={item.value}>
+              <strong>{item.value}</strong>
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </section>
+
+        <section className="home-section home-occasions" aria-labelledby="occasions-title">
+          <div className="home-section__intro">
+            <p className="home-section__eyebrow">Для любого повода</p>
+            <h2 id="occasions-title" className="home-section__title">Подарки не повторяются, а выбор остаётся красивым</h2>
+          </div>
+          <div className="home-occasion-grid">
+            {OCCASIONS.map((occasion) => (
+              <Link className="home-occasion" href={occasion.href} key={occasion.href}>
+                <span>{occasion.title}</span>
+                <p>{occasion.text}</p>
+              </Link>
+            ))}
           </div>
         </section>
 

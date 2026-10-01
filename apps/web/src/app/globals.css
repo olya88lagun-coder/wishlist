@@ -115,6 +115,77 @@ a { color: inherit; }
 .legal .display { hyphens: auto; overflow-wrap: break-word; }
 
 .gifts-page__lead { max-width: 700px; font-size: 19px; margin: 0 0 28px; }
+.gifts-page__how {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  gap: 22px;
+  align-items: stretch;
+  margin: 30px 0 30px;
+}
+
+.gifts-page__how-copy,
+.gifts-page__how-card {
+  border: 1px solid rgb(146 126 99 / .22);
+  background: linear-gradient(145deg, rgb(255 253 248 / .88), rgb(239 225 207 / .45));
+}
+
+.gifts-page__how-copy {
+  display: grid;
+  align-content: center;
+  padding: 30px;
+  border-radius: 24px;
+}
+
+.gifts-page__how-copy h2 {
+  margin: 8px 0 14px;
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: clamp(31px, 4.4vw, 46px);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.gifts-page__how-copy p:not(.eyebrow) {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.gifts-page__how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gifts-page__how-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 230px;
+  padding: 22px;
+  border-radius: 20px;
+}
+
+.gifts-page__how-card span {
+  font-family: var(--font-playfair), Georgia, serif;
+  color: #a17843;
+  font-size: 28px;
+  font-style: italic;
+}
+
+.gifts-page__how-card h3 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.gifts-page__how-card p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.58;
+}
+
 .gifts-page__visuals {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -226,6 +297,24 @@ a { color: inherit; }
   .gifts-page__visual-copy p {
     font-size: 13px;
     line-height: 1.5;
+  }
+
+  .gifts-page__how {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 22px;
+  }
+
+  .gifts-page__how-copy {
+    padding: 24px;
+  }
+
+  .gifts-page__how-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gifts-page__how-card {
+    min-height: 0;
   }
 }
 
