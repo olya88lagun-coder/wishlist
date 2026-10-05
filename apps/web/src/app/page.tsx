@@ -27,6 +27,9 @@ export function generateMetadata(): Metadata {
     verification: {
       ...(google ? { google } : {}),
       ...(yandex ? { yandex } : {}),
+      other: {
+        "mitgo-verification": "4b6d5dae-47cc-4644-904d-7deb0cdc5f96",
+      },
     },
   };
 }
