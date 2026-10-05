@@ -29,6 +29,7 @@ export function generateMetadata(): Metadata {
       ...(yandex ? { yandex } : {}),
       other: {
         "mitgo-verification": "4b6d5dae-47cc-4644-904d-7deb0cdc5f96",
+        "takprodam-verification": "881f5ded-b70f-4912-a6f9-7034b4d687ed",
       },
     },
   };
