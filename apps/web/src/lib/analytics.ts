@@ -2,6 +2,7 @@ export type AnalyticsEvent =
   | "gift_finder_submit"
   | "gift_finder_result"
   | "gift_finder_product_click"
+  | "partner_product_click"
   | "gift_finder_save"
   | "gift_finder_dismiss"
   | "landing_gift_finder_click";
