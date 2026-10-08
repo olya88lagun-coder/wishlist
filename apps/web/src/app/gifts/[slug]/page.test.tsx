@@ -22,6 +22,21 @@ test("starts gift selection within the 3000-ruble page budget", async () => {
   expect(html).not.toContain('<option value="5000" selected="">');
 });
 
+test("offers the disclosed Ozon partner product only on the budget collection", async () => {
+  const budgetHtml = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "under-3000" }) }));
+  expect(budgetHtml).toContain('aria-labelledby="partner-gift-title"');
+  expect(budgetHtml).toContain("Для детей от 3 лет");
+  expect(budgetHtml).toContain("Накорми животное");
+  expect(budgetHtml).toContain("6679151160");
+  expect(budgetHtml).toContain("Y1jgkD6uB6jK1phqkTLTbNKYS11A");
+  expect(budgetHtml).toContain("https://takprdm.ru/0W9SRG82rWCjIQy0/?redirectTo=https%3A%2F%2Fozon.ru%2Fproduct%2F924034106&amp;erid=Y1jgkD6uB6jK1phqkTLTbNKYS11A");
+  expect(budgetHtml).toContain('rel="sponsored nofollow noopener noreferrer"');
+  expect(budgetHtml).not.toContain("548 ₽");
+
+  const momHtml = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+  expect(momHtml).not.toContain("takprdm.ru");
+});
+
 function collectImageSources(node: ReactNode, sources: string[] = []): string[] {
   if (!isValidElement<{ src?: unknown; children?: ReactNode }>(node)) return sources;
 

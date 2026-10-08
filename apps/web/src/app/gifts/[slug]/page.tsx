@@ -5,6 +5,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "../GiftFinder";
+import { PartnerGiftCard } from "../PartnerGiftCard";
 import { getDb } from "@/server/db";
 import { readViewer } from "@/server/viewer";
 import "../gift-ideas.css";
@@ -932,6 +933,8 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
           </p>
         </section>
       ) : null}
+
+      {slug === "under-3000" ? <PartnerGiftCard /> : null}
 
       <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} initialPerson={page.person} initialBudget={slug === "under-3000" ? "3000" : undefined} />
 
