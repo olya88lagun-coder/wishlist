@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "../GiftFinder";
 import { PartnerGiftCard } from "../PartnerGiftCard";
+import { ChildrenGiftPage, childrenMetadata } from "../ChildrenGiftPage";
 import { getDb } from "@/server/db";
 import { readViewer } from "@/server/viewer";
 import "../gift-ideas.css";
@@ -798,6 +799,8 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const childMetadata = childrenMetadata(slug);
+  if (childMetadata) return childMetadata;
   const page = PAGES[slug as Slug];
   if (!page) return {};
   const ideas = GIFT_IDEAS[slug];
@@ -826,6 +829,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GiftRecipientPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (childrenMetadata(slug)) return <ChildrenGiftPage slug={slug} />;
   const page = PAGES[slug as Slug];
   if (!page) notFound();
 

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { ARTICLES } from "@/content/articles";
 import { GIFT_IDEAS } from "@/content/gift-ideas";
+import { CHILD_GIFT_COLLECTIONS, CHILDREN_HUB_SLUG, CHILDREN_CONTENT_UPDATED } from "@/content/children-gifts";
 
 const GIFT_SLUGS = [
   "for-mom","for-dad","for-girlfriend","for-boyfriend","for-wife","for-husband","for-friend","for-colleague","for-sister","for-brother","for-grandma","for-grandpa","for-daughter","for-son","for-teacher","for-boss",
@@ -18,10 +19,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: baseUrl, lastModified: PUBLIC_PAGES_UPDATED, changeFrequency: "weekly", priority: 1 },
-    { url: `${baseUrl}/gifts`, lastModified: PUBLIC_PAGES_UPDATED, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${baseUrl}/gifts`, lastModified: new Date(CHILDREN_CONTENT_UPDATED), changeFrequency: "weekly", priority: 0.9 },
+    ...[CHILDREN_HUB_SLUG, ...CHILD_GIFT_COLLECTIONS.map(collection => collection.slug)].map(slug => ({
+      url: `${baseUrl}/gifts/${slug}`,
+      lastModified: new Date(CHILDREN_CONTENT_UPDATED),
+      changeFrequency: "monthly" as const,
+      priority: slug === CHILDREN_HUB_SLUG ? 0.8 : 0.7,
+    })),
     ...GIFT_SLUGS.map((slug) => ({
       url: `${baseUrl}/gifts/${slug}`,
-      lastModified: slug === "under-3000" ? PUBLIC_PAGES_UPDATED : GIFT_IDEAS[slug] ? GIFT_IDEAS_UPDATED : CONTENT_UPDATED,
+      lastModified: slug === "under-3000" ? new Date("2026-10-08") : GIFT_IDEAS[slug] ? GIFT_IDEAS_UPDATED : CONTENT_UPDATED,
       changeFrequency: "monthly" as const,
       priority: slug.startsWith("for-") ? 0.7 : 0.65,
     })),
