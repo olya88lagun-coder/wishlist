@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 };
 
 const QUICK_LINKS = [
+  ["Детям по возрасту", "for-children"],
   ["Маме", "for-mom"], ["Папе", "for-dad"], ["Девушке", "for-girlfriend"],
   ["Парню", "for-boyfriend"], ["Жене", "for-wife"], ["Мужу", "for-husband"],
   ["Другу", "for-friend"], ["Коллеге", "for-colleague"], ["Сестре", "for-sister"], ["Брату", "for-brother"],

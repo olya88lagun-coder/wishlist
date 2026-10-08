@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ARTICLES } from "@/content/articles";
 
 const RECIPIENT_LINKS = [
+  ["Детям по возрасту", "/gifts/for-children"],
   ["Маме", "/gifts/for-mom"], ["Папе", "/gifts/for-dad"],
   ["Девушке", "/gifts/for-girlfriend"], ["Парню", "/gifts/for-boyfriend"],
   ["Жене", "/gifts/for-wife"], ["Мужу", "/gifts/for-husband"],
