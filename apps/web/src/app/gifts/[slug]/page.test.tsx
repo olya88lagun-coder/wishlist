@@ -73,6 +73,26 @@ test("offers Читай-город next to a book idea only after its partner te
   }
 });
 
+test("shows brand cards with advertiser details only after the brand template is configured", async () => {
+  const saved = process.env.AFFILIATE_TEFAL_TEMPLATE;
+  try {
+    delete process.env.AFFILIATE_TEFAL_TEMPLATE;
+    const without = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(without).not.toContain("Посуда Tefal");
+
+    process.env.AFFILIATE_TEFAL_TEMPLATE = "https://partner.example/g/CODE/?erid=ERID123&ulp={url}";
+    const withTemplate = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(withTemplate).toContain("Посуда Tefal");
+    expect(withTemplate).toContain("/go/brand?offer=tefal-posuda&amp;from=gifts%2Ffor-mom");
+    expect(withTemplate).toContain('rel="sponsored nofollow noopener noreferrer"');
+    expect(withTemplate).toContain("Реклама. ООО «Гипер». ИНН 7813122311. erid ERID123");
+    expect(withTemplate).not.toContain("KRUPS");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_TEFAL_TEMPLATE;
+    else process.env.AFFILIATE_TEFAL_TEMPLATE = saved;
+  }
+});
+
 function collectImageSources(node: ReactNode, sources: string[] = []): string[] {
   if (!isValidElement<{ src?: unknown; children?: ReactNode }>(node)) return sources;
 

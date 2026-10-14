@@ -9,6 +9,7 @@ import { PartnerGiftCard } from "../PartnerGiftCard";
 import { ChildrenGiftPage, childrenMetadata } from "../ChildrenGiftPage";
 import { getDb } from "@/server/db";
 import { AffiliateNotice } from "@/components/AffiliateNotice";
+import { BrandOfferCards } from "@/components/BrandOfferCards";
 import { extraStoresForIdea } from "@/app/go/store-routing";
 import { isAffiliateEnabled } from "@/server/affiliate-notice";
 import { enabledExtraStores } from "@/server/store-routing";
@@ -944,6 +945,8 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
           </p>
         </section>
       ) : null}
+
+      <BrandOfferCards slug={slug} />
 
       {slug === "under-3000" ? <PartnerGiftCard /> : null}
 
