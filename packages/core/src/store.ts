@@ -1,4 +1,4 @@
-export type StoreId = "wildberries" | "ozon" | "goldapple" | "lamoda" | "yandex_market" | "mts" | "aliexpress" | "chitaigorod" | "other";
+export type StoreId = "wildberries" | "ozon" | "goldapple" | "lamoda" | "yandex_market" | "mts" | "aliexpress" | "chitaigorod" | "tefal" | "krups" | "sportmaster" | "other";
 export type StoreInfo = { id: StoreId; label: string };
 
 export const MAX_URL_LENGTH = 2048;
@@ -14,6 +14,9 @@ const KNOWN_STORES: { id: Exclude<StoreId, "other">; label: string; hosts: strin
   { id: "mts", label: "МТС Shop", hosts: ["shop.mts.ru"] },
   { id: "aliexpress", label: "AliExpress", hosts: ["aliexpress.com", "aliexpress.ru"] },
   { id: "chitaigorod", label: "Читай-город", hosts: ["chitai-gorod.ru"] },
+  { id: "tefal", label: "Tefal", hosts: ["tefal.ru"] },
+  { id: "krups", label: "KRUPS", hosts: ["krups.ru"] },
+  { id: "sportmaster", label: "Спортмастер", hosts: ["sportmaster.ru"] },
 ];
 
 export function normalizeProductUrl(raw: string): string | null {

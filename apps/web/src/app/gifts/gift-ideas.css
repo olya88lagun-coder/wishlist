@@ -51,3 +51,11 @@
   .partner-gift__media { width: min(100%, 280px); justify-self: center; }
   .partner-gift__button { width: 100%; }
 }
+.brand-offers { margin: 32px 0; }
+.brand-offers__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; padding: 0; margin: 16px 0 0; list-style: none; }
+.brand-offer { display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1px solid var(--line, rgba(0, 0, 0, 0.12)); border-radius: 12px; background: var(--surface, transparent); }
+.brand-offer h3 { margin: 0; font-size: 18px; }
+.brand-offer p { margin: 0; font-size: 14px; }
+.brand-offer .button { align-self: flex-start; margin-top: auto; }
+.brand-offer__note { color: var(--ink-faint); }
+.brand-offer__disclosure { color: var(--ink); font-size: 12px; }

@@ -73,6 +73,41 @@ test("offers Читай-город next to a book idea only after its partner te
   }
 });
 
+test("shows brand cards with advertiser details only after the brand template is configured", async () => {
+  const saved = process.env.AFFILIATE_TEFAL_TEMPLATE;
+  try {
+    delete process.env.AFFILIATE_TEFAL_TEMPLATE;
+    const without = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(without).not.toContain("Посуда Tefal");
+
+    process.env.AFFILIATE_TEFAL_TEMPLATE = "https://partner.example/g/CODE/?erid=ERID123&ulp={url}";
+    const withTemplate = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(withTemplate).toContain("Посуда Tefal");
+    expect(withTemplate).toContain("/go/brand?offer=tefal-posuda&amp;from=gifts%2Ffor-mom");
+    expect(withTemplate).toContain('rel="sponsored nofollow noopener noreferrer"');
+    expect(withTemplate).toContain("Реклама. ООО «Гипер». ИНН 7813122311. erid ERID123");
+    expect(withTemplate).not.toContain("KRUPS");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_TEFAL_TEMPLATE;
+    else process.env.AFFILIATE_TEFAL_TEMPLATE = saved;
+  }
+});
+
+test("shows МТС Shop product cards on a partner page with the advertiser details", async () => {
+  const saved = process.env.AFFILIATE_MTS_TEMPLATE;
+  try {
+    process.env.AFFILIATE_MTS_TEMPLATE = "https://partner.example/g/CODE/?erid=MTSERID&ulp={url}";
+    const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-boyfriend" }) }));
+    expect(html).toContain("Смартфон Apple iPhone 18 Pro, 256 ГБ");
+    expect(html).toContain("/go/brand?offer=mts-iphone-18-pro&amp;from=gifts%2Ffor-boyfriend");
+    expect(html).toContain("Реклама. АО «РТК». ИНН 7709356049. erid MTSERID");
+    expect(html).toContain("Посмотреть на shop.mts.ru");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_MTS_TEMPLATE;
+    else process.env.AFFILIATE_MTS_TEMPLATE = saved;
+  }
+});
+
 test("has a books page with its own metadata, ideas and links to the stores", async () => {
   const metadata = await generateMetadata({ params: Promise.resolve({ slug: "books" }) });
   expect(metadata.title).toBe("Книги в подарок: 15 идей с ценами");
