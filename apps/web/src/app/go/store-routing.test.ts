@@ -22,6 +22,10 @@ describe("extraStoresForIdea", () => {
     expect(extraStoresForIdea({ name: "Настольная игра для компании", query: "настольная игра" }, ALL)).toContain("chitaigorod");
   });
 
+  test("keeps AliExpress away from book ideas even when they are cheap", () => {
+    expect(extraStoresForIdea({ name: "Сборник рассказов", query: "сборник рассказов книга", price: "400–900 ₽" }, ALL)).toEqual(["chitaigorod"]);
+  });
+
   test("does not treat a photo book as a bookstore item", () => {
     expect(extraStoresForIdea({ name: "Фотокнига с семейными снимками", query: "фотокнига" }, ALL)).not.toContain("chitaigorod");
   });

@@ -42,10 +42,12 @@ export function extraStoresForIdea(idea: IdeaForRouting, enabled: readonly Extra
   const range = idea.price ? priceRange(idea.price) : null;
   const picked: ExtraStore[] = [];
 
-  if (hasTerm(words, BOOK_TERMS)) picked.push("chitaigorod");
+  const isBookIdea = hasTerm(words, BOOK_TERMS);
+  if (isBookIdea) picked.push("chitaigorod");
   if (hasTerm(words, FASHION_TERMS) && !(range && range.min < LAMODA_MIN_PRICE)) picked.push("lamoda");
   const upper: number | null = range ? range.max : (idea.budget ?? null);
-  if (upper !== null && upper <= ALIEXPRESS_MAX_PRICE) picked.push("aliexpress");
+  // Книги и игры из книжного магазина на AliExpress не ищем: выбор и сроки там хуже
+  if (!isBookIdea && upper !== null && upper <= ALIEXPRESS_MAX_PRICE) picked.push("aliexpress");
 
   return picked.filter((store) => enabled.includes(store)).slice(0, MAX_EXTRA_STORES);
 }
