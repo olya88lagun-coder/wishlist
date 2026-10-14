@@ -120,6 +120,21 @@ test("has a books page with its own metadata, ideas and links to the stores", as
   expect(html).toContain("Чего лучше не дарить");
 });
 
+test("shows Спортмастер cards with the advertiser details once its template is set", async () => {
+  const saved = process.env.AFFILIATE_SPORTMASTER_TEMPLATE;
+  try {
+    process.env.AFFILIATE_SPORTMASTER_TEMPLATE = "https://partner.example/g/CODE/?erid=SPORTERID&ulp={url}";
+    const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-husband" }) }));
+    expect(html).toContain("Велотренажёр магнитный Torneo Vita B-370BL");
+    expect(html).toContain("/go/brand?offer=sportmaster-velotrenazher&amp;from=gifts%2Ffor-husband");
+    expect(html).toContain("ООО «Спортмастер»");
+    expect(html).toContain("7728551528");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_SPORTMASTER_TEMPLATE;
+    else process.env.AFFILIATE_SPORTMASTER_TEMPLATE = saved;
+  }
+});
+
 function collectImageSources(node: ReactNode, sources: string[] = []): string[] {
   if (!isValidElement<{ src?: unknown; children?: ReactNode }>(node)) return sources;
 
