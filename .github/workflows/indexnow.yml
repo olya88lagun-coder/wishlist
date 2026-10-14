@@ -1,0 +1,24 @@
+name: indexnow
+
+# Ручной запуск: сообщить Яндексу и Bing об адресах из sitemap.xml после заметных обновлений контента.
+# Автоматически на каждый деплой не запускаем: повторная отправка неизменённых страниц считается лишней.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Send sitemap addresses to IndexNow
+        run: node scripts/indexnow.ts
