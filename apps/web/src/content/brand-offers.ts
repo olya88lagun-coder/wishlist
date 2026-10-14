@@ -2,7 +2,7 @@
 // конкретные товары приходят и уходят, а раздел остаётся. Цены не указываем, их показывает магазин.
 // Партнёрская ссылка собирается из шаблона на сервере (AFFILIATE_TEFAL_TEMPLATE / AFFILIATE_KRUPS_TEMPLATE),
 // поэтому в коде нет ни кода площадки, ни erid.
-export type BrandId = "tefal" | "krups" | "mts";
+export type BrandId = "tefal" | "krups" | "mts" | "sportmaster";
 
 export type BrandOffer = {
   id: string;
@@ -18,6 +18,7 @@ export const BRAND_ADVERTISER: Record<BrandId, { name: string; inn: string; site
   tefal: { name: "ООО «Гипер»", inn: "7813122311", site: "tefal.ru", label: "Tefal" },
   krups: { name: "ООО «Гипер»", inn: "7813122311", site: "krups.ru", label: "KRUPS" },
   mts: { name: "АО «РТК»", inn: "7709356049", site: "shop.mts.ru", label: "МТС Shop" },
+  sportmaster: { name: "ООО «Спортмастер»", inn: "7728551528", site: "sportmaster.ru", label: "Спортмастер" },
 };
 
 export const BRAND_OFFERS: readonly BrandOffer[] = [
@@ -108,6 +109,22 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
     text: "Компактный планшет с экраном 8,3 дюйма, Wi-Fi и Cellular, фиолетовый, 128 ГБ. Подойдёт для чтения, учёбы и дороги.",
     target: "https://shop.mts.ru/product/planshet-apple-ipad-mini-2024-128-gb-wi-fi-cellular-fioletovyj-mxpr3",
     pages: ["for-girlfriend", "for-wife", "for-daughter", "for-son", "for-boyfriend"],
+  },
+  {
+    id: "sportmaster-velotrenazher",
+    brand: "sportmaster",
+    title: "Велотренажёр магнитный Torneo Vita B-370BL",
+    text: "Тренажёр для занятий дома. Проверьте допустимый вес пользователя, размеры и место, где он будет стоять.",
+    target: "https://www.sportmaster.ru/product/32205860299/",
+    pages: ["for-husband", "for-wife", "for-dad", "for-mom"],
+  },
+  {
+    id: "sportmaster-snowboard",
+    brand: "sportmaster",
+    title: "Сноуборд женский Termit Amica",
+    text: "Для катания зимой. Размер подбирают по росту и весу, поэтому уточните его заранее; крепления и ботинки могут не входить в комплект, проверьте в описании.",
+    target: "https://www.sportmaster.ru/product/34630220299/?skuId=79532010299",
+    pages: ["for-girlfriend", "for-wife", "for-daughter", "new-year"],
   },
 ];
 

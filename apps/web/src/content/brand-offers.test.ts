@@ -8,7 +8,7 @@ describe("brand offers content", () => {
     for (const offer of BRAND_OFFERS) {
       const url = new URL(offer.target);
       expect(url.protocol).toBe("https:");
-      expect(url.hostname).toBe(BRAND_ADVERTISER[offer.brand].site);
+      expect(url.hostname.replace(/^www\./, "")).toBe(BRAND_ADVERTISER[offer.brand].site);
       expect(offer.title.length).toBeGreaterThan(5);
       expect(offer.text.length).toBeGreaterThan(30);
     }
@@ -41,6 +41,22 @@ describe("МТС Shop product cards", () => {
     expect(brandOffersForPage("for-boyfriend", ["mts"]).length).toBeGreaterThan(0);
     expect(brandOffersForPage("for-daughter", ["mts"]).length).toBeGreaterThan(0);
     expect(brandOffersForPage("under-5000", ["mts"])).toEqual([]);
+  });
+});
+
+describe("Спортмастер product cards", () => {
+  test("link to the two chosen products on sportmaster.ru", () => {
+    const targets = BRAND_OFFERS.filter((offer) => offer.brand === "sportmaster").map((offer) => offer.target);
+    expect(targets).toEqual([
+      "https://www.sportmaster.ru/product/32205860299/",
+      "https://www.sportmaster.ru/product/34630220299/?skuId=79532010299",
+    ]);
+  });
+
+  test("the exercise bike fits family pages and the snowboard fits winter and her pages", () => {
+    expect(brandOffersForPage("for-husband", ["sportmaster"]).map((offer) => offer.id)).toContain("sportmaster-velotrenazher");
+    expect(brandOffersForPage("new-year", ["sportmaster"]).map((offer) => offer.id)).toContain("sportmaster-snowboard");
+    expect(brandOffersForPage("under-5000", ["sportmaster"])).toEqual([]);
   });
 });
 
