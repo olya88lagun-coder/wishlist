@@ -77,7 +77,6 @@ export default async function PublicWishlistPage({ params }: Props) {
         <EmptyState title="Пока пусто" text={`${ownerName} ещё не добавил(а) подарки. Загляните позже.`} />
       ) : (
         <>
-          {!isOwner && <AffiliateNotice />}
         <section className="grid" aria-label="Подарки">
           {items.map((item) => (
             <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl), linkHref: isOwner ? null : `/go/${item.id}` }} adLabel={!isOwner && isAffiliateEnabled()} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
@@ -125,6 +124,7 @@ export default async function PublicWishlistPage({ params }: Props) {
       <div style={{ marginTop: 32 }}>
         <ShareBar url={shareUrl} title={`${wishlist.title} — вишлист ${ownerName}`} />
       </div>
+      {!isOwner && <AffiliateNotice />}
       <SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />
     </main>
   );
