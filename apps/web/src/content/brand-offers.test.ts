@@ -66,7 +66,7 @@ describe("sport page cards", () => {
     expect(sport.length).toBeGreaterThan(3);
     expect(sport.length).toBeLessThanOrEqual(12);
     expect(sport.every((offer) => offer.brand === "sportmaster")).toBe(true);
-    expect(brandOffersForPage("for-mom", ["tefal", "krups", "mts", "sportmaster"]).length).toBeLessThanOrEqual(3);
+    expect(brandOffersForPage("for-mom", ["tefal", "krups", "mts", "sportmaster"]).length).toBeLessThanOrEqual(4);
   });
 
   test("category cards point to verified sections of sportmaster.ru", () => {
@@ -86,17 +86,52 @@ describe("sport page cards", () => {
 });
 
 describe("brandOffersForPage", () => {
-  test("returns only offers of enabled brands, at most three, for that page", () => {
+  test("returns only offers of enabled brands, at most four, for that page", () => {
     const none = brandOffersForPage("for-mom", []);
     expect(none).toEqual([]);
 
     const tefal = brandOffersForPage("for-mom", ["tefal"]);
     expect(tefal.length).toBeGreaterThan(0);
-    expect(tefal.length).toBeLessThanOrEqual(3);
     expect(tefal.every((offer) => offer.brand === "tefal")).toBe(true);
 
-    expect(brandOffersForPage("for-dad", ["tefal", "krups"]).length).toBeLessThanOrEqual(3);
+    expect(brandOffersForPage("for-dad", ["tefal", "krups"]).length).toBeLessThanOrEqual(4);
     expect(brandOffersForPage("under-20000", ["tefal", "krups"])).toEqual([]);
+  });
+
+  test("shows at most four cards and at most two of one brand on ordinary gift pages", () => {
+    const all = ["tefal", "krups", "mts", "sportmaster"] as const;
+    for (const slug of Object.keys(GIFT_IDEAS).filter((page) => page !== "sport")) {
+      const offers = brandOffersForPage(slug, all);
+      expect(offers.length, slug).toBeLessThanOrEqual(4);
+      for (const brand of all) {
+        expect(offers.filter((offer) => offer.brand === brand).length, `${slug} ${brand}`).toBeLessThanOrEqual(2);
+      }
+    }
+  });
+
+  test("orders brands by earnings: Спортмастер, then Tefal, МТС and KRUPS", () => {
+    const all = ["tefal", "krups", "mts", "sportmaster"] as const;
+    expect(brandOffersForPage("for-husband", all).map((offer) => offer.id)).toEqual([
+      "sportmaster-velotrenazher",
+      "sportmaster-gornye-lyzhi",
+      "tefal-kofemashiny",
+      "mts-iphone-18-pro",
+    ]);
+    expect(brandOffersForPage("for-dad", all).map((offer) => offer.brand)).toEqual(["sportmaster", "sportmaster", "krups", "krups"]);
+  });
+
+  test("puts Спортмастер cards first so seasonal sport offers are not pushed out by kitchen ones", () => {
+    const ids = brandOffersForPage("new-year", ["tefal", "krups", "mts", "sportmaster"]).map((offer) => offer.id);
+    expect(ids).toHaveLength(4);
+    expect(ids.slice(0, 2).every((id) => id.startsWith("sportmaster-"))).toBe(true);
+    expect(ids).toContain("sportmaster-snowboard");
+    expect(ids).toContain("sportmaster-konki");
+    expect(brandOffersForPage("for-son", ["tefal", "krups", "mts", "sportmaster"]).map((offer) => offer.id)).toEqual([
+      "sportmaster-konki",
+      "sportmaster-plavanie",
+      "mts-iphone-18-pro",
+      "mts-iphone-17",
+    ]);
   });
 });
 
