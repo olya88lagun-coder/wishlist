@@ -189,3 +189,18 @@ test("has a sport page with its own metadata, ideas and Спортмастер c
     else process.env.AFFILIATE_SPORTMASTER_TEMPLATE = saved;
   }
 });
+
+test("puts the general advertising note at the bottom while the idea links keep their own label", async () => {
+  const saved = process.env.AFFILIATE_OZON_TEMPLATE;
+  try {
+    process.env.AFFILIATE_OZON_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
+    const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    const note = html.indexOf("Ссылки на магазины партнёрские");
+    expect(note).toBeGreaterThan(html.lastIndexOf("gift-idea__stores"));
+    expect(note).toBeGreaterThan(html.indexOf("Чего лучше не дарить"));
+    expect(html).toContain("Реклама · найти:");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_OZON_TEMPLATE;
+    else process.env.AFFILIATE_OZON_TEMPLATE = saved;
+  }
+});

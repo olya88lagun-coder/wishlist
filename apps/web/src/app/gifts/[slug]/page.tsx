@@ -955,7 +955,6 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
         <section className="gift-ideas" aria-labelledby="gift-ideas-title">
           <h2 id="gift-ideas-title">{ideas.title}</h2>
           <p className="gift-ideas__intro">{ideas.intro}</p>
-          <AffiliateNotice />
           {ideas.groups.map((group) => (
             <div className="gift-ideas__group" key={group.title}>
               <h3>{group.title}</h3>
@@ -1037,6 +1036,8 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
           <a className="button button--ghost button--small" href="/gifts">Открыть AI-подбор</a>
         </div>
       </section>
+
+      <AffiliateNotice />
     </main>
   );
 }
