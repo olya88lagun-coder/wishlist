@@ -116,7 +116,7 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
     title: "Велотренажёр магнитный Torneo Vita B-370BL",
     text: "Тренажёр для занятий дома. Проверьте допустимый вес пользователя, размеры и место, где он будет стоять.",
     target: "https://www.sportmaster.ru/product/32205860299/",
-    pages: ["for-husband", "for-wife", "for-dad", "for-mom"],
+    pages: ["sport", "for-husband", "for-wife", "for-dad", "for-mom"],
   },
   {
     id: "sportmaster-snowboard",
@@ -124,18 +124,52 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
     title: "Сноуборд женский Termit Amica",
     text: "Для катания зимой. Размер подбирают по росту и весу, поэтому уточните его заранее; крепления и ботинки могут не входить в комплект, проверьте в описании.",
     target: "https://www.sportmaster.ru/product/34630220299/?skuId=79532010299",
-    pages: ["for-girlfriend", "for-wife", "for-daughter", "new-year"],
+    pages: ["sport", "for-girlfriend", "for-wife", "for-daughter", "new-year"],
+  },
+  {
+    id: "sportmaster-for-him",
+    brand: "sportmaster",
+    title: "Подарки для него в Спортмастере",
+    text: "Раздел магазина с подарками для мужчин: от одежды до инвентаря. Узнайте размеры и любимый вид спорта.",
+    target: "https://www.sportmaster.ru/catalog/gifts/for-him/",
+    pages: ["sport"],
+  },
+  {
+    id: "sportmaster-for-her",
+    brand: "sportmaster",
+    title: "Подарки для неё в Спортмастере",
+    text: "Раздел магазина с подарками для женщин. Уточните размер и чем человек занимается.",
+    target: "https://www.sportmaster.ru/catalog/gifts/for-her/",
+    pages: ["sport"],
+  },
+  {
+    id: "sportmaster-yoga",
+    brand: "sportmaster",
+    title: "Всё для йоги и пилатеса",
+    text: "Коврики, одежда и аксессуары для занятий дома и в зале. Спросите, чем человек занимается и какой у него размер.",
+    target: "https://www.sportmaster.ru/catalog/vidy_sporta_/yoga/",
+    pages: ["sport"],
+  },
+  {
+    id: "sportmaster-kemping",
+    brand: "sportmaster",
+    title: "Товары для кемпинга и автотуризма",
+    text: "Снаряжение и вещи для отдыха на природе. Подойдёт тем, кто ездит в походы или на дачу.",
+    target: "https://www.sportmaster.ru/catalog/vidy_sporta_/kemping/",
+    pages: ["sport"],
   },
 ];
 
 const MAX_OFFERS_PER_PAGE = 3;
+// Страницы, целиком посвящённые магазину, показывают больше карточек
+const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 6 };
 
 export function brandOfferById(id: string): BrandOffer | undefined {
   return BRAND_OFFERS.find((offer) => offer.id === id);
 }
 
 export function brandOffersForPage(slug: string, enabled: readonly BrandId[]): BrandOffer[] {
-  return BRAND_OFFERS.filter((offer) => enabled.includes(offer.brand) && offer.pages.includes(slug)).slice(0, MAX_OFFERS_PER_PAGE);
+  return BRAND_OFFERS.filter((offer) => enabled.includes(offer.brand) && offer.pages.includes(slug)).slice(0, MAX_OFFERS_BY_PAGE[slug] ?? MAX_OFFERS_PER_PAGE);
 }
 
 // erid лежит в самом шаблоне партнёрской ссылки, его же показываем в пометке рекламы

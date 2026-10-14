@@ -46,7 +46,7 @@ describe("МТС Shop product cards", () => {
 
 describe("Спортмастер product cards", () => {
   test("link to the two chosen products on sportmaster.ru", () => {
-    const targets = BRAND_OFFERS.filter((offer) => offer.brand === "sportmaster").map((offer) => offer.target);
+    const targets = BRAND_OFFERS.filter((offer) => offer.brand === "sportmaster" && offer.target.includes("/product/")).map((offer) => offer.target);
     expect(targets).toEqual([
       "https://www.sportmaster.ru/product/32205860299/",
       "https://www.sportmaster.ru/product/34630220299/?skuId=79532010299",
@@ -57,6 +57,26 @@ describe("Спортмастер product cards", () => {
     expect(brandOffersForPage("for-husband", ["sportmaster"]).map((offer) => offer.id)).toContain("sportmaster-velotrenazher");
     expect(brandOffersForPage("new-year", ["sportmaster"]).map((offer) => offer.id)).toContain("sportmaster-snowboard");
     expect(brandOffersForPage("under-5000", ["sportmaster"])).toEqual([]);
+  });
+});
+
+describe("sport page cards", () => {
+  test("the sport page shows more Спортмастер cards than the usual three, other pages stay at three", () => {
+    const sport = brandOffersForPage("sport", ["sportmaster"]);
+    expect(sport.length).toBeGreaterThan(3);
+    expect(sport.length).toBeLessThanOrEqual(6);
+    expect(sport.every((offer) => offer.brand === "sportmaster")).toBe(true);
+    expect(brandOffersForPage("for-mom", ["tefal", "krups", "mts", "sportmaster"]).length).toBeLessThanOrEqual(3);
+  });
+
+  test("category cards point to verified sections of sportmaster.ru", () => {
+    const targets = BRAND_OFFERS.filter((offer) => offer.id.startsWith("sportmaster-") && offer.target.includes("/catalog/")).map((offer) => new URL(offer.target).pathname);
+    expect(targets).toEqual([
+      "/catalog/gifts/for-him/",
+      "/catalog/gifts/for-her/",
+      "/catalog/vidy_sporta_/yoga/",
+      "/catalog/vidy_sporta_/kemping/",
+    ]);
   });
 });
 

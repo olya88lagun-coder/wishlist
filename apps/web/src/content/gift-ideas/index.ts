@@ -4,6 +4,7 @@ import { CORE_GIFT_IDEAS } from "./core";
 import { FAMILY_GIFT_IDEAS } from "./family";
 import { OCCASION_GIFT_IDEAS } from "./occasions";
 import { PEOPLE_GIFT_IDEAS } from "./people";
+import { SPORT_GIFT_IDEAS } from "./sport";
 import type { ExtraStore } from "@/app/go/store-routing";
 import { SEARCH_STORES, STORE_LABELS, storeSearchHref } from "@/app/go/store-search";
 import type { GiftIdeasContent } from "./types";
@@ -17,6 +18,7 @@ export const GIFT_IDEAS: Partial<Record<string, GiftIdeasContent>> = {
   ...OCCASION_GIFT_IDEAS,
   ...BUDGET_GIFT_IDEAS,
   ...BOOKS_GIFT_IDEAS,
+  ...SPORT_GIFT_IDEAS,
 };
 
 export function countGiftIdeas(content: GiftIdeasContent): number {
