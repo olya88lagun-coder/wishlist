@@ -167,6 +167,29 @@ describe("gift recipient editorial images", () => {
   });
 });
 
+test("has a sport page with its own metadata, ideas and Спортмастер cards", async () => {
+  const saved = process.env.AFFILIATE_SPORTMASTER_TEMPLATE;
+  try {
+    const metadata = await generateMetadata({ params: Promise.resolve({ slug: "sport" }) });
+    expect(metadata.title).toBe("Подарки для спорта и активного отдыха: 15 идей с ценами");
+    expect(metadata.alternates?.canonical).toBe("/gifts/sport");
+
+    delete process.env.AFFILIATE_SPORTMASTER_TEMPLATE;
+    const plain = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "sport" }) }));
+    expect(plain).toContain("Подарки для спорта и активного отдыха");
+    expect(plain).toContain("Чего лучше не дарить");
+    expect(plain).not.toContain("/go/brand?offer=sportmaster");
+
+    process.env.AFFILIATE_SPORTMASTER_TEMPLATE = "https://partner.example/g/CODE/?erid=SPORTERID&ulp={url}";
+    const withCards = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "sport" }) }));
+    expect(withCards).toContain("/go/brand?offer=sportmaster-yoga");
+    expect(withCards).toContain("ООО «Спортмастер»");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_SPORTMASTER_TEMPLATE;
+    else process.env.AFFILIATE_SPORTMASTER_TEMPLATE = saved;
+  }
+});
+
 test("puts the general advertising note at the bottom while the idea links keep their own label", async () => {
   const saved = process.env.AFFILIATE_OZON_TEMPLATE;
   try {

@@ -21,7 +21,7 @@ const OCCASION_LINKS = [
   ["Тайный Санта", "/gifts/secret-santa"],
 ] as const;
 
-const INTEREST_LINKS = [["Книги в подарок", "/gifts/books"]] as const;
+const INTEREST_LINKS = [["Книги в подарок", "/gifts/books"], ["Спорт и отдых", "/gifts/sport"]] as const;
 
 const BUDGET_LINKS = [
   ["До 1 000 ₽", "/gifts/under-1000"], ["До 3 000 ₽", "/gifts/under-3000"],
