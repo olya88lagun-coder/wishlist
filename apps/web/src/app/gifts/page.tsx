@@ -3,6 +3,7 @@ import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "./GiftFinder";
 import { getDb } from "@/server/db";
+import { giftsHubJsonLd } from "@/lib/structured-data";
 import { readViewer } from "@/server/viewer";
 
 export const metadata: Metadata = {
@@ -49,6 +50,8 @@ const FINDER_STEPS = [
   },
 ] as const;
 
+const PUBLIC_URL = process.env.APP_URL ?? "https://my-wish-list.online";
+
 export const dynamic = "force-dynamic";
 
 export default async function GiftsPage() {
@@ -57,6 +60,7 @@ export default async function GiftsPage() {
 
   return (
     <main className="page page--wide gifts-page">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(giftsHubJsonLd(PUBLIC_URL)) }} />
       <p className="eyebrow">my wish list · подарки</p>
       <h1 className="display">Найти подарок, который <i>попадёт в точку</i></h1>
       <p className="gifts-page__lead">

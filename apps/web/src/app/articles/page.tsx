@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ARTICLES } from "@/content/articles";
 import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
+import { articlesHubJsonLd } from "@/lib/structured-data";
+
+const PUBLIC_URL = process.env.APP_URL ?? "https://my-wish-list.online";
 
 export const metadata: Metadata = {
   title: "Идеи подарков и полезные статьи",
@@ -28,6 +31,7 @@ export const metadata: Metadata = {
 export default function ArticlesPage() {
   return (
     <main className="editorial-main">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articlesHubJsonLd(PUBLIC_URL)) }} />
       <p className="editorial-kicker">Журнал MyWishList</p>
       <h1>Идеи подарков<br /><em>без случайных покупок</em></h1>
       <p className="editorial-lead">
