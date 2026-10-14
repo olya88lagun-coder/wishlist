@@ -20,7 +20,7 @@ describe("gift ideas content", () => {
   const pages = Object.entries(GIFT_IDEAS);
 
   test("covers every gift page", () => {
-    expect(pages).toHaveLength(31);
+    expect(pages).toHaveLength(32);
   });
 
   test.each(pages)("%s has at least ten complete ideas with unique names", (_slug, content) => {
