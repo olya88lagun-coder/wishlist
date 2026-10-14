@@ -3,6 +3,7 @@ import { CORE_GIFT_IDEAS } from "./core";
 import { FAMILY_GIFT_IDEAS } from "./family";
 import { OCCASION_GIFT_IDEAS } from "./occasions";
 import { PEOPLE_GIFT_IDEAS } from "./people";
+import type { ExtraStore } from "@/app/go/store-routing";
 import { SEARCH_STORES, STORE_LABELS, storeSearchHref } from "@/app/go/store-search";
 import type { GiftIdeasContent } from "./types";
 
@@ -29,8 +30,8 @@ export function giftIdeasCountLabel(content: GiftIdeasContent): string {
   return `${count} ${word}`;
 }
 
-export function giftIdeaSearchLinks(query: string, source: string) {
-  return SEARCH_STORES.map((store) => ({
+export function giftIdeaSearchLinks(query: string, source: string, extraStores: readonly ExtraStore[] = []) {
+  return [...SEARCH_STORES, ...extraStores].map((store) => ({
     store: STORE_LABELS[store] ?? store,
     href: storeSearchHref(store, query, source),
   }));

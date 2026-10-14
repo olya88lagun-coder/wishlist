@@ -55,6 +55,24 @@ test("marks store search links as advertising only when a partner template is co
   }
 });
 
+test("offers Читай-город next to a book idea only after its partner template is configured", async () => {
+  const saved = process.env.AFFILIATE_CHITAIGOROD_TEMPLATE;
+  try {
+    delete process.env.AFFILIATE_CHITAIGOROD_TEMPLATE;
+    const without = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(without).not.toContain("store=chitaigorod");
+
+    process.env.AFFILIATE_CHITAIGOROD_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
+    const withTemplate = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(withTemplate).toContain("store=chitaigorod");
+    expect(withTemplate).toContain(">Читай-город</a>");
+    expect(withTemplate).toContain("store=ozon");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_CHITAIGOROD_TEMPLATE;
+    else process.env.AFFILIATE_CHITAIGOROD_TEMPLATE = saved;
+  }
+});
+
 function collectImageSources(node: ReactNode, sources: string[] = []): string[] {
   if (!isValidElement<{ src?: unknown; children?: ReactNode }>(node)) return sources;
 

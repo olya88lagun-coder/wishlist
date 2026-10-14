@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import type { WishlistSummary } from "@wishlist/db";
 import { addGiftToWishlist } from "./actions";
 import { trackEvent } from "@/lib/analytics";
+import { type ExtraStore, extraStoresForIdea } from "@/app/go/store-routing";
 import { SEARCH_STORES, STORE_LABELS, storeSearchHref } from "@/app/go/store-search";
 
 type Result = {
@@ -31,7 +32,7 @@ function makeIdeas(person: string, occasion: string, interests: string): Result[
   ];
 }
 
-export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = false, initialPerson = "mom", initialBudget = "5000" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; showAdLabel?: boolean; initialPerson?: Person; initialBudget?: Budget }) {
+export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = false, extraStores = [], initialPerson = "mom", initialBudget = "5000" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; showAdLabel?: boolean; extraStores?: readonly ExtraStore[]; initialPerson?: Person; initialBudget?: Budget }) {
   const [person, setPerson] = useState<Person>(initialPerson);
   const [occasion, setOccasion] = useState("birthday");
   const [interests, setInterests] = useState("");
@@ -204,7 +205,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
                 <p className="muted">{result.reason}</p>
                 <p className="card__meta">{showAdLabel ? "Реклама · поиск в магазинах: " : "Поиск в магазинах: "}{result.searchQuery}</p>
                 <div className="card__actions">
-                  {SEARCH_STORES.map((store) => (
+                  {[...SEARCH_STORES, ...extraStoresForIdea({ name: result.title, query: result.searchQuery, budget: Number(budget) || undefined }, extraStores)].map((store) => (
                     <a
                       key={store}
                       className="button button--ghost button--small"
