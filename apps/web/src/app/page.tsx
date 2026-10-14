@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { EditorialMenu } from "@/components/EditorialMenu";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
+import { HOME_GIFT_LINK_GROUPS } from "@/content/home-gift-links";
 import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
 import "./home.css";
@@ -278,6 +279,25 @@ export default async function Home() {
             <span>Подобрать подарок</span>
             <Arrow />
           </Link>
+        </section>
+
+        <section className="home-section home-collections" aria-labelledby="collections-title">
+          <p className="home-section__eyebrow">Каталог идей</p>
+          <h2 id="collections-title" className="home-section__title">Подборки подарков</h2>
+          <div className="home-collections__groups">
+            {HOME_GIFT_LINK_GROUPS.map((group) => (
+              <div className="home-collections__group" key={group.title}>
+                <h3>{group.title}</h3>
+                <ul>
+                  {group.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href}>{link.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="home-section" aria-labelledby="articles-title">
