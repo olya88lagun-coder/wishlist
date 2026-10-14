@@ -19,6 +19,7 @@
 .gift-idea p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
 .gift-idea .gift-idea__stores { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: auto; padding-top: 6px; font-size: 13px; }
 .gift-idea__stores span { color: var(--ink-faint); }
+.gift-idea__stores .gift-idea__ad { color: var(--ink); font-weight: 600; }
 .gift-idea__stores a { color: var(--ink); text-underline-offset: 3px; }
 .gift-ideas__avoid { max-width: 760px; margin-top: 36px; }
 .gift-ideas__avoid h3 { margin: 0 0 10px; font-size: 19px; font-weight: 600; }
