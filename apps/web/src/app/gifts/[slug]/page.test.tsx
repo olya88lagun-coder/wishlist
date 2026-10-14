@@ -14,7 +14,7 @@ vi.mock("@wishlist/db", () => ({
   listWishlistsForOwner: vi.fn(),
 }));
 
-import GiftRecipientPage from "./page";
+import GiftRecipientPage, { generateMetadata } from "./page";
 
 test("starts gift selection within the 3000-ruble page budget", async () => {
   const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "under-3000" }) }));
@@ -71,6 +71,18 @@ test("offers Читай-город next to a book idea only after its partner te
     if (saved === undefined) delete process.env.AFFILIATE_CHITAIGOROD_TEMPLATE;
     else process.env.AFFILIATE_CHITAIGOROD_TEMPLATE = saved;
   }
+});
+
+test("has a books page with its own metadata, ideas and links to the stores", async () => {
+  const metadata = await generateMetadata({ params: Promise.resolve({ slug: "books" }) });
+  expect(metadata.title).toBe("Книги в подарок: 15 идей с ценами");
+  expect(metadata.alternates?.canonical).toBe("/gifts/books");
+
+  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "books" }) }));
+  expect(html).toContain("<h1");
+  expect(html).toContain("Книги в подарок");
+  expect(html).toContain("store=ozon");
+  expect(html).toContain("Чего лучше не дарить");
 });
 
 function collectImageSources(node: ReactNode, sources: string[] = []): string[] {

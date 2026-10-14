@@ -21,6 +21,8 @@ const OCCASION_LINKS = [
   ["Тайный Санта", "/gifts/secret-santa"],
 ] as const;
 
+const INTEREST_LINKS = [["Книги в подарок", "/gifts/books"]] as const;
+
 const BUDGET_LINKS = [
   ["До 1 000 ₽", "/gifts/under-1000"], ["До 3 000 ₽", "/gifts/under-3000"],
   ["До 5 000 ₽", "/gifts/under-5000"], ["До 10 000 ₽", "/gifts/under-10000"],
@@ -50,6 +52,7 @@ export function EditorialMenu() {
         </section>
         <MenuGroup title="Кому" links={RECIPIENT_LINKS} />
         <MenuGroup title="По поводу" links={OCCASION_LINKS} />
+        <MenuGroup title="По интересу" links={INTEREST_LINKS} />
         <MenuGroup title="По бюджету" links={BUDGET_LINKS} />
       </div>
     </details>

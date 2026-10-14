@@ -1,3 +1,4 @@
+import { BOOKS_GIFT_IDEAS } from "./books";
 import { BUDGET_GIFT_IDEAS } from "./budget";
 import { CORE_GIFT_IDEAS } from "./core";
 import { FAMILY_GIFT_IDEAS } from "./family";
@@ -15,6 +16,7 @@ export const GIFT_IDEAS: Partial<Record<string, GiftIdeasContent>> = {
   ...PEOPLE_GIFT_IDEAS,
   ...OCCASION_GIFT_IDEAS,
   ...BUDGET_GIFT_IDEAS,
+  ...BOOKS_GIFT_IDEAS,
 };
 
 export function countGiftIdeas(content: GiftIdeasContent): number {
