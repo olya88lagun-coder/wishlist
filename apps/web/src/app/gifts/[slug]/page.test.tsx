@@ -48,7 +48,7 @@ test("marks store search links as advertising only when a partner template is co
     process.env.AFFILIATE_OZON_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
     const marked = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
     expect(marked).toContain("Ссылки на магазины партнёрские");
-    expect(marked).toContain("<span>Реклама · найти:</span>");
+    expect(marked).toContain('<span class="gift-idea__ad">Реклама · найти:</span>');
   } finally {
     if (saved === undefined) delete process.env.AFFILIATE_OZON_TEMPLATE;
     else process.env.AFFILIATE_OZON_TEMPLATE = saved;
