@@ -40,3 +40,12 @@ test("cookie name is stable per store and query, and hides the query", () => {
   expect(searchCookieName("ozon", "плед из хлопка")).toBe(name);
   expect(searchCookieName("wildberries", "Плед из хлопка")).not.toBe(name);
 });
+
+test("extra stores have their own search urls and labels but do not join the default three", () => {
+  expect(storeSearchUrl("chitaigorod", "книга про космос")).toBe("https://www.chitai-gorod.ru/search?phrase=%D0%BA%D0%BD%D0%B8%D0%B3%D0%B0%20%D0%BF%D1%80%D0%BE%20%D0%BA%D0%BE%D1%81%D0%BC%D0%BE%D1%81");
+  expect(storeSearchUrl("lamoda", "платье")).toBe("https://www.lamoda.ru/catalogsearch/result/?q=%D0%BF%D0%BB%D0%B0%D1%82%D1%8C%D0%B5");
+  expect(storeSearchUrl("aliexpress", "термос")).toBe("https://aliexpress.ru/wholesale?SearchText=%D1%82%D0%B5%D1%80%D0%BC%D0%BE%D1%81");
+  expect(isSearchStore("chitaigorod")).toBe(true);
+  expect(STORE_LABELS.chitaigorod).toBe("Читай-город");
+  expect(SEARCH_STORES).not.toContain("lamoda");
+});

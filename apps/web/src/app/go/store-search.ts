@@ -4,14 +4,22 @@ const STORE_SEARCH: Record<string, (query: string) => string> = {
   ozon: (q) => `https://www.ozon.ru/search/?text=${q}`,
   wildberries: (q) => `https://www.wildberries.ru/catalog/0/search.aspx?search=${q}`,
   yandex_market: (q) => `https://market.yandex.ru/search?text=${q}`,
+  // Дополнительные магазины: показываются только к подходящим идеям и когда для них задан партнёрский шаблон
+  chitaigorod: (q) => `https://www.chitai-gorod.ru/search?phrase=${q}`,
+  lamoda: (q) => `https://www.lamoda.ru/catalogsearch/result/?q=${q}`,
+  aliexpress: (q) => `https://aliexpress.ru/wholesale?SearchText=${q}`,
 };
 
-export const SEARCH_STORES = Object.keys(STORE_SEARCH);
+// Три основных магазина показываем всегда; дополнительные — см. store-routing.ts
+export const SEARCH_STORES = ["ozon", "wildberries", "yandex_market"];
 
 export const STORE_LABELS: Record<string, string> = {
   ozon: "Ozon",
   wildberries: "Wildberries",
   yandex_market: "Яндекс Маркет",
+  chitaigorod: "Читай-город",
+  lamoda: "Lamoda",
+  aliexpress: "AliExpress",
 };
 
 export function isSearchStore(store: string): boolean {

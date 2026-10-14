@@ -72,6 +72,13 @@ describe("getAffiliateUrl with partner rules", () => {
     expect(url).toBe("https://partner.example/g/CODE/?erid=ERID&ulp=https%3A%2F%2Fshop.mts.ru%2Fproduct%2Fsmartfon-1%2F");
   });
 
+  test("builds deeplinks for AliExpress and Читай-город from their templates", () => {
+    process.env.AFFILIATE_ALIEXPRESS_TEMPLATE = "https://partner.example/g/CODE/?ulp={url}";
+    process.env.AFFILIATE_CHITAIGOROD_TEMPLATE = "https://partner.example/g/CODE2/?erid=ERID&ulp={url}";
+    expect(getAffiliateUrl("https://www.aliexpress.com/item/1.html", "aliexpress")).toBe("https://partner.example/g/CODE/?ulp=https%3A%2F%2Fwww.aliexpress.com%2Fitem%2F1.html");
+    expect(getAffiliateUrl("https://www.chitai-gorod.ru/product/x-1", "chitaigorod")).toBe("https://partner.example/g/CODE2/?erid=ERID&ulp=https%3A%2F%2Fwww.chitai-gorod.ru%2Fproduct%2Fx-1");
+  });
+
   test("falls back to the plain store url when the text breaks program rules", () => {
     process.env.AFFILIATE_LAMODA_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
     const plain = "https://www.lamoda.ru/catalogsearch/result/?q=nike";
