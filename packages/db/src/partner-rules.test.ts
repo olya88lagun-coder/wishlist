@@ -1,0 +1,55 @@
+import { afterEach, describe, expect, test } from "vitest";
+import { getAffiliateUrl } from "./affiliate";
+import { violatesPartnerRules } from "./partner-rules";
+
+describe("violatesPartnerRules", () => {
+  test("blocks Lamoda brands named in Latin, Cyrillic and with endings", () => {
+    expect(violatesPartnerRules("lamoda", ["кроссовки Nike мужские"])).toBe(true);
+    expect(violatesPartnerRules("lamoda", ["Adidas Originals"])).toBe(true);
+    expect(violatesPartnerRules("lamoda", ["футболка адидас"])).toBe(true);
+    expect(violatesPartnerRules("lamoda", ["сумка из бершки"])).toBe(true);
+    expect(violatesPartnerRules("lamoda", ["красное платье Red Valentino"])).toBe(true);
+  });
+
+  test("blocks the word «скидка» in any form for Lamoda", () => {
+    expect(violatesPartnerRules("lamoda", ["платье со скидкой"])).toBe(true);
+    expect(violatesPartnerRules("lamoda", ["скидки на обувь"])).toBe(true);
+  });
+
+  test("blocks Gold Apple's forbidden brands but not its other products", () => {
+    expect(violatesPartnerRules("goldapple", ["Dior Sauvage"])).toBe(true);
+    expect(violatesPartnerRules("goldapple", ["духи Шанель"])).toBe(true);
+    expect(violatesPartnerRules("goldapple", ["набор для ухода за лицом"])).toBe(false);
+  });
+
+  test("does not match inside longer words", () => {
+    expect(violatesPartnerRules("goldapple", ["подборка подарков"])).toBe(false);
+    expect(violatesPartnerRules("lamoda", ["gaps and gapless"])).toBe(false);
+    expect(violatesPartnerRules("lamoda", ["Gap кардиган"])).toBe(true);
+  });
+
+  test("looks into product urls and ignores stores without known rules", () => {
+    expect(violatesPartnerRules("lamoda", ["https://www.lamoda.ru/p/rtl1/clothes-nike-krossovki/"])).toBe(true);
+    expect(violatesPartnerRules("ozon", ["кроссовки Nike"])).toBe(false);
+    expect(violatesPartnerRules(null, ["Nike"])).toBe(false);
+  });
+});
+
+describe("getAffiliateUrl with partner rules", () => {
+  const original = { ...process.env };
+  afterEach(() => {
+    process.env = { ...original };
+  });
+
+  test("builds the partner url for an allowed query", () => {
+    process.env.AFFILIATE_LAMODA_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
+    const url = getAffiliateUrl("https://www.lamoda.ru/p/rtl1/clothes-plate/", "lamoda");
+    expect(url).toBe("https://ad.example/g/CODE/?ulp=https%3A%2F%2Fwww.lamoda.ru%2Fp%2Frtl1%2Fclothes-plate%2F");
+  });
+
+  test("falls back to the plain store url when the text breaks program rules", () => {
+    process.env.AFFILIATE_LAMODA_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
+    const plain = "https://www.lamoda.ru/catalogsearch/result/?q=nike";
+    expect(getAffiliateUrl(plain, "lamoda", "кроссовки nike")).toBe(plain);
+  });
+});

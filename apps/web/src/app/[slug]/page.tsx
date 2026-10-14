@@ -2,6 +2,7 @@ import { getPublicWishlist, type PublicItemView } from "@wishlist/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AffiliateNotice } from "@/components/AffiliateNotice";
 import { CountdownSticker } from "@/components/CountdownSticker";
 import { EmptyState } from "@/components/EmptyState";
 import { ItemCard } from "@/components/ItemCard";
@@ -10,6 +11,7 @@ import { toCardModel } from "@/components/item-card-model";
 import { ReservedSticker } from "@/components/ReservedSticker";
 import { ShareBar } from "@/components/ShareBar";
 import { SiteFooter } from "@/components/SiteFooter";
+import { isAffiliateEnabled } from "@/server/affiliate-notice";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
@@ -74,9 +76,11 @@ export default async function PublicWishlistPage({ params }: Props) {
       {items.length === 0 ? (
         <EmptyState title="Пока пусто" text={`${ownerName} ещё не добавил(а) подарки. Загляните позже.`} />
       ) : (
+        <>
+          {!isOwner && <AffiliateNotice />}
         <section className="grid" aria-label="Подарки">
           {items.map((item) => (
-            <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl), linkHref: isOwner ? null : `/go/${item.id}` }} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
+            <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl), linkHref: isOwner ? null : `/go/${item.id}` }} adLabel={!isOwner && isAffiliateEnabled()} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
               {!isOwner && item.status === "free" && (
                 <ReserveSheet
                   slug={wishlist.slug}
@@ -105,6 +109,7 @@ export default async function PublicWishlistPage({ params }: Props) {
             </ItemCard>
           ))}
         </section>
+        </>
       )}
 
       {!isOwner && (

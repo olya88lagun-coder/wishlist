@@ -37,6 +37,24 @@ test("offers the disclosed Ozon partner product only on the budget collection", 
   expect(momHtml).not.toContain("takprdm.ru");
 });
 
+test("marks store search links as advertising only when a partner template is configured", async () => {
+  const saved = process.env.AFFILIATE_OZON_TEMPLATE;
+  try {
+    delete process.env.AFFILIATE_OZON_TEMPLATE;
+    const plain = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(plain).not.toContain("Ссылки на магазины партнёрские");
+    expect(plain).toContain("<span>Найти:</span>");
+
+    process.env.AFFILIATE_OZON_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
+    const marked = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(marked).toContain("Ссылки на магазины партнёрские");
+    expect(marked).toContain("<span>Реклама · найти:</span>");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_OZON_TEMPLATE;
+    else process.env.AFFILIATE_OZON_TEMPLATE = saved;
+  }
+});
+
 function collectImageSources(node: ReactNode, sources: string[] = []): string[] {
   if (!isValidElement<{ src?: unknown; children?: ReactNode }>(node)) return sources;
 

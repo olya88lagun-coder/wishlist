@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
   const searchUrl = storeSearchUrl(store, query);
   if (!searchUrl) return new NextResponse("Пустой запрос", { status: 400 });
 
-  // Партнёрский шаблон тот же, что и для подарков из списка; без него ведём прямо в магазин
-  const redirectUrl = getAffiliateUrl(searchUrl, store);
+  // Партнёрский шаблон тот же, что и для подарков из списка; без него или при запретном слове в запросе ведём прямо в магазин
+  const redirectUrl = getAffiliateUrl(searchUrl, store, query);
   if (!isSafeRedirect(redirectUrl)) return new NextResponse("Некорректный адрес", { status: 400 });
 
   const response = NextResponse.redirect(redirectUrl, 302);

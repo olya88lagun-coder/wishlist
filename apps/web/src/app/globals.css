@@ -746,3 +746,4 @@ a { color: inherit; }
     overflow-wrap: break-word;
   }
 }
+.affiliate-notice { margin: 8px 0 16px; padding: 8px 12px; border-left: 3px solid var(--ink-faint); font-size: 13px; color: var(--ink-faint); }

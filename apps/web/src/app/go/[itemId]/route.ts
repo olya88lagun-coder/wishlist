@@ -11,12 +11,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const target = await getGoTarget(getDb(), itemId);
   if (!target || !isSafeRedirect(target.sourceUrl)) return new NextResponse("Подарок не найден", { status: 404 });
 
-  const redirectUrl = getAffiliateUrl(target.sourceUrl, target.store);
-  const response = NextResponse.redirect(redirectUrl, 302);
   const { viewer } = await readViewer();
+  const isOwner = viewer.userId === target.ownerId;
+  // Владелец списка идёт в магазин по обычной ссылке: партнёрские программы запрещают клики и покупки по своим ссылкам
+  const redirectUrl = isOwner ? target.sourceUrl : getAffiliateUrl(target.sourceUrl, target.store);
+  const response = NextResponse.redirect(redirectUrl, 302);
   const cookie = goCookieName(target.itemId);
   // Клики владельца по своему списку и повторные клики за сутки не считаем
-  if (viewer.userId === target.ownerId || request.cookies.has(cookie)) return response;
+  if (isOwner || request.cookies.has(cookie)) return response;
   try {
     await recordAffiliateClick(getDb(), { itemId: target.itemId, store: target.store });
   } catch (error) {

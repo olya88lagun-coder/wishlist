@@ -4,6 +4,7 @@ import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "./GiftFinder";
 import { getDb } from "@/server/db";
 import { giftsHubJsonLd } from "@/lib/structured-data";
+import { isAffiliateEnabled } from "@/server/affiliate-notice";
 import { readViewer } from "@/server/viewer";
 
 export const metadata: Metadata = {
@@ -67,7 +68,7 @@ export default async function GiftsPage() {
         Расскажите о человеке, поводе и бюджете. Подберём идеи, которые можно сохранить в вишлист.
       </p>
 
-      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} />
+      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={isAffiliateEnabled()} />
 
       <section className="gifts-page__how" aria-labelledby="gift-how-title">
         <div className="gifts-page__how-copy">

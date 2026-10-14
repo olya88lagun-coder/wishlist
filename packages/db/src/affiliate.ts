@@ -1,5 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { isUuid } from "./errors";
+import { violatesPartnerRules } from "./partner-rules";
 import { affiliateClicks, items, storeSearchClicks, wishlists } from "./schema";
 import type { Database } from "./types";
 
@@ -24,11 +25,13 @@ export async function getGoTarget(db: Database, itemId: string): Promise<GoTarge
   return row?.sourceUrl ? { ...row, sourceUrl: row.sourceUrl } : null;
 }
 
-export function getAffiliateUrl(sourceUrl: string, store: string | null): string {
+// context — текст, который попадёт в рекламную ссылку (поисковая фраза): по нему проверяем запреты программы магазина
+export function getAffiliateUrl(sourceUrl: string, store: string | null, context = ""): string {
   const envName = store ? AFFILIATE_ENV_BY_STORE[store] : undefined;
   const template = envName ? process.env[envName] : undefined;
 
-  if (!template) return sourceUrl;
+  if (!template?.trim()) return sourceUrl;
+  if (violatesPartnerRules(store, [sourceUrl, context])) return sourceUrl;
 
   try {
     const affiliateUrl = template.replaceAll("{url}", encodeURIComponent(sourceUrl));
