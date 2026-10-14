@@ -109,6 +109,17 @@ describe("brandOffersForPage", () => {
     }
   });
 
+  test("orders brands by earnings: Спортмастер, then Tefal, МТС and KRUPS", () => {
+    const all = ["tefal", "krups", "mts", "sportmaster"] as const;
+    expect(brandOffersForPage("for-husband", all).map((offer) => offer.id)).toEqual([
+      "sportmaster-velotrenazher",
+      "sportmaster-gornye-lyzhi",
+      "tefal-kofemashiny",
+      "mts-iphone-18-pro",
+    ]);
+    expect(brandOffersForPage("for-dad", all).map((offer) => offer.brand)).toEqual(["sportmaster", "sportmaster", "krups", "krups"]);
+  });
+
   test("puts Спортмастер cards first so seasonal sport offers are not pushed out by kitchen ones", () => {
     const ids = brandOffersForPage("new-year", ["tefal", "krups", "mts", "sportmaster"]).map((offer) => offer.id);
     expect(ids).toHaveLength(4);

@@ -205,8 +205,10 @@ const MAX_OFFERS_PER_PAGE = 4;
 const MAX_OFFERS_PER_BRAND = 2;
 // Страницы, целиком посвящённые магазину, показывают больше карточек и без ограничения по бренду
 const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 12 };
-// Сезонные карточки (зимние виды спорта) идут первыми и не вытесняются кухонными
-const PRIORITY_BRAND: BrandId = "sportmaster";
+// Порядок брендов по EPC в публичных карточках Admitad на 14.10.2026 (средний доход на 100 кликов по сети, не наш):
+// Спортмастер 1394 ₽, Tefal 258 ₽, KRUPS 45 ₽. По МТС Shop данных не нашли, он между Tefal и KRUPS до появления своей статистики.
+// Когда накопится /stats и отчёт Admitad, порядок стоит пересмотреть по нашим кликам и заказам.
+const BRAND_PRIORITY: readonly BrandId[] = ["sportmaster", "tefal", "mts", "krups"];
 
 export function brandOfferById(id: string): BrandOffer | undefined {
   return BRAND_OFFERS.find((offer) => offer.id === id);
@@ -217,7 +219,7 @@ export function brandOffersForPage(slug: string, enabled: readonly BrandId[]): B
   const limit = MAX_OFFERS_BY_PAGE[slug];
   if (limit !== undefined) return matching.slice(0, limit);
 
-  const ordered = [...matching.filter((offer) => offer.brand === PRIORITY_BRAND), ...matching.filter((offer) => offer.brand !== PRIORITY_BRAND)];
+  const ordered = [...matching].sort((a, b) => BRAND_PRIORITY.indexOf(a.brand) - BRAND_PRIORITY.indexOf(b.brand));
   const perBrand = new Map<BrandId, number>();
   const picked: BrandOffer[] = [];
   for (const offer of ordered) {
