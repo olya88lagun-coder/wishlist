@@ -28,6 +28,8 @@ describe("detectStore", () => {
     ["https://goldapple.ru/19000238593-search", "goldapple", "Золотое Яблоко"],
     ["https://www.lamoda.ru/p/rtlabq944601/", "lamoda", "Lamoda"],
     ["https://market.yandex.ru/product--x/1", "yandex_market", "Яндекс Маркет"],
+    ["https://shop.mts.ru/product/smartfon-1/", "mts", "МТС Shop"],
+    ["https://www.shop.mts.ru/catalog/smartfony/", "mts", "МТС Shop"],
   ])("%s → %s", (url, id, label) => {
     expect(detectStore(url)).toEqual({ id, label });
   });

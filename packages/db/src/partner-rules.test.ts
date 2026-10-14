@@ -35,6 +35,25 @@ describe("violatesPartnerRules", () => {
   });
 });
 
+describe("violatesPartnerRules for Letual", () => {
+  test("blocks the brands Letual forbids to advertise, in Latin and Cyrillic", () => {
+    for (const text of ["Givenchy Irresistible", "духи Живанши", "Guerlain Terracotta", "Estee Lauder", "эсте лаудер крем", "Tom Ford Black Orchid", "том форд", "Jo Malone", "джо малон свеча", "La Mer Creme", "Kenzo Flower", "Clinique Moisture", "MAC помада", "Bobbi Brown", "бобби браун"]) {
+      expect(violatesPartnerRules("letual", [text]), text).toBe(true);
+    }
+  });
+
+  test("keeps ordinary beauty queries and short Cyrillic words safe", () => {
+    for (const text of ["лак мерцающий для ногтей", "макияж набор кистей", "маска для лица", "клиника красоты", "томат", "набор для ухода за кожей"]) {
+      expect(violatesPartnerRules("letual", [text]), text).toBe(false);
+    }
+  });
+
+  test("shares Gold Apple's bans on Chanel, Dior and Kilian", () => {
+    expect(violatesPartnerRules("letual", ["Dior Sauvage", "духи шанель"])).toBe(true);
+    expect(violatesPartnerRules("letual", ["Kilian Love"])).toBe(true);
+  });
+});
+
 describe("getAffiliateUrl with partner rules", () => {
   const original = { ...process.env };
   afterEach(() => {
@@ -45,6 +64,12 @@ describe("getAffiliateUrl with partner rules", () => {
     process.env.AFFILIATE_LAMODA_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
     const url = getAffiliateUrl("https://www.lamoda.ru/p/rtl1/clothes-plate/", "lamoda");
     expect(url).toBe("https://ad.example/g/CODE/?ulp=https%3A%2F%2Fwww.lamoda.ru%2Fp%2Frtl1%2Fclothes-plate%2F");
+  });
+
+  test("builds an Admitad deeplink for МТС Shop from the template", () => {
+    process.env.AFFILIATE_MTS_TEMPLATE = "https://partner.example/g/CODE/?erid=ERID&ulp={url}";
+    const url = getAffiliateUrl("https://shop.mts.ru/product/smartfon-1/", "mts");
+    expect(url).toBe("https://partner.example/g/CODE/?erid=ERID&ulp=https%3A%2F%2Fshop.mts.ru%2Fproduct%2Fsmartfon-1%2F");
   });
 
   test("falls back to the plain store url when the text breaks program rules", () => {
