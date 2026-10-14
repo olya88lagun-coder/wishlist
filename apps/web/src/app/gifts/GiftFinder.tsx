@@ -31,7 +31,7 @@ function makeIdeas(person: string, occasion: string, interests: string): Result[
   ];
 }
 
-export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson = "mom", initialBudget = "5000" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; initialPerson?: Person; initialBudget?: Budget }) {
+export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = false, initialPerson = "mom", initialBudget = "5000" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; showAdLabel?: boolean; initialPerson?: Person; initialBudget?: Budget }) {
   const [person, setPerson] = useState<Person>(initialPerson);
   const [occasion, setOccasion] = useState("birthday");
   const [interests, setInterests] = useState("");
@@ -202,7 +202,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
               <article className="panel gift-card" key={result.title}>
                 <h3>{result.title}</h3>
                 <p className="muted">{result.reason}</p>
-                <p className="card__meta">Поиск в магазинах: {result.searchQuery}</p>
+                <p className="card__meta">{showAdLabel ? "Реклама · поиск в магазинах: " : "Поиск в магазинах: "}{result.searchQuery}</p>
                 <div className="card__actions">
                   {SEARCH_STORES.map((store) => (
                     <a
@@ -223,7 +223,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, initialPerson =
               </article>
             ))}
           </div>
-          <p className="muted gift-finder__note">Это идеи подарков, а не конкретные товары. Кнопки откроют поиск по идее в Ozon, Wildberries или Яндекс Маркете; цена и наличие зависят от магазина.</p>
+          <p className="muted gift-finder__note">{showAdLabel ? "Реклама. Ссылки на магазины партнёрские: если вы купите товар, сервис может получить комиссию. Для вас цена не меняется. " : ""}Это идеи подарков, а не конкретные товары. Кнопки откроют поиск по идее в Ozon, Wildberries или Яндекс Маркете; цена и наличие зависят от магазина.</p>
         </section>
       )}
     </section>

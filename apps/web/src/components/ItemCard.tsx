@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { type CardItem, toCardModel } from "./item-card-model";
 import { StoreTile } from "./StoreTile";
 
-export function ItemCard({ item, sticker, dimmed, children }: { item: CardItem; sticker?: ReactNode; dimmed?: boolean; children?: ReactNode }) {
+export function ItemCard({ item, sticker, dimmed, adLabel = false, children }: { item: CardItem; sticker?: ReactNode; dimmed?: boolean; adLabel?: boolean; children?: ReactNode }) {
   const card = toCardModel(item);
   return (
     <article className={dimmed ? "card card--dimmed" : "card"} aria-busy={card.pending}>
@@ -16,7 +16,7 @@ export function ItemCard({ item, sticker, dimmed, children }: { item: CardItem; 
       {card.note && <p className="card__meta">{card.note}</p>}
       {card.href && (
         <a className="card__meta" href={card.href} target="_blank" rel="noopener noreferrer nofollow">
-          Открыть в магазине ↗
+          {adLabel ? "Реклама · открыть в магазине ↗" : "Открыть в магазине ↗"}
         </a>
       )}
       {children && <div className="card__actions">{children}</div>}

@@ -8,6 +8,8 @@ import { GiftFinder } from "../GiftFinder";
 import { PartnerGiftCard } from "../PartnerGiftCard";
 import { ChildrenGiftPage, childrenMetadata } from "../ChildrenGiftPage";
 import { getDb } from "@/server/db";
+import { AffiliateNotice } from "@/components/AffiliateNotice";
+import { isAffiliateEnabled } from "@/server/affiliate-notice";
 import { readViewer } from "@/server/viewer";
 import "../gift-ideas.css";
 
@@ -834,6 +836,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
   if (!page) notFound();
 
   const ideas = GIFT_IDEAS[slug];
+  const adLabel = isAffiliateEnabled();
   const { user } = await readViewer();
   const wishlists = user ? await listWishlistsForOwner(getDb(), user.id) : [];
   const base = process.env.APP_URL ?? "https://my-wish-list.online";
@@ -904,6 +907,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
         <section className="gift-ideas" aria-labelledby="gift-ideas-title">
           <h2 id="gift-ideas-title">{ideas.title}</h2>
           <p className="gift-ideas__intro">{ideas.intro}</p>
+          <AffiliateNotice />
           {ideas.groups.map((group) => (
             <div className="gift-ideas__group" key={group.title}>
               <h3>{group.title}</h3>
@@ -916,7 +920,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                     </div>
                     <p>{idea.why}</p>
                     <p className="gift-idea__stores">
-                      <span>Найти:</span>
+                      <span>{adLabel ? "Реклама · найти:" : "Найти:"}</span>
                       {giftIdeaSearchLinks(idea.query, `gifts/${slug}`).map((link) => (
                         <a key={link.store} href={link.href} target="_blank" rel="nofollow noopener noreferrer">{link.store}</a>
                       ))}
@@ -940,7 +944,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
 
       {slug === "under-3000" ? <PartnerGiftCard /> : null}
 
-      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} initialPerson={page.person} initialBudget={slug === "under-3000" ? "3000" : undefined} />
+      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={adLabel} initialPerson={page.person} initialBudget={slug === "under-3000" ? "3000" : undefined} />
 
       {(() => {
         const seo = getSeoContent(slug, page);
