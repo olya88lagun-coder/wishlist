@@ -1,7 +1,8 @@
 // Запреты партнёрских программ на упоминание брендов и слов в рекламных ссылках.
-// Источник: правила программ Lamoda и Золотое Яблоко в Admitad от 14.10.2026. Нарушение ведёт к отклонению заказов и отключению,
+// Источник: правила программ Lamoda, Золотое Яблоко и ЛЭТУАЛЬ в Admitad от 14.10.2026. Нарушение ведёт к отклонению заказов и отключению,
 // поэтому при совпадении партнёрская ссылка не строится, а человека ведут в магазин по обычному адресу.
-// Латинские слова сравниваются целиком, кириллические — по началу слова (учитывают падежные окончания).
+// Латинские слова сравниваются целиком, кириллические — по началу слова (учитывают падежные окончания), если в слове от 4 букв;
+// более короткие кириллические слова сравниваются целиком, чтобы «том» не совпадал с «томат».
 
 const LAMODA_TERMS = [
   "nike", "найк", "adidas", "адидас", "reebok", "рибок", "lacoste", "лакост", "swarovski", "сваровск", "oodji", "оджи",
@@ -17,12 +18,22 @@ const GOLDAPPLE_TERMS = [
   "dior", "диор", "kilian", "килиан", "bork", "борк",
 ];
 
+// У ЛЭТУАЛЬ магазина в списке магазинов пока нет: запреты готовы к его подключению. «Клиник» и «мак» по-русски не включены:
+// совпали бы с обычными словами («клиника», «макияж»).
+const LETUAL_TERMS = [
+  "chanel", "шанел", "dior", "диор", "kilian", "килиан", "givenchy", "живанши", "guerlain", "герлен", "kenzo", "кензо",
+  "estee lauder", "эсте лаудер", "эстэ лаудер", "clinique", "tom ford", "том форд", "bobbi brown", "бобби браун",
+  "jo malone", "джо малон", "la mer", "mac",
+];
+
 const TERMS_BY_STORE: Record<string, readonly (readonly string[])[]> = {
   lamoda: LAMODA_TERMS.map((term) => term.split(" ")),
   goldapple: GOLDAPPLE_TERMS.map((term) => term.split(" ")),
+  letual: LETUAL_TERMS.map((term) => term.split(" ")),
 };
 
 const CYRILLIC = /[а-я]/;
+const MIN_STEM_LENGTH = 4;
 
 function tokenize(text: string): string[] {
   let decoded = text;
@@ -38,7 +49,7 @@ function matchesAt(tokens: readonly string[], start: number, term: readonly stri
   return term.every((part, offset) => {
     const token = tokens[start + offset];
     if (token === undefined) return false;
-    return CYRILLIC.test(part) ? token.startsWith(part) : token === part;
+    return CYRILLIC.test(part) && part.length >= MIN_STEM_LENGTH ? token.startsWith(part) : token === part;
   });
 }
 

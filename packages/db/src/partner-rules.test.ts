@@ -35,6 +35,25 @@ describe("violatesPartnerRules", () => {
   });
 });
 
+describe("violatesPartnerRules for Letual", () => {
+  test("blocks the brands Letual forbids to advertise, in Latin and Cyrillic", () => {
+    for (const text of ["Givenchy Irresistible", "духи Живанши", "Guerlain Terracotta", "Estee Lauder", "эсте лаудер крем", "Tom Ford Black Orchid", "том форд", "Jo Malone", "джо малон свеча", "La Mer Creme", "Kenzo Flower", "Clinique Moisture", "MAC помада", "Bobbi Brown", "бобби браун"]) {
+      expect(violatesPartnerRules("letual", [text]), text).toBe(true);
+    }
+  });
+
+  test("keeps ordinary beauty queries and short Cyrillic words safe", () => {
+    for (const text of ["лак мерцающий для ногтей", "макияж набор кистей", "маска для лица", "клиника красоты", "томат", "набор для ухода за кожей"]) {
+      expect(violatesPartnerRules("letual", [text]), text).toBe(false);
+    }
+  });
+
+  test("shares Gold Apple's bans on Chanel, Dior and Kilian", () => {
+    expect(violatesPartnerRules("letual", ["Dior Sauvage", "духи шанель"])).toBe(true);
+    expect(violatesPartnerRules("letual", ["Kilian Love"])).toBe(true);
+  });
+});
+
 describe("getAffiliateUrl with partner rules", () => {
   const original = { ...process.env };
   afterEach(() => {
