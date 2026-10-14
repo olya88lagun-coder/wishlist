@@ -174,11 +174,35 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
     target: "https://www.sportmaster.ru/catalog/vidy_sporta_/khokkey/konki/",
     pages: ["sport", "new-year", "for-son", "for-brother"],
   },
+  {
+    id: "sportmaster-padel",
+    brand: "sportmaster",
+    title: "Товары для падел-тенниса в Спортмастере",
+    text: "Раздел для тех, кто играет в падел. Уточните, играет ли человек и какое снаряжение ему нужно.",
+    target: "https://www.sportmaster.ru/catalog/vidy_sporta_/padel/",
+    pages: ["sport", "for-friend", "for-boyfriend"],
+  },
+  {
+    id: "sportmaster-plavanie",
+    brand: "sportmaster",
+    title: "Всё для плавания в Спортмастере",
+    text: "Раздел с товарами для плавания. Узнайте размер и где человек плавает: в бассейне или на открытой воде.",
+    target: "https://www.sportmaster.ru/catalog/vidy_sporta_/plavanie/",
+    pages: ["sport", "for-daughter", "for-son"],
+  },
+  {
+    id: "sportmaster-gornye-lyzhi",
+    brand: "sportmaster",
+    title: "Горнолыжное снаряжение в Спортмастере",
+    text: "Для тех, кто катается на горных лыжах. Размер и жёсткость подбирают по росту, весу и уровню катания, поэтому заранее уточните их.",
+    target: "https://www.sportmaster.ru/catalog/vidy_sporta_/gornye_lyzhi/",
+    pages: ["sport", "new-year", "for-husband", "for-boyfriend"],
+  },
 ];
 
 const MAX_OFFERS_PER_PAGE = 3;
 // Страницы, целиком посвящённые магазину, показывают больше карточек
-const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 8 };
+const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 12 };
 
 export function brandOfferById(id: string): BrandOffer | undefined {
   return BRAND_OFFERS.find((offer) => offer.id === id);
