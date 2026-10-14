@@ -21,7 +21,7 @@ export function YandexMetrika() {
 
           ym(${id}, "init", {
             ssr: true,
-            webvisor: true,
+            webvisor: false,
             clickmap: true,
             ecommerce: "dataLayer",
             referrer: document.referrer,

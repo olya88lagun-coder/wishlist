@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
-import { COLLECTED_DATA, OPERATOR, PRIVACY_UPDATED_AT } from "./operator";
+import { COLLECTED_DATA, OPERATOR, PRIVACY_UPDATED_AT, THIRD_PARTIES } from "./operator";
 
 export const metadata: Metadata = { title: "Политика конфиденциальности — вишлист", robots: { index: false, follow: false } };
 
@@ -32,7 +32,23 @@ export default function PrivacyPage() {
       </ul>
 
       <h2>Кому передаём</h2>
-      <p>Данные не продаются и не передаются третьим лицам для рекламы. Хостинг и хранилище файлов расположены в России.</p>
+      <p>
+        Данные не продаются и не передаются третьим лицам для рекламы. Хостинг и хранилище файлов расположены в России. Часть технических
+        данных получают сервисы, без которых нельзя обойтись в работе сайта:
+      </p>
+      <ul>
+        {THIRD_PARTIES.map((party) => (
+          <li key={party.name}>
+            <b>{party.name}</b> — {party.what}. Зачем: {party.why}.
+          </li>
+        ))}
+      </ul>
+
+      <h2>Cookie</h2>
+      <p>
+        Мы используем cookie гостя и сессии, без них не работают бронь и вход. Cookie Яндекс Метрики и партнёров нужны для статистики и
+        учёта переходов; их можно отключить в настройках браузера, сайт продолжит работать.
+      </p>
 
       <h2>Сроки и удаление</h2>
       <p>
