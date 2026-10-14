@@ -47,6 +47,12 @@ describe("getAffiliateUrl with partner rules", () => {
     expect(url).toBe("https://ad.example/g/CODE/?ulp=https%3A%2F%2Fwww.lamoda.ru%2Fp%2Frtl1%2Fclothes-plate%2F");
   });
 
+  test("builds an Admitad deeplink for МТС Shop from the template", () => {
+    process.env.AFFILIATE_MTS_TEMPLATE = "https://partner.example/g/CODE/?erid=ERID&ulp={url}";
+    const url = getAffiliateUrl("https://shop.mts.ru/product/smartfon-1/", "mts");
+    expect(url).toBe("https://partner.example/g/CODE/?erid=ERID&ulp=https%3A%2F%2Fshop.mts.ru%2Fproduct%2Fsmartfon-1%2F");
+  });
+
   test("falls back to the plain store url when the text breaks program rules", () => {
     process.env.AFFILIATE_LAMODA_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
     const plain = "https://www.lamoda.ru/catalogsearch/result/?q=nike";

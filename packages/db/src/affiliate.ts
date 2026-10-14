@@ -12,6 +12,7 @@ const AFFILIATE_ENV_BY_STORE: Record<string, string> = {
   goldapple: "AFFILIATE_GOLDAPPLE_TEMPLATE",
   lamoda: "AFFILIATE_LAMODA_TEMPLATE",
   yandex_market: "AFFILIATE_YANDEX_MARKET_TEMPLATE",
+  mts: "AFFILIATE_MTS_TEMPLATE",
   other: "AFFILIATE_OTHER_TEMPLATE",
 };
 
