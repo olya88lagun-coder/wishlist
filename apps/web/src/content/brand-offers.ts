@@ -158,11 +158,27 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
     target: "https://www.sportmaster.ru/catalog/vidy_sporta_/kemping/",
     pages: ["sport"],
   },
+  {
+    id: "sportmaster-termosy",
+    brand: "sportmaster",
+    title: "Термосы в Спортмастере",
+    text: "Раздел с термосами для походов, дачи и работы. Посмотрите объём и то, как долго сохраняется температура.",
+    target: "https://www.sportmaster.ru/catalog/aksessuary/termosy/?f-kind_of_product=kind_of_product_termosy",
+    pages: ["sport", "for-dad", "for-friend"],
+  },
+  {
+    id: "sportmaster-konki",
+    brand: "sportmaster",
+    title: "Хоккейные коньки в Спортмастере",
+    text: "Для тех, кто играет в хоккей. Размер подбирают по ноге, поэтому лучше заранее узнать его или примерить.",
+    target: "https://www.sportmaster.ru/catalog/vidy_sporta_/khokkey/konki/",
+    pages: ["sport", "new-year", "for-son", "for-brother"],
+  },
 ];
 
 const MAX_OFFERS_PER_PAGE = 3;
 // Страницы, целиком посвящённые магазину, показывают больше карточек
-const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 6 };
+const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 8 };
 
 export function brandOfferById(id: string): BrandOffer | undefined {
   return BRAND_OFFERS.find((offer) => offer.id === id);
