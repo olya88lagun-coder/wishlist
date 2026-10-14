@@ -21,6 +21,7 @@ export const STORE_STRATEGIES: Record<StoreId, StoreStrategy> = {
   // Магазины бренда: страницу не загружаем, название берём из ссылки
   tefal: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
   krups: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
+  sportmaster: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
   lamoda: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
   ozon: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
   other: { fetch: true, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "any" },

@@ -93,6 +93,21 @@ test("shows brand cards with advertiser details only after the brand template is
   }
 });
 
+test("shows МТС Shop product cards on a partner page with the advertiser details", async () => {
+  const saved = process.env.AFFILIATE_MTS_TEMPLATE;
+  try {
+    process.env.AFFILIATE_MTS_TEMPLATE = "https://partner.example/g/CODE/?erid=MTSERID&ulp={url}";
+    const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-boyfriend" }) }));
+    expect(html).toContain("Смартфон Apple iPhone 18 Pro, 256 ГБ");
+    expect(html).toContain("/go/brand?offer=mts-iphone-18-pro&amp;from=gifts%2Ffor-boyfriend");
+    expect(html).toContain("Реклама. АО «РТК». ИНН 7709356049. erid MTSERID");
+    expect(html).toContain("Посмотреть на shop.mts.ru");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_MTS_TEMPLATE;
+    else process.env.AFFILIATE_MTS_TEMPLATE = saved;
+  }
+});
+
 function collectImageSources(node: ReactNode, sources: string[] = []): string[] {
   if (!isValidElement<{ src?: unknown; children?: ReactNode }>(node)) return sources;
 

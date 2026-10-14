@@ -27,6 +27,23 @@ describe("brand offers content", () => {
   });
 });
 
+describe("МТС Shop product cards", () => {
+  test("link to the three chosen products on shop.mts.ru", () => {
+    const targets = BRAND_OFFERS.filter((offer) => offer.brand === "mts").map((offer) => offer.target);
+    expect(targets).toEqual([
+      "https://shop.mts.ru/product/smartfon-apple-iphone-18-pro-256-gb-esim-sim-burgundy",
+      "https://shop.mts.ru/product/smartfon-apple-iphone-17-256-gb-esim-sim-black",
+      "https://shop.mts.ru/product/planshet-apple-ipad-mini-2024-128-gb-wi-fi-cellular-fioletovyj-mxpr3",
+    ]);
+  });
+
+  test("appear on gift pages for a partner, husband or daughter but not on budget pages", () => {
+    expect(brandOffersForPage("for-boyfriend", ["mts"]).length).toBeGreaterThan(0);
+    expect(brandOffersForPage("for-daughter", ["mts"]).length).toBeGreaterThan(0);
+    expect(brandOffersForPage("under-5000", ["mts"])).toEqual([]);
+  });
+});
+
 describe("brandOffersForPage", () => {
   test("returns only offers of enabled brands, at most three, for that page", () => {
     const none = brandOffersForPage("for-mom", []);

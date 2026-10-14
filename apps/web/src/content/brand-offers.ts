@@ -1,8 +1,8 @@
-// Карточки магазинов одного бренда (Tefal, KRUPS) на страницах подборок. Ведут на разделы каталога бренда:
+// Карточки магазинов одного бренда (Tefal, KRUPS) и товаров МТС Shop на страницах подборок. Ведут на разделы каталога бренда:
 // конкретные товары приходят и уходят, а раздел остаётся. Цены не указываем, их показывает магазин.
 // Партнёрская ссылка собирается из шаблона на сервере (AFFILIATE_TEFAL_TEMPLATE / AFFILIATE_KRUPS_TEMPLATE),
 // поэтому в коде нет ни кода площадки, ни erid.
-export type BrandId = "tefal" | "krups";
+export type BrandId = "tefal" | "krups" | "mts";
 
 export type BrandOffer = {
   id: string;
@@ -17,6 +17,7 @@ export type BrandOffer = {
 export const BRAND_ADVERTISER: Record<BrandId, { name: string; inn: string; site: string; label: string }> = {
   tefal: { name: "ООО «Гипер»", inn: "7813122311", site: "tefal.ru", label: "Tefal" },
   krups: { name: "ООО «Гипер»", inn: "7813122311", site: "krups.ru", label: "KRUPS" },
+  mts: { name: "АО «РТК»", inn: "7709356049", site: "shop.mts.ru", label: "МТС Shop" },
 };
 
 export const BRAND_OFFERS: readonly BrandOffer[] = [
@@ -83,6 +84,30 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
     text: "Небольшое дополнение к кофемашине, которая уже есть у человека. Сверьте модель кофемашины, чтобы аксессуар подошёл.",
     target: "https://krups.ru/collection/aksessuary-dlya-kofemashin",
     pages: ["for-colleague", "secret-santa"],
+  },
+  {
+    id: "mts-iphone-18-pro",
+    brand: "mts",
+    title: "Смартфон Apple iPhone 18 Pro, 256 ГБ",
+    text: "Модель с памятью 256 ГБ, цвет Burgundy, eSIM + SIM. Перед покупкой уточните у получателя цвет и нужный объём памяти.",
+    target: "https://shop.mts.ru/product/smartfon-apple-iphone-18-pro-256-gb-esim-sim-burgundy",
+    pages: ["for-boyfriend", "for-husband", "for-son", "anniversary"],
+  },
+  {
+    id: "mts-iphone-17",
+    brand: "mts",
+    title: "Смартфон Apple iPhone 17, 256 ГБ",
+    text: "Модель с памятью 256 ГБ, чёрный цвет, eSIM + SIM. Узнайте, какой телефон у человека сейчас и нужна ли ему новая модель.",
+    target: "https://shop.mts.ru/product/smartfon-apple-iphone-17-256-gb-esim-sim-black",
+    pages: ["for-girlfriend", "for-wife", "for-daughter", "for-son", "anniversary"],
+  },
+  {
+    id: "mts-ipad-mini-2024",
+    brand: "mts",
+    title: "Планшет Apple iPad mini (2024), 128 ГБ",
+    text: "Компактный планшет с экраном 8,3 дюйма, Wi-Fi и Cellular, фиолетовый, 128 ГБ. Подойдёт для чтения, учёбы и дороги.",
+    target: "https://shop.mts.ru/product/planshet-apple-ipad-mini-2024-128-gb-wi-fi-cellular-fioletovyj-mxpr3",
+    pages: ["for-girlfriend", "for-wife", "for-daughter", "for-son", "for-boyfriend"],
   },
 ];
 

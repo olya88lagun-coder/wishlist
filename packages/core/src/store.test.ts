@@ -33,6 +33,7 @@ describe("detectStore", () => {
     ["https://market.yandex.ru/product--x/1", "yandex_market", "Яндекс Маркет"],
     ["https://tefal.ru/category/posuda", "tefal", "Tefal"],
     ["https://www.krups.ru/collection/kofemolki", "krups", "KRUPS"],
+    ["https://www.sportmaster.ru/product/12345/", "sportmaster", "Спортмастер"],
     ["https://shop.mts.ru/product/smartfon-1/", "mts", "МТС Shop"],
     ["https://www.shop.mts.ru/catalog/smartfony/", "mts", "МТС Shop"],
   ])("%s → %s", (url, id, label) => {
