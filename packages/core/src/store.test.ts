@@ -23,6 +23,9 @@ describe("normalizeProductUrl", () => {
 describe("detectStore", () => {
   test.each([
     ["https://www.wildberries.ru/catalog/1/detail.aspx", "wildberries", "Wildberries"],
+    ["https://aliexpress.ru/item/1005001234567890.html", "aliexpress", "AliExpress"],
+    ["https://www.aliexpress.com/item/1005001234567890.html", "aliexpress", "AliExpress"],
+    ["https://www.chitai-gorod.ru/product/kniga-1234567", "chitaigorod", "Читай-город"],
     ["https://wb.ru/catalog/1/detail.aspx", "wildberries", "Wildberries"],
     ["https://www.ozon.ru/product/x-1/", "ozon", "Ozon"],
     ["https://goldapple.ru/19000238593-search", "goldapple", "Золотое Яблоко"],
