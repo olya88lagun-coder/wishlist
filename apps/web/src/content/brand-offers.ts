@@ -200,16 +200,34 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
   },
 ];
 
-const MAX_OFFERS_PER_PAGE = 3;
-// Страницы, целиком посвящённые магазину, показывают больше карточек
+const MAX_OFFERS_PER_PAGE = 4;
+// Карточки одного бренда повторяют друг друга: заказ в магазине засчитывается целиком, а не по карточке
+const MAX_OFFERS_PER_BRAND = 2;
+// Страницы, целиком посвящённые магазину, показывают больше карточек и без ограничения по бренду
 const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 12 };
+// Сезонные карточки (зимние виды спорта) идут первыми и не вытесняются кухонными
+const PRIORITY_BRAND: BrandId = "sportmaster";
 
 export function brandOfferById(id: string): BrandOffer | undefined {
   return BRAND_OFFERS.find((offer) => offer.id === id);
 }
 
 export function brandOffersForPage(slug: string, enabled: readonly BrandId[]): BrandOffer[] {
-  return BRAND_OFFERS.filter((offer) => enabled.includes(offer.brand) && offer.pages.includes(slug)).slice(0, MAX_OFFERS_BY_PAGE[slug] ?? MAX_OFFERS_PER_PAGE);
+  const matching = BRAND_OFFERS.filter((offer) => enabled.includes(offer.brand) && offer.pages.includes(slug));
+  const limit = MAX_OFFERS_BY_PAGE[slug];
+  if (limit !== undefined) return matching.slice(0, limit);
+
+  const ordered = [...matching.filter((offer) => offer.brand === PRIORITY_BRAND), ...matching.filter((offer) => offer.brand !== PRIORITY_BRAND)];
+  const perBrand = new Map<BrandId, number>();
+  const picked: BrandOffer[] = [];
+  for (const offer of ordered) {
+    const used = perBrand.get(offer.brand) ?? 0;
+    if (used >= MAX_OFFERS_PER_BRAND) continue;
+    perBrand.set(offer.brand, used + 1);
+    picked.push(offer);
+    if (picked.length === MAX_OFFERS_PER_PAGE) break;
+  }
+  return picked;
 }
 
 // erid лежит в самом шаблоне партнёрской ссылки, его же показываем в пометке рекламы
