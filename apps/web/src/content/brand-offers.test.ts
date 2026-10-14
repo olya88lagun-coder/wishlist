@@ -64,7 +64,7 @@ describe("sport page cards", () => {
   test("the sport page shows more Спортмастер cards than the usual three, other pages stay at three", () => {
     const sport = brandOffersForPage("sport", ["sportmaster"]);
     expect(sport.length).toBeGreaterThan(3);
-    expect(sport.length).toBeLessThanOrEqual(6);
+    expect(sport.length).toBeLessThanOrEqual(12);
     expect(sport.every((offer) => offer.brand === "sportmaster")).toBe(true);
     expect(brandOffersForPage("for-mom", ["tefal", "krups", "mts", "sportmaster"]).length).toBeLessThanOrEqual(3);
   });
@@ -76,6 +76,11 @@ describe("sport page cards", () => {
       "/catalog/gifts/for-her/",
       "/catalog/vidy_sporta_/yoga/",
       "/catalog/vidy_sporta_/kemping/",
+      "/catalog/aksessuary/termosy/",
+      "/catalog/vidy_sporta_/khokkey/konki/",
+      "/catalog/vidy_sporta_/padel/",
+      "/catalog/vidy_sporta_/plavanie/",
+      "/catalog/vidy_sporta_/gornye_lyzhi/",
     ]);
   });
 });
