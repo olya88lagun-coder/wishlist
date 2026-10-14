@@ -10,6 +10,7 @@ vi.mock("@/server/viewer", () => ({ readViewer }));
 vi.mock("@/server/env", () => ({ getEnv }));
 
 import Home from "./page";
+import sitemap from "./sitemap";
 
 const guestViewer = { user: null, viewer: { userId: null, guestToken: null } };
 
@@ -56,5 +57,30 @@ describe("Home", () => {
     expect(html).toContain("День рождения");
     expect(html).toContain('href="/gifts/birthday"');
     expect(html).toContain('href="/articles/kak-sostavit-vishlist"');
+  });
+
+  test("links every gift page of the sitemap from the home page", async () => {
+    const html = renderToStaticMarkup(await Home());
+    const giftPaths = sitemap()
+      .map((entry) => new URL(entry.url).pathname)
+      .filter((path) => path.startsWith("/gifts/"));
+
+    expect(giftPaths.length).toBeGreaterThan(40);
+    const missing = giftPaths.filter((path) => !html.includes(`href="${path}"`));
+    expect(missing).toEqual([]);
+  });
+
+  test("shows a visible block of gift collections grouped by occasion, person, age, budget and interest", async () => {
+    const html = renderToStaticMarkup(await Home());
+    const block = html.slice(html.indexOf("Подборки подарков"));
+
+    expect(html).toContain("Подборки подарков");
+    for (const heading of ["По поводу", "Кому подарить", "Детям по возрасту", "По бюджету", "По интересам"]) {
+      expect(block).toContain(heading);
+    }
+    expect(block).toContain('href="/gifts/for-child-3-years"');
+    expect(block).toContain('href="/gifts/under-3000"');
+    expect(block).toContain('href="/gifts/books"');
+    expect(block).toContain(">Подарки маме<");
   });
 });
