@@ -2,7 +2,7 @@
 // конкретные товары приходят и уходят, а раздел остаётся. Цены не указываем, их показывает магазин.
 // Партнёрская ссылка собирается из шаблона на сервере (AFFILIATE_TEFAL_TEMPLATE / AFFILIATE_KRUPS_TEMPLATE),
 // поэтому в коде нет ни кода площадки, ни erid.
-export type BrandId = "tefal" | "krups" | "mts" | "sportmaster";
+export type BrandId = "tefal" | "krups" | "mts" | "sportmaster" | "deparfum";
 
 export type BrandOffer = {
   id: string;
@@ -19,6 +19,7 @@ export const BRAND_ADVERTISER: Record<BrandId, { name: string; inn: string; site
   krups: { name: "ООО «Гипер»", inn: "7813122311", site: "krups.ru", label: "KRUPS" },
   mts: { name: "АО «РТК»", inn: "7709356049", site: "shop.mts.ru", label: "МТС Shop" },
   sportmaster: { name: "ООО «Спортмастер»", inn: "7728551528", site: "sportmaster.ru", label: "Спортмастер" },
+  deparfum: { name: "ИП Банникова Инесса Владимировна", inn: "661219938108", site: "de-parfum.ru", label: "Де-Парфюм" },
 };
 
 export const BRAND_OFFERS: readonly BrandOffer[] = [
@@ -198,6 +199,70 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
     target: "https://www.sportmaster.ru/catalog/vidy_sporta_/gornye_lyzhi/",
     pages: ["sport", "new-year", "for-husband", "for-boyfriend"],
   },
+  {
+    id: "deparfum-podarki",
+    brand: "deparfum",
+    title: "Парфюмерия в подарок",
+    text: "Раздел магазина с подарочными ароматами и наборами. Если не знаете любимый аромат человека, начните с набора или спросите у его близких.",
+    target: "https://de-parfum.ru/catalog/podarki/",
+    pages: ["for-mom", "for-wife", "for-girlfriend", "for-sister", "march-8", "valentines-day", "new-year", "birthday"],
+  },
+  {
+    id: "deparfum-podarochnye-nabory",
+    brand: "deparfum",
+    title: "Подарочные наборы парфюмерии",
+    text: "Готовые наборы в подарочной упаковке: удобно, когда нужен подарок без долгого выбора. Проверьте состав набора и объём флаконов.",
+    target: "https://de-parfum.ru/catalog/podarochnye-nabory/",
+    pages: ["new-year", "march-8", "valentines-day", "birthday", "anniversary", "for-teacher"],
+  },
+  {
+    id: "deparfum-zhenskaya",
+    brand: "deparfum",
+    title: "Женская парфюмерия",
+    text: "Духи, туалетная и парфюмерная вода. Узнайте, какие ароматы человек уже носит: тяжёлые и сладкие подходят не всем.",
+    target: "https://de-parfum.ru/catalog/zhenskaya-parfyumeriya/",
+    pages: ["for-mom", "for-wife", "for-girlfriend", "for-daughter", "for-sister", "march-8", "valentines-day"],
+  },
+  {
+    id: "deparfum-muzhskaya",
+    brand: "deparfum",
+    title: "Мужская парфюмерия",
+    text: "Классические и свежие ароматы для мужчин. Лучше знать любимое семейство ароматов или выбрать набор миниатюр.",
+    target: "https://de-parfum.ru/catalog/muzhskaya-parfyumeriya/",
+    pages: ["for-husband", "for-boyfriend", "for-brother", "february-23"],
+  },
+  {
+    id: "deparfum-nabory-zhenshchin",
+    brand: "deparfum",
+    title: "Подарочные наборы для неё",
+    text: "Наборы для женщин в одной коробке. Загляните в описание набора: состав и объём в разных наборах отличаются.",
+    target: "https://de-parfum.ru/catalog/nabory-dlya-zhenshchin/",
+    pages: ["for-wife", "for-girlfriend", "for-mom", "march-8", "new-year"],
+  },
+  {
+    id: "deparfum-nabory-muzhchin",
+    brand: "deparfum",
+    title: "Подарочные наборы для него",
+    text: "Наборы для мужчин в одной коробке. Загляните в описание набора: состав и объём в разных наборах отличаются.",
+    target: "https://de-parfum.ru/catalog/nabory-dlya-muzhchin/",
+    pages: ["for-husband", "for-boyfriend", "february-23", "new-year"],
+  },
+  {
+    id: "deparfum-nabory-probnikov",
+    brand: "deparfum",
+    title: "Наборы пробников AROMA BOX",
+    text: "Набор миниатюр, чтобы попробовать несколько ароматов. Хороший вариант, когда вы не знаете, какой аромат человеку по вкусу.",
+    target: "https://de-parfum.ru/catalog/nabory-probnikov/",
+    pages: ["for-friend", "secret-santa", "for-colleague"],
+  },
+  {
+    id: "deparfum-svechi",
+    brand: "deparfum",
+    title: "Ароматические свечи",
+    text: "Свечи для дома: уместный подарок на новоселье, коллеге или учителю. Выбирайте нейтральные ароматы, если не знаете вкусов человека.",
+    target: "https://de-parfum.ru/catalog/aromaticheskie-svechi/",
+    pages: ["housewarming", "for-colleague", "for-teacher", "for-grandma", "march-8"],
+  },
 ];
 
 const MAX_OFFERS_PER_PAGE = 4;
@@ -205,10 +270,11 @@ const MAX_OFFERS_PER_PAGE = 4;
 const MAX_OFFERS_PER_BRAND = 2;
 // Страницы, целиком посвящённые магазину, показывают больше карточек и без ограничения по бренду
 const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 12 };
-// Порядок брендов по EPC в публичных карточках Admitad на 14.10.2026 (средний доход на 100 кликов по сети, не наш):
-// Спортмастер 1394 ₽, Tefal 258 ₽, KRUPS 45 ₽. По МТС Shop данных не нашли, он между Tefal и KRUPS до появления своей статистики.
+// Порядок брендов по EPC в публичных карточках Admitad (средний доход на 100 кликов по сети, не наш), 14-16.10.2026:
+// Спортмастер 1394 ₽, Де-Парфюм 747 ₽ (в основном за счёт CPC 8 ₽ за клик), Tefal 258 ₽, KRUPS 45 ₽.
+// По МТС Shop данных не нашли, он между Tefal и KRUPS до появления своей статистики.
 // Когда накопится /stats и отчёт Admitad, порядок стоит пересмотреть по нашим кликам и заказам.
-const BRAND_PRIORITY: readonly BrandId[] = ["sportmaster", "tefal", "mts", "krups"];
+const BRAND_PRIORITY: readonly BrandId[] = ["sportmaster", "deparfum", "tefal", "mts", "krups"];
 
 export function brandOfferById(id: string): BrandOffer | undefined {
   return BRAND_OFFERS.find((offer) => offer.id === id);
