@@ -85,3 +85,42 @@ describe("getAffiliateUrl with partner rules", () => {
     expect(getAffiliateUrl(plain, "lamoda", "кроссовки nike")).toBe(plain);
   });
 });
+
+describe("violatesPartnerRules for AliExpress", () => {
+  test("blocks derogatory words about goods that AliExpress asks not to use", () => {
+    for (const text of ["халява с алиэкспресс", "дешевка для дома", "дешевизна товаров", "Халявные подарки"]) {
+      expect(violatesPartnerRules("aliexpress", [text]), text).toBe(true);
+    }
+  });
+
+  test("allows price words that AliExpress explicitly permits", () => {
+    for (const text of ["недорогой подарок", "дешёвый подарок на 23 февраля", "подарок позволяющий сэкономить", "экономный набор"]) {
+      expect(violatesPartnerRules("aliexpress", [text]), text).toBe(false);
+    }
+  });
+
+  test("blocks comparisons with well-known brands, which would advertise copies", () => {
+    for (const text of ["кроссовки Nike", "сумка Gucci", "наушники AirPods", "чехол для iPhone", "кроссовки адидас", "духи Шанель", "набор LEGO"]) {
+      expect(violatesPartnerRules("aliexpress", [text]), text).toBe(true);
+    }
+  });
+
+  test("does not block ordinary gift searches or words that merely start alike", () => {
+    for (const text of ["коврик для йоги", "настольная лампа", "подарок для зарядки телефона", "легонький плед", "светильник"]) {
+      expect(violatesPartnerRules("aliexpress", [text]), text).toBe(false);
+    }
+  });
+
+  test("falls back to the plain store address for a banned search while allowed searches keep the partner link", () => {
+    const saved = process.env.AFFILIATE_ALIEXPRESS_TEMPLATE;
+    process.env.AFFILIATE_ALIEXPRESS_TEMPLATE = "https://partner.example/g/CODE/?ulp={url}";
+    try {
+      const plain = "https://aliexpress.ru/wholesale?SearchText=%D0%BA%D1%80%D0%BE%D1%81%D1%81%D0%BE%D0%B2%D0%BA%D0%B8";
+      expect(getAffiliateUrl(plain, "aliexpress", "кроссовки Nike")).toBe(plain);
+      expect(getAffiliateUrl(plain, "aliexpress", "коврик для йоги")).toContain("partner.example");
+    } finally {
+      if (saved === undefined) delete process.env.AFFILIATE_ALIEXPRESS_TEMPLATE;
+      else process.env.AFFILIATE_ALIEXPRESS_TEMPLATE = saved;
+    }
+  });
+});

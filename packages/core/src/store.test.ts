@@ -35,6 +35,8 @@ describe("detectStore", () => {
     ["https://www.krups.ru/collection/kofemolki", "krups", "KRUPS"],
     ["https://www.sportmaster.ru/product/12345/", "sportmaster", "Спортмастер"],
     ["https://shop.mts.ru/product/smartfon-1/", "mts", "МТС Shop"],
+    ["https://de-parfum.ru/catalog/podarki/", "deparfum", "Де-Парфюм"],
+    ["https://www.de-parfum.ru/catalog/product/1287-light-blue-pour-femme/", "deparfum", "Де-Парфюм"],
     ["https://www.shop.mts.ru/catalog/smartfony/", "mts", "МТС Shop"],
   ])("%s → %s", (url, id, label) => {
     expect(detectStore(url)).toEqual({ id, label });

@@ -60,6 +60,31 @@ describe("Спортмастер product cards", () => {
   });
 });
 
+describe("Де-Парфюм section cards", () => {
+  test("link to verified catalog sections of de-parfum.ru and name the advertiser", () => {
+    const offers = BRAND_OFFERS.filter((offer) => offer.brand === "deparfum");
+    expect(offers.map((offer) => new URL(offer.target).pathname)).toEqual([
+      "/catalog/podarki/",
+      "/catalog/podarochnye-nabory/",
+      "/catalog/zhenskaya-parfyumeriya/",
+      "/catalog/muzhskaya-parfyumeriya/",
+      "/catalog/nabory-dlya-zhenshchin/",
+      "/catalog/nabory-dlya-muzhchin/",
+      "/catalog/nabory-probnikov/",
+      "/catalog/aromaticheskie-svechi/",
+    ]);
+    expect(BRAND_ADVERTISER.deparfum).toEqual({ name: "ИП Банникова Инесса Владимировна", inn: "661219938108", site: "de-parfum.ru", label: "Де-Парфюм" });
+  });
+
+  test("women's pages and 8 March get perfume cards, men's pages get men's ones, budget pages get none", () => {
+    expect(brandOffersForPage("for-mom", ["deparfum"]).map((offer) => offer.id)).toContain("deparfum-zhenskaya");
+    expect(brandOffersForPage("march-8", ["deparfum"]).length).toBeGreaterThan(0);
+    expect(brandOffersForPage("february-23", ["deparfum"]).map((offer) => offer.id)).toContain("deparfum-muzhskaya");
+    expect(brandOffersForPage("for-husband", ["deparfum"]).map((offer) => offer.id)).not.toContain("deparfum-zhenskaya");
+    expect(brandOffersForPage("under-5000", ["deparfum"])).toEqual([]);
+  });
+});
+
 describe("sport page cards", () => {
   test("the sport page shows more Спортмастер cards than the usual three, other pages stay at three", () => {
     const sport = brandOffersForPage("sport", ["sportmaster"]);
@@ -99,7 +124,7 @@ describe("brandOffersForPage", () => {
   });
 
   test("shows at most four cards and at most two of one brand on ordinary gift pages", () => {
-    const all = ["tefal", "krups", "mts", "sportmaster"] as const;
+    const all = ["tefal", "krups", "mts", "sportmaster", "deparfum"] as const;
     for (const slug of Object.keys(GIFT_IDEAS).filter((page) => page !== "sport")) {
       const offers = brandOffersForPage(slug, all);
       expect(offers.length, slug).toBeLessThanOrEqual(4);
@@ -109,14 +134,15 @@ describe("brandOffersForPage", () => {
     }
   });
 
-  test("orders brands by earnings: Спортмастер, then Tefal, МТС and KRUPS", () => {
-    const all = ["tefal", "krups", "mts", "sportmaster"] as const;
+  test("orders brands by earnings: Спортмастер, Де-Парфюм, then Tefal, МТС and KRUPS", () => {
+    const all = ["tefal", "krups", "mts", "sportmaster", "deparfum"] as const;
     expect(brandOffersForPage("for-husband", all).map((offer) => offer.id)).toEqual([
       "sportmaster-velotrenazher",
       "sportmaster-gornye-lyzhi",
-      "tefal-kofemashiny",
-      "mts-iphone-18-pro",
+      "deparfum-muzhskaya",
+      "deparfum-nabory-muzhchin",
     ]);
+    expect(brandOffersForPage("for-husband", ["tefal", "krups", "mts"]).map((offer) => offer.brand)).toEqual(["tefal", "mts", "krups"]);
     expect(brandOffersForPage("for-dad", all).map((offer) => offer.brand)).toEqual(["sportmaster", "sportmaster", "krups", "krups"]);
   });
 

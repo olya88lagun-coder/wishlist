@@ -204,3 +204,23 @@ test("puts the general advertising note at the bottom while the idea links keep 
     else process.env.AFFILIATE_OZON_TEMPLATE = saved;
   }
 });
+
+test("shows Де-Парфюм cards with advertiser, ИНН and erid on women's pages only when its template is set", async () => {
+  const saved = process.env.AFFILIATE_DEPARFUM_TEMPLATE;
+  try {
+    delete process.env.AFFILIATE_DEPARFUM_TEMPLATE;
+    const plain = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(plain).not.toContain("/go/brand?offer=deparfum");
+    expect(plain).not.toContain("Банникова");
+
+    process.env.AFFILIATE_DEPARFUM_TEMPLATE = "https://partner.example/g/CODE/?erid=DEPARFUMERID&ulp={url}";
+    const withCards = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
+    expect(withCards).toContain("/go/brand?offer=deparfum-zhenskaya&amp;from=gifts%2Ffor-mom");
+    expect(withCards).toContain("ИП Банникова Инесса Владимировна");
+    expect(withCards).toContain("661219938108");
+    expect(withCards).toContain("DEPARFUMERID");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_DEPARFUM_TEMPLATE;
+    else process.env.AFFILIATE_DEPARFUM_TEMPLATE = saved;
+  }
+});

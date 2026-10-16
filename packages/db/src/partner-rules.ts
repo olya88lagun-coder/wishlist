@@ -26,10 +26,20 @@ const LETUAL_TERMS = [
   "jo malone", "джо малон", "la mer", "mac",
 ];
 
+// AliExpress просит не использовать уничижительные слова о товарах и не сравнивать товары с копиями известных брендов
+// (условия сотрудничества партнёров с AliExpress Россия, 16.10.2026). «Дешёвый» и «недорогой» разрешены, поэтому в списке только
+// «дешевка» и «дешевизна». Короткие русские слова вроде «лего» не берём: совпали бы с «легонький».
+const ALIEXPRESS_TERMS = [
+  "халяв", "дешевк", "дешевизн",
+  "nike", "найк", "adidas", "адидас", "puma", "reebok", "zara", "gucci", "гуччи", "chanel", "шанел", "dior", "диор", "prada",
+  "versace", "версаче", "louis vuitton", "lego", "apple", "iphone", "айфон", "airpods", "эйрподс", "dyson", "дайсон", "stanley",
+];
+
 const TERMS_BY_STORE: Record<string, readonly (readonly string[])[]> = {
   lamoda: LAMODA_TERMS.map((term) => term.split(" ")),
   goldapple: GOLDAPPLE_TERMS.map((term) => term.split(" ")),
   letual: LETUAL_TERMS.map((term) => term.split(" ")),
+  aliexpress: ALIEXPRESS_TERMS.map((term) => term.split(" ")),
 };
 
 const CYRILLIC = /[а-я]/;

@@ -31,6 +31,16 @@ describe("GET /go/brand", () => {
     expect(recordStoreSearchClick).toHaveBeenCalledWith(expect.anything(), { store: "tefal", source: "gifts/for-mom", query: offer.id });
   });
 
+  test("builds the Де-Парфюм partner link and counts the click under its own store", async () => {
+    process.env.AFFILIATE_DEPARFUM_TEMPLATE = "https://partner.example/g/CODE/?erid=ERID&ulp={url}";
+    const perfume = BRAND_OFFERS.find((item) => item.id === "deparfum-zhenskaya")!;
+
+    const response = await GET(request(`offer=${perfume.id}&from=gifts%2Ffor-mom`));
+
+    expect(response.headers.get("location")).toBe(`https://partner.example/g/CODE/?erid=ERID&ulp=${encodeURIComponent(perfume.target)}`);
+    expect(recordStoreSearchClick).toHaveBeenCalledWith(expect.anything(), { store: "deparfum", source: "gifts/for-mom", query: perfume.id });
+  });
+
   test("goes straight to the brand page when no template is set", async () => {
     delete process.env.AFFILIATE_TEFAL_TEMPLATE;
     const response = await GET(request(`offer=${offer.id}&from=gifts%2Ffor-mom`));
