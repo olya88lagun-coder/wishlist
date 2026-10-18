@@ -3,7 +3,7 @@ import type { FieldErrors } from "@/server/forms";
 export type FormValues = Record<string, string>;
 
 // values — отправленные поля: React 19 сбрасывает форму после action, поля восстанавливаются из них
-export type FormState = { status: "idle" | "error" | "success"; errors: FieldErrors; message: string | null; values: FormValues };
+export type FormState = { status: "idle" | "error" | "success"; errors: FieldErrors; message: string | null; values: FormValues; analyticsReceipt?: { nonce: string; source: "manual" | "link" } };
 
 export const initialFormState: FormState = { status: "idle", errors: {}, message: null, values: {} };
 

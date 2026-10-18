@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { blockMetrika } from "./analytics-counter";
 
 test("owner shares a list, a guest reserves and cancels, the owner never sees who", async ({ browser }, testInfo) => {
   const stamp = Date.now().toString(36);
@@ -6,6 +7,7 @@ test("owner shares a list, a guest reserves and cancels, the owner never sees wh
   const giftTitle = `Свеча ${stamp}`;
 
   const owner = await browser.newContext();
+  await blockMetrika(owner);
   const ownerPage = await owner.newPage();
   await ownerPage.goto(`/api/dev/login?name=E2E-${stamp}`);
   await expect(ownerPage).toHaveURL(/\/lists$/);
@@ -28,6 +30,7 @@ test("owner shares a list, a guest reserves and cancels, the owner never sees wh
   expect(publicHref).toMatch(/^\/[A-Za-z0-9]{10}$/);
 
   const guest = await browser.newContext();
+  await blockMetrika(guest);
   const guestPage = await guest.newPage();
   await guestPage.goto(publicHref!);
   await expect(guestPage.getByRole("heading", { name: giftTitle })).toBeVisible();

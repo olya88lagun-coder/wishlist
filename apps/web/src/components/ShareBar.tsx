@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { shareLinks } from "@/app/[slug]/share-links";
+import { trackEvent } from "@/lib/analytics";
 
 const COPIED_RESET_MS = 2000;
 
@@ -14,6 +15,7 @@ export function ShareBar({ url, title }: { url: string; title: string }) {
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
+      trackEvent("wishlist_link_copied");
       setCopied(true);
       setTimeout(() => setCopied(false), COPIED_RESET_MS);
     } catch {

@@ -4,9 +4,11 @@ import { useActionState, useEffect, useRef } from "react";
 import { SubmitButton } from "@/components/SubmitButton";
 import { initialFormState } from "../form-state";
 import { addItemAction } from "./actions";
+import { useItemAnalytics } from "@/components/use-item-analytics";
 
 export function QuickLinkForm({ wishlistId }: { wishlistId: string }) {
   const [state, action] = useActionState(addItemAction.bind(null, wishlistId), initialFormState);
+  useItemAnalytics(state);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {

@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { addItem, deleteItem, deleteWishlist, FEATURE_THEMES, registerInterest, updateItem, updateWishlist } from "@wishlist/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -42,7 +43,10 @@ export async function addItemAction(wishlistId: string, _prev: FormState, form: 
   if (!result.ok) return errorState({}, result.reason === "LIMIT_REACHED" ? LIMIT_MESSAGES.items : LIMIT_MESSAGES.notFound, formValues(form));
   if (result.needsParsing) await enqueueParse(result.itemId);
   revalidatePath(`/lists/${wishlistId}`);
-  return successState(result.needsParsing ? "Подарок добавлен — подтягиваем данные из магазина" : "Подарок добавлен");
+  return {
+    ...successState(result.needsParsing ? "Подарок добавлен — подтягиваем данные из магазина" : "Подарок добавлен"),
+    analyticsReceipt: { nonce: randomUUID(), source: parsed.value.sourceUrl ? "link" : "manual" },
+  };
 }
 
 export async function updateItemAction(wishlistId: string, itemId: string, _prev: FormState, form: FormData): Promise<FormState> {

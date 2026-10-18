@@ -1,4 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { blockMetrika } from "./analytics-counter";
+
+test.beforeEach(async ({ context }) => blockMetrika(context));
 
 test.use({ viewport: { width: 390, height: 844 } });
 

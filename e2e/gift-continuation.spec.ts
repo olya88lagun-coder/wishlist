@@ -1,4 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { blockMetrika } from "./analytics-counter";
+
+test.beforeEach(async ({ context }) => blockMetrika(context));
 
 const idea = { title: "Керамическая кружка с крышкой", reason: "Для долгого чтения за чашкой чая.", type: "практичный", searchQuery: "керамическая кружка крышка" };
 

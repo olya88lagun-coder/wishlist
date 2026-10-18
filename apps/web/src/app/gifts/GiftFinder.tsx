@@ -127,6 +127,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
       }
       setAddedItems((current) => ({ ...current, [result.title]: response.itemId }));
       trackEvent("gift_finder_save", { store: "search" });
+      trackEvent("wishlist_item_added", { source: "finder" });
       setOpenWishlistFor(null);
       setResumedTitle(null);
       try { sessionStorage.removeItem(FINDER_DRAFT_KEY); } catch { /* Подарок уже сохранён на сервере. */ }
