@@ -5,7 +5,8 @@ export type AnalyticsEvent =
   | "partner_product_click"
   | "gift_finder_save"
   | "gift_finder_dismiss"
-  | "landing_gift_finder_click";
+  | "landing_gift_finder_click"
+  | "guest_wishlist_cta_click";
 
 declare global {
   interface Window {

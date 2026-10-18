@@ -1,4 +1,7 @@
+"use client";
+
 import { startLinks } from "@/components/start-links";
+import { trackEvent } from "@/lib/analytics";
 
 type Props = { botUsername: string; signedIn: boolean; reservedSomething: boolean };
 
@@ -17,9 +20,14 @@ export function GuestCta({ botUsername, signedIn, reservedSomething }: Props) {
             key={link.id}
             className={index === 0 ? "button button--small" : "button button--ghost button--small"}
             href={link.href}
+            onClick={() => trackEvent("guest_wishlist_cta_click", {
+              destination: link.id,
+              placement: reservedSomething ? "after_reservation" : "wishlist_footer",
+              signed_in: signedIn,
+            })}
             {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           >
-            {link.label}
+            {reservedSomething && link.id === "site" ? "Создать свой список" : link.label}
           </a>
         ))}
       </div>

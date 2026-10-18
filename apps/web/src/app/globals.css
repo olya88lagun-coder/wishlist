@@ -108,6 +108,7 @@ a { color: inherit; }
 .quick-link__row .input { flex: 1 1 220px; }
 .quick-link__row .button { flex: 0 0 auto; width: auto; }
 .guest-cta { border: 1px solid var(--line); }
+.guest-cta .button { min-height: 44px; }
 .site-footer { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
 .site-footer a { color: var(--ink-soft); }
 .legal h2 { font-size: 18px; margin: 18px 0 0; }
