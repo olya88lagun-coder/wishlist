@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("owner shares a list, a guest reserves and cancels, the owner never sees who", async ({ browser }) => {
+test("owner shares a list, a guest reserves and cancels, the owner never sees who", async ({ browser }, testInfo) => {
   const stamp = Date.now().toString(36);
   const listTitle = `E2E список ${stamp}`;
   const giftTitle = `Свеча ${stamp}`;
@@ -17,8 +17,8 @@ test("owner shares a list, a guest reserves and cancels, the owner never sees wh
   // После создания приложение сразу открывает страницу списка
   await expect(ownerPage.getByRole("heading", { level: 1 })).toHaveText(listTitle);
 
-  const fullForm = ownerPage.locator("details").filter({ hasText: "Добавить без ссылки или со всеми полями" });
-  await fullForm.getByText("Добавить без ссылки или со всеми полями").click();
+  const fullForm = ownerPage.locator("details").filter({ hasText: "Добавить вручную или заполнить все поля" });
+  await fullForm.getByText("Добавить вручную или заполнить все поля").click();
   await fullForm.getByLabel("Что подарить").fill(giftTitle);
   await fullForm.getByLabel("Цена, ₽").fill("990");
   await fullForm.getByRole("button", { name: "Добавить", exact: true }).click();
@@ -37,14 +37,20 @@ test("owner shares a list, a guest reserves and cancels, the owner never sees wh
   await guestPage.getByLabel("Как вас подписать").fill("Тайный гость");
   await guestPage.getByRole("dialog").getByRole("button", { name: "Я подарю" }).click();
   await expect(guestPage.getByText("вы дарите")).toBeVisible();
+  await expect(guestPage.getByRole("region", { name: "Свой вишлист" })).toHaveCount(1);
+  await expect(guestPage.getByRole("link", { name: "Создать свой список", exact: true })).toBeVisible();
+  await guestPage.screenshot({ path: testInfo.outputPath("reservation-invitation.png"), fullPage: true });
 
   await ownerPage.reload();
   await expect(ownerPage.getByText("забронировано")).toBeVisible();
   await expect(ownerPage.getByText("Тайный гость")).toHaveCount(0);
+  await expect(ownerPage.getByRole("region", { name: "Свой вишлист" })).toHaveCount(0);
 
   guestPage.once("dialog", (dialog) => void dialog.accept());
   await guestPage.getByRole("button", { name: "Снять бронь" }).click();
   await expect(guestPage.getByRole("button", { name: "Я подарю" }).first()).toBeVisible();
+  await expect(guestPage.getByRole("link", { name: "Создать свой список", exact: true })).toHaveCount(0);
+  await expect(guestPage.getByRole("link", { name: "Собрать на сайте", exact: true })).toBeVisible();
 
   await owner.close();
   await guest.close();

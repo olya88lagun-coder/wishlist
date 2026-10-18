@@ -58,6 +58,14 @@ export default async function PublicWishlistPage({ params }: Props) {
   const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
   const defaultName = user?.displayName.split(" ")[0] ?? "";
   const env = getEnv();
+  const reservedSomething = items.some((item) => item.status === "reserved_by_me");
+  const guestCta = !isOwner ? (
+    <GuestCta
+      botUsername={env.TELEGRAM_BOT_USERNAME}
+      signedIn={user !== null}
+      reservedSomething={reservedSomething}
+    />
+  ) : null;
 
   return (
     <main className="page page--wide">
@@ -71,6 +79,10 @@ export default async function PublicWishlistPage({ params }: Props) {
         <p className="panel muted" style={{ marginBottom: 20 }}>
           Это ваш список — так его видят гости. <Link href={`/lists/${wishlist.id}`}>Редактировать</Link>
         </p>
+      )}
+
+      {reservedSomething && guestCta && (
+        <div style={{ marginBottom: 20 }}>{guestCta}</div>
       )}
 
       {items.length === 0 ? (
@@ -111,13 +123,9 @@ export default async function PublicWishlistPage({ params }: Props) {
         </>
       )}
 
-      {!isOwner && (
+      {!reservedSomething && guestCta && (
         <div style={{ marginTop: 32 }}>
-          <GuestCta
-            botUsername={env.TELEGRAM_BOT_USERNAME}
-            signedIn={user !== null}
-            reservedSomething={items.some((item) => item.status === "reserved_by_me")}
-          />
+          {guestCta}
         </div>
       )}
 

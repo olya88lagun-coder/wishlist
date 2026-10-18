@@ -17,7 +17,7 @@ export function BrandOfferCards({ slug }: { slug: string }) {
           return (
             <li className="brand-offer" key={offer.id}>
               <h3>{offer.title}</h3>
-              <p>{offer.text}</p>
+              <p>{slug === "for-mom" && offer.id === "tefal-posuda" ? "Если мама сама просила посуду. " : ""}{offer.text}</p>
               <p className="brand-offer__note">Цена и наличие — на сайте магазина.</p>
               <a className="button" href={href} target="_blank" rel="sponsored nofollow noopener noreferrer">
                 Посмотреть на {advertiser.site} <span aria-hidden="true">↗</span>
