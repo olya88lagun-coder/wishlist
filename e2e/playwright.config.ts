@@ -8,6 +8,9 @@ export default defineConfig({
   timeout: 60_000,
   retries: 0,
   use: { baseURL: process.env.PW_BASE_URL ?? "http://localhost:3000", locale: "ru-RU", trace: "retain-on-failure" },
-  projects: [{ name: "mobile", use: { ...devices["Pixel 7"], channel: process.env.PW_CHANNEL ?? "chrome" } }],
+  projects: [
+    { name: "mobile", use: { ...devices["Pixel 7"], channel: process.env.PW_CHANNEL ?? "chrome" } },
+    { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 1000 }, channel: process.env.PW_CHANNEL ?? "chrome" } },
+  ],
   reporter: [["list"], ["html", { outputFolder: "playwright-report", open: "never" }]],
 });

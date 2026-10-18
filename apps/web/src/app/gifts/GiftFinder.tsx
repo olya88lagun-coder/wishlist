@@ -1,25 +1,19 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type MouseEvent } from "react";
 import type { WishlistSummary } from "@wishlist/db";
 import { addGiftToWishlist } from "./actions";
 import { trackEvent } from "@/lib/analytics";
 import { type ExtraStore, extraStoresForIdea } from "@/app/go/store-routing";
 import { SEARCH_STORES, STORE_LABELS, storeSearchHref } from "@/app/go/store-search";
 
-type Result = {
-  title: string;
-  reason: string;
-  type: string;
-  searchQuery: string;
-};
+import { FINDER_DRAFT_KEY, readFinderDraft, type GiftIdea as Result } from "./finder-draft";
 
 const PEOPLE = [["mom","Мама"],["dad","Папа"],["girlfriend","Девушка"],["boyfriend","Парень"],["wife","Жена"],["husband","Муж"],["friend","Друг / подруга"],["colleague","Коллега"],["sister","Сестра"],["brother","Брат"],["grandma","Бабушка"],["grandpa","Дедушка"],["daughter","Дочь"],["son","Сын"],["teacher","Учитель / учительница"],["boss","Руководитель"],["other","Другой человек"]] as const;
-const OCCASIONS = [["birthday","День рождения"],["new-year","Новый год"],["anniversary","Годовщина"],["wedding","Свадьба"],["just-because","Просто так"],["other","Другой повод"]] as const;
-const BUDGETS = [["3000","до 3 000 ₽"],["5000","до 5 000 ₽"],["10000","до 10 000 ₽"],["20000","до 20 000 ₽"],["custom","свой бюджет"]] as const;
+const OCCASIONS = [["valentines-day","День святого Валентина"],["march-8","8 Марта"],["february-23","23 Февраля"],["birthday","День рождения"],["new-year","Новый год"],["anniversary","Годовщина"],["wedding","Свадьба"],["housewarming","Новоселье"],["secret-santa","Тайный Санта"],["just-because","Просто так"],["other","Другой повод"]] as const;
+const BUDGETS = [["1000","до 1 000 ₽"],["3000","до 3 000 ₽"],["5000","до 5 000 ₽"],["10000","до 10 000 ₽"],["15000","до 15 000 ₽"],["20000","до 20 000 ₽"],["custom","свой бюджет"]] as const;
 
 type Person = (typeof PEOPLE)[number][0];
-type Budget = (typeof BUDGETS)[number][0];
 
 function makeIdeas(person: string, occasion: string, interests: string): Result[] {
   const interest = interests.trim() || "любимые занятия";
@@ -32,9 +26,9 @@ function makeIdeas(person: string, occasion: string, interests: string): Result[
   ];
 }
 
-export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = false, extraStores = [], initialPerson = "mom", initialBudget = "5000" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; showAdLabel?: boolean; extraStores?: readonly ExtraStore[]; initialPerson?: Person; initialBudget?: Budget }) {
+export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = false, extraStores = [], initialPerson = "mom", initialBudget = "5000", initialOccasion = "birthday", returnPath = "/gifts" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; showAdLabel?: boolean; extraStores?: readonly ExtraStore[]; initialPerson?: Person; initialBudget?: string; initialOccasion?: string; returnPath?: string }) {
   const [person, setPerson] = useState<Person>(initialPerson);
-  const [occasion, setOccasion] = useState("birthday");
+  const [occasion, setOccasion] = useState(OCCASIONS.some(([value]) => value === initialOccasion) ? initialOccasion : "birthday");
   const [interests, setInterests] = useState("");
   const [budget, setBudget] = useState<string>(initialBudget);
   const [customBudget, setCustomBudget] = useState("");
@@ -46,6 +40,37 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
   const [addedItems, setAddedItems] = useState<Record<string, string>>({});
   const [addError, setAddError] = useState("");
   const [openWishlistFor, setOpenWishlistFor] = useState<string | null>(null);
+  const [resumedTitle, setResumedTitle] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const draft = readFinderDraft(sessionStorage.getItem(FINDER_DRAFT_KEY), returnPath);
+      if (!draft || !PEOPLE.some(([value]) => value === draft.person) || !OCCASIONS.some(([value]) => value === draft.occasion) || !BUDGETS.some(([value]) => value === draft.budget)) return;
+      setPerson(draft.person as Person);
+      setOccasion(draft.occasion);
+      setInterests(draft.interests);
+      setBudget(draft.budget);
+      setCustomBudget(draft.customBudget);
+      setResults(draft.results);
+      setSubmitted(true);
+      setOpenWishlistFor(draft.selectedTitle);
+      setResumedTitle(draft.selectedTitle);
+    } catch { /* Недоступное хранилище не мешает новой подборке. */ }
+  }, [returnPath]);
+
+  function rememberIdea(result: Result, event: MouseEvent<HTMLAnchorElement>) {
+    try {
+      const draft = { path: returnPath, savedAt: Date.now(), person, occasion, interests, budget, customBudget, results: results.filter((idea) => !Object.prototype.hasOwnProperty.call(addedItems, idea.title)), selectedTitle: result.title };
+      const serialized = JSON.stringify(draft);
+      if (!readFinderDraft(serialized, returnPath)) throw new Error("invalid draft");
+      sessionStorage.setItem(FINDER_DRAFT_KEY, serialized);
+    } catch {
+      event.preventDefault();
+      setAddError("Браузер не разрешает сохранить подборку. Разрешите хранилище сайта и попробуйте ещё раз.");
+    }
+  }
+
+  const continuation = `?returnTo=${encodeURIComponent(returnPath)}`;
 
   const effectiveBudget = budget === "custom" ? customBudget || "свой бюджет" : budget;
   const ideas = useMemo(() => makeIdeas(person, occasion, interests), [person, occasion, interests]);
@@ -55,6 +80,8 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
     setLoading(true);
     setError("");
     setSubmitted(false);
+    setResumedTitle(null);
+    try { sessionStorage.removeItem(FINDER_DRAFT_KEY); } catch { /* Хранилище необязательно для новой подборки. */ }
     trackEvent("gift_finder_submit", { person, occasion, budget: effectiveBudget });
     try {
       const response = await fetch("/api/gifts/recommend", {
@@ -87,20 +114,25 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
   async function addToWishlist(result: Result, wishlistId: string) {
     setAddingTitle(result.title);
     setAddError("");
-    const response = await addGiftToWishlist({
-      wishlistId,
-      title: result.title,
-      productUrl: null,
-      note: `${result.reason} Поиск: ${result.searchQuery}`,
-    });
-    setAddingTitle(null);
-    if (!response.ok) {
-      setAddError(response.message);
-      return;
-    }
-    setAddedItems((current) => ({ ...current, [result.title]: response.itemId }));
-    trackEvent("gift_finder_save", { store: "search" });
-    setOpenWishlistFor(null);
+    try {
+      const response = await addGiftToWishlist({
+        wishlistId,
+        title: result.title,
+        productUrl: null,
+        note: `${result.reason} Поиск: ${result.searchQuery}`,
+      });
+      if (!response.ok) {
+        setAddError(response.message);
+        return;
+      }
+      setAddedItems((current) => ({ ...current, [result.title]: response.itemId }));
+      trackEvent("gift_finder_save", { store: "search" });
+      setOpenWishlistFor(null);
+      setResumedTitle(null);
+      try { sessionStorage.removeItem(FINDER_DRAFT_KEY); } catch { /* Подарок уже сохранён на сервере. */ }
+    } catch {
+      setAddError("Не удалось добавить подарок. Проверьте соединение и попробуйте ещё раз.");
+    } finally { setAddingTitle(null); }
   }
 
   function saveButton(result: Result) {
@@ -109,8 +141,8 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
     }
     if (wishlists.length === 0) {
       return isAuthenticated
-        ? <a className="button button--small" href="/lists">Создать вишлист</a>
-        : <a className="button button--small" href="/login">Войти и сохранить</a>;
+        ? <a className="button button--small" href={`/lists${continuation}`} onClick={(event) => rememberIdea(result, event)}>Создать вишлист</a>
+        : <a className="button button--small" href={`/login${continuation}`} onClick={(event) => rememberIdea(result, event)}>Войти и сохранить</a>;
     }
     return (
       <div className="gift-card__save">
@@ -135,7 +167,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
                 {wishlist.title}
               </button>
             ))}
-            <a className="muted gift-card__new-list" href="/lists">+ Создать новый вишлист</a>
+            <a className="muted gift-card__new-list" href={`/lists${continuation}`} onClick={(event) => rememberIdea(result, event)}>+ Создать новый вишлист</a>
           </div>
         )}
       </div>
@@ -143,7 +175,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
   }
 
   return (
-    <section className="gift-finder">
+    <section className="gift-finder" id="gift-finder">
       <form className="panel gift-finder__form" onSubmit={submit}>
         <div className="gift-finder__intro">
           <span className="sticker sticker--countdown">AI gift finder</span>
@@ -190,6 +222,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
 
       {submitted && (
         <section className="gift-finder__results" aria-live="polite">
+          {resumedTitle && <p role="status">Подборка восстановлена. {wishlists.length ? `Выберите список для «${resumedTitle}».` : isAuthenticated ? `Создайте вишлист, чтобы сохранить «${resumedTitle}».` : `Войдите, чтобы сохранить «${resumedTitle}».`}</p>}
           <div className="row row--between">
             <div>
               <p className="eyebrow">Подборка</p>
@@ -205,7 +238,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
                 <p className="muted">{result.reason}</p>
                 <p className="card__meta">{showAdLabel ? "Реклама · поиск в магазинах: " : "Поиск в магазинах: "}{result.searchQuery}</p>
                 <div className="card__actions">
-                  {[...SEARCH_STORES, ...extraStoresForIdea({ name: result.title, query: result.searchQuery, budget: Number(budget) || undefined }, extraStores)].map((store) => (
+                  {[...SEARCH_STORES, ...extraStoresForIdea({ name: result.title, query: result.searchQuery, budget: Number(effectiveBudget) || undefined }, extraStores)].map((store) => (
                     <a
                       key={store}
                       className="button button--ghost button--small"

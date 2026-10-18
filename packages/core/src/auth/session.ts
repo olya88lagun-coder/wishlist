@@ -6,7 +6,7 @@ export const OAUTH_STATE_TTL_SECONDS = 600;
 const SESSION_AUDIENCE = "session";
 const OAUTH_AUDIENCE = "oauth-state";
 
-export type OAuthStatePayload = { state: string; codeVerifier: string; linkUserId: string | null };
+export type OAuthStatePayload = { state: string; codeVerifier: string; linkUserId: string | null; returnTo?: string };
 
 const key = (secret: string) => new TextEncoder().encode(secret);
 
@@ -43,7 +43,8 @@ export async function verifyOAuthState(token: string, secret: string): Promise<O
     const { payload } = await jwtVerify(token, key(secret), { audience: OAUTH_AUDIENCE, algorithms: ["HS256"] });
     const { state, codeVerifier, linkUserId } = payload;
     if (typeof state !== "string" || typeof codeVerifier !== "string") return null;
-    return { state, codeVerifier, linkUserId: typeof linkUserId === "string" ? linkUserId : null };
+    return { state, codeVerifier, linkUserId: typeof linkUserId === "string" ? linkUserId : null,
+      ...(typeof payload.returnTo === "string" ? { returnTo: payload.returnTo } : {}) };
   } catch {
     return null;
   }

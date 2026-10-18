@@ -993,7 +993,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
 
       {slug === "under-3000" ? <PartnerGiftCard /> : null}
 
-      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={adLabel} extraStores={extraStores} initialPerson={page.person} initialBudget={slug === "under-3000" ? "3000" : undefined} />
+      <GiftFinder key={slug} wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={adLabel} extraStores={extraStores} initialPerson={page.person} initialBudget={slug.startsWith("under-") ? slug.slice(6) : undefined} initialOccasion={slug} returnPath={`/gifts/${slug}`} />
 
       {(() => {
         const seo = getSeoContent(slug, page);

@@ -5,7 +5,7 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { createListAction } from "./actions";
 import { initialFormState } from "./form-state";
 
-export function CreateListForm({ defaultOpen }: { defaultOpen: boolean }) {
+export function CreateListForm({ defaultOpen, returnTo }: { defaultOpen: boolean; returnTo?: string | null }) {
   const [state, action] = useActionState(createListAction, initialFormState);
   return (
     <details className="panel owner-create-card" open={defaultOpen || state.status === "error"}>
@@ -18,6 +18,7 @@ export function CreateListForm({ defaultOpen }: { defaultOpen: boolean }) {
         <span className="owner-create-card__arrow" aria-hidden="true">→</span>
       </summary>
       <form action={action} className="stack owner-create-card__form" noValidate>
+        {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
         <div className="field">
           <label htmlFor="title">Название</label>
           <input id="title" name="title" className="input" placeholder="Маше тридцать" maxLength={80} defaultValue={state.values.title ?? ""} required />

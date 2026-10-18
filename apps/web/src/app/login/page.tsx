@@ -1,16 +1,19 @@
 import { SiteFooter } from "@/components/SiteFooter";
 import { getEnv } from "@/server/env";
-import { TelegramLoginButton } from "./TelegramLoginButton";
+import { LoginOptions } from "./LoginOptions";
+import { giftReturnPath } from "@/lib/gift-return-path";
 
 export const dynamic = "force-dynamic";
 
 const ERROR_TEXT: Record<string, string> = {
   link_IDENTITY_TAKEN: "Этот аккаунт уже привязан к другому профилю.",
   link_PROVIDER_ALREADY_LINKED: "К профилю уже привязан другой аккаунт этого сервиса.",
+  telegram_state_mismatch: "Вход устарел или начат в другой вкладке. Начните вход ещё раз.",
 };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error } = await searchParams;
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; returnTo?: string }> }) {
+  const { error, returnTo: rawReturnTo } = await searchParams;
+  const returnTo = giftReturnPath(rawReturnTo);
   const env = getEnv();
   return (
     <main className="page">
@@ -18,13 +21,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         Ваш <i>вишлист</i>
       </h1>
       {error && <p className="error">{ERROR_TEXT[error] ?? "Не получилось войти. Попробуйте ещё раз."}</p>}
-      <TelegramLoginButton
+      <LoginOptions
         botUsername={env.TELEGRAM_BOT_USERNAME}
-        authUrl={new URL("/api/auth/telegram/widget", env.APP_URL).toString()}
+        returnTo={returnTo}
       />
-      <a className="button" href="/api/auth/vk/start">
-        Войти через VK ID
-      </a>
       <SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />
     </main>
   );
