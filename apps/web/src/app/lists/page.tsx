@@ -6,10 +6,12 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { OwnerPageHeader } from "@/components/OwnerPageHeader";
 import { requireUser } from "@/server/viewer";
 import { CreateListForm } from "./CreateListForm";
+import { giftReturnPath } from "@/lib/gift-return-path";
 
 export const dynamic = "force-dynamic";
 
-export default async function ListsPage() {
+export default async function ListsPage({ searchParams }: { searchParams: Promise<{ returnTo?: string }> }) {
+  const returnTo = giftReturnPath((await searchParams).returnTo);
   const user = await requireUser();
   const lists = await listWishlistsForOwner(getDb(), user.id);
   return (
@@ -39,7 +41,8 @@ export default async function ListsPage() {
           ))}
         </nav>
       )}
-      <CreateListForm defaultOpen={lists.length === 0} />
+      {returnTo && <p className="muted">После создания списка вы вернётесь к выбранной идее подарка.</p>}
+      <CreateListForm defaultOpen={lists.length === 0 || Boolean(returnTo)} returnTo={returnTo} />
       <div className="owner-footer"><SiteFooter /></div>
     </main>
   );

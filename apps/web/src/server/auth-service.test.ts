@@ -1,5 +1,5 @@
 import { createHash, createHmac } from "node:crypto";
-import { signSession, verifySession } from "@wishlist/core";
+import { signOAuthState, signSession, verifySession } from "@wishlist/core";
 import { createWishlist, getUserWithIdentities } from "@wishlist/db";
 import { createTestDb } from "@wishlist/db/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -10,6 +10,7 @@ import {
   loginWithTelegramInitData,
   loginWithTelegramWidget,
   startVkLogin,
+  startTelegramLogin,
 } from "./auth-service";
 import type { AppEnv } from "./env";
 
@@ -43,15 +44,22 @@ beforeEach(async () => {
   deps = { db: await createTestDb(), env, now: () => NOW, fetchFn: vi.fn() };
 });
 
-async function vkLogin(vkId: string, currentSessionToken: string | null) {
-  const started = await startVkLogin(deps, currentSessionToken);
+async function vkLogin(vkId: string, currentSessionToken: string | null, returnTo?: string) {
+  const started = await startVkLogin(deps, currentSessionToken, returnTo);
   const state = new URL(started.redirectUrl).searchParams.get("state");
   vi.mocked(deps.fetchFn)
     .mockResolvedValueOnce(json({ access_token: "at" }))
     .mockResolvedValueOnce(json({ user: { user_id: vkId, first_name: "Мария", avatar: "https://vk.ru/a.jpg" } }));
   const result = await finishVkLogin(deps, { code: "c", deviceId: "d", state, stateCookie: started.stateCookie, currentSessionToken });
   if (!result.ok) throw new Error(result.error);
-  return { token: result.sessionToken, userId: result.userId };
+  return { token: result.sessionToken, userId: result.userId, returnTo: result.returnTo };
+}
+
+async function widgetLogin(fields: Record<string, string>, token: string | null, returnTo?: string) {
+  const started = await startTelegramLogin(deps, token, returnTo);
+  const params = widgetParams(fields);
+  params.set("state", new URL(started.authUrl).searchParams.get("state")!);
+  return loginWithTelegramWidget(deps, params, token, started.stateCookie);
 }
 
 describe("loginWithTelegramInitData", () => {
@@ -70,22 +78,83 @@ describe("loginWithTelegramInitData", () => {
 });
 
 describe("loginWithTelegramWidget", () => {
+  test("rejects a valid Telegram assertion without this browser's login intent", async () => {
+    const owner = await vkLogin("777", null);
+    const result = await loginWithTelegramWidget(deps, widgetParams({ id: "99", first_name: "Чужой", auth_date: nowSec }), owner.token);
+    expect(result).toEqual({ ok: false, error: "telegram_state_mismatch" });
+    expect((await getUserWithIdentities(deps.db, owner.userId))?.providers).toEqual(["vk"]);
+  });
   test("logs in via widget and reuses the same user as the mini app", async () => {
     const viaMiniApp = await loginWithTelegramInitData(deps, initData({ id: 42, first_name: "Маша" }));
-    const viaWidget = await loginWithTelegramWidget(deps, widgetParams({ id: "42", first_name: "Маша", auth_date: nowSec }), null);
+    const viaWidget = await widgetLogin({ id: "42", first_name: "Маша", auth_date: nowSec }, null);
     expect(viaWidget.ok && viaMiniApp.ok && viaWidget.userId === viaMiniApp.userId).toBe(true);
   });
 
   test("links telegram to the currently logged-in VK user", async () => {
     const vkUserSession = await vkLogin("777", null);
-    const result = await loginWithTelegramWidget(deps, widgetParams({ id: "42", first_name: "Маша", auth_date: nowSec }), vkUserSession.token);
+    const result = await widgetLogin({ id: "42", first_name: "Маша", auth_date: nowSec }, vkUserSession.token);
     expect(result).toMatchObject({ ok: true, userId: vkUserSession.userId });
     const user = await getUserWithIdentities(deps.db, vkUserSession.userId);
     expect(user?.providers.sort()).toEqual(["telegram", "vk"]);
   });
+
+  test("rejects an assertion started in a different browser", async () => {
+    const started = await startTelegramLogin(deps, null);
+    const otherBrowser = await startTelegramLogin(deps, null);
+    const params = widgetParams({ id: "42", first_name: "Маша", auth_date: nowSec });
+    params.set("state", new URL(started.authUrl).searchParams.get("state")!);
+    expect(await loginWithTelegramWidget(deps, params, null, otherBrowser.stateCookie)).toEqual({ ok: false, error: "telegram_state_mismatch" });
+  });
+
+  test("rejects a changed signed-in user during linking", async () => {
+    const owner = await vkLogin("777", null);
+    const started = await startTelegramLogin(deps, owner.token);
+    const other = await vkLogin("888", null);
+    const params = widgetParams({ id: "42", first_name: "Маша", auth_date: nowSec });
+    params.set("state", new URL(started.authUrl).searchParams.get("state")!);
+    expect(await loginWithTelegramWidget(deps, params, other.token, started.stateCookie)).toEqual({ ok: false, error: "telegram_state_mismatch" });
+    expect((await getUserWithIdentities(deps.db, other.userId))?.providers).toEqual(["vk"]);
+  });
+
+  test("rejects expired intent even with a valid Telegram signature", async () => {
+    const started = await startTelegramLogin(deps, null);
+    const params = widgetParams({ id: "42", first_name: "Маша", auth_date: nowSec });
+    params.set("state", new URL(started.authUrl).searchParams.get("state")!);
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(Date.now() + 601_000);
+      expect(await loginWithTelegramWidget(deps, params, null, started.stateCookie)).toEqual({ ok: false, error: "telegram_state_mismatch" });
+    } finally { vi.useRealTimers(); }
+  });
+
+  test("keeps a safe gift destination in the signed intent", async () => {
+    expect(await widgetLogin({ id: "42", first_name: "Маша", auth_date: nowSec }, null, "/gifts/under-1000")).toMatchObject({ ok: true, returnTo: "/gifts/under-1000" });
+    const unsafe = await widgetLogin({ id: "42", first_name: "Маша", auth_date: nowSec }, null, "//evil.example");
+    expect(unsafe.ok && unsafe.returnTo).toBeUndefined();
+  });
+
+  test("rejects a forged state cookie", async () => {
+    const params = widgetParams({ id: "42", first_name: "Маша", auth_date: nowSec });
+    params.set("state", "forged");
+    const forged = await signOAuthState({ state: "forged", codeVerifier: "telegram-widget", linkUserId: null }, "x".repeat(64));
+    expect(await loginWithTelegramWidget(deps, params, null, forged)).toEqual({ ok: false, error: "telegram_state_mismatch" });
+  });
 });
 
 describe("VK login", () => {
+  test("keeps only a safe gift return destination", async () => {
+    expect((await vkLogin("777", null, "/gifts/wedding")).returnTo).toBe("/gifts/wedding");
+    expect((await vkLogin("777", null, "//evil.example")).returnTo).toBeUndefined();
+  });
+
+  test("rejects a session change before exchanging a VK code", async () => {
+    const owner = await vkLogin("777", null);
+    const started = await startVkLogin(deps, owner.token);
+    vi.mocked(deps.fetchFn).mockClear();
+    const state = new URL(started.redirectUrl).searchParams.get("state");
+    expect(await finishVkLogin(deps, { code: "c", deviceId: "d", state, stateCookie: started.stateCookie, currentSessionToken: null })).toEqual({ ok: false, error: "vk_state_mismatch" });
+    expect(deps.fetchFn).not.toHaveBeenCalled();
+  });
   test("start builds an id.vk.ru authorize url with PKCE", async () => {
     const started = await startVkLogin(deps, null);
     const url = new URL(started.redirectUrl);

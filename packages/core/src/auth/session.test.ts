@@ -25,6 +25,10 @@ describe("session tokens", () => {
 });
 
 describe("oauth state tokens", () => {
+  test("round-trips an optional gift continuation", async () => {
+    const payload = { state: "st-1", codeVerifier: "ver-1", linkUserId: null, returnTo: "/gifts/under-1000" };
+    expect(await verifyOAuthState(await signOAuthState(payload, SECRET), SECRET)).toEqual(payload);
+  });
   test("round-trips the payload", async () => {
     const payload = { state: "st-1", codeVerifier: "ver-1", linkUserId: "user-9" };
     const token = await signOAuthState(payload, SECRET);

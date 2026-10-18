@@ -16,6 +16,16 @@ vi.mock("@wishlist/db", () => ({
 
 import GiftRecipientPage, { generateMetadata } from "./page";
 
+test.each(["1000", "3000", "5000", "10000", "15000", "20000"])("starts the %s-ruble collection with its own budget", async (budget) => {
+  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: `under-${budget}` }) }));
+  expect(html).toContain(`<option value="${budget}" selected="">`);
+});
+
+test.each(["birthday", "new-year", "wedding", "anniversary", "housewarming", "secret-santa", "valentines-day", "march-8", "february-23"])("starts the %s collection with its own occasion", async (occasion) => {
+  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: occasion }) }));
+  expect(html).toContain(`<option value="${occasion}" selected="">`);
+});
+
 test("starts gift selection within the 3000-ruble page budget", async () => {
   const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "under-3000" }) }));
   expect(html).toContain('<option value="3000" selected="">');
