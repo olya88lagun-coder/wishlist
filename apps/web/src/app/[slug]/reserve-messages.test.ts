@@ -7,7 +7,7 @@ test("every reservation failure has a human message", () => {
   expect(reserveErrorMessage("INVALID_NAME")).toBe("Напишите имя — до 40 символов");
   expect(reserveErrorMessage("NOT_FOUND")).toBe("Подарок не найден — возможно, его удалили");
   expect(reserveErrorMessage("NO_IDENTITY")).toBe("Не получилось. Обновите страницу и попробуйте ещё раз");
-  expect(cancelErrorMessage("NOT_YOUR_RESERVATION")).toBe("Эту бронь поставил другой человек");
+  expect(cancelErrorMessage("NOT_YOUR_RESERVATION")).toContain("Не удалось подтвердить вашу бронь");
   expect(cancelErrorMessage("NOT_RESERVED")).toBe("Бронь уже снята");
   expect(cancelErrorMessage("NOT_FOUND")).toBe("Подарок не найден — возможно, его удалили");
 });

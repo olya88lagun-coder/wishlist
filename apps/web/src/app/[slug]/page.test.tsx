@@ -13,7 +13,7 @@ vi.mock("@/server/env", () => ({
     SESSION_SECRET: "local-test-secret-local-test-secret",
   }),
 }));
-vi.mock("./actions", () => ({ reserveAction: vi.fn(), cancelAction: vi.fn() }));
+vi.mock("./actions", () => ({ reserveAction: vi.fn(), cancelAction: vi.fn(), cancelFormAction: vi.fn() }));
 
 import { readViewer } from "@/server/viewer";
 import PublicWishlistPage from "./page";

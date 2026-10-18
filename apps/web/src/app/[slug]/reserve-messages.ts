@@ -14,7 +14,7 @@ const RESERVE_MESSAGES: Record<ReserveFailure, string> = {
 };
 
 const CANCEL_MESSAGES: Record<CancelFailure, string> = {
-  NOT_YOUR_RESERVATION: "Эту бронь поставил другой человек",
+  NOT_YOUR_RESERVATION: "Не удалось подтвердить вашу бронь. Откройте список в том же браузере и аккаунте, где бронировали подарок.",
   NOT_RESERVED: "Бронь уже снята",
   NOT_FOUND,
 };
