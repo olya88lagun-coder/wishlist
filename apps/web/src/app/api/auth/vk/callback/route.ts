@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { finishVkLogin } from "@/server/auth-service";
 import { authDeps } from "@/server/deps";
+import { completionCookie } from "@/server/analytics-completion";
 import { SESSION_COOKIE, sessionCookieOptions, VK_STATE_COOKIE, vkStateCookieOptions } from "@/server/http";
 
 export async function GET(request: NextRequest) {
@@ -16,7 +17,10 @@ export async function GET(request: NextRequest) {
   const target = result.ok ? result.returnTo ?? "/lists" : `/login?error=${result.error}`;
   const response = NextResponse.redirect(new URL(target, deps.env.APP_URL), 303);
   response.cookies.set(VK_STATE_COOKIE, "", { ...vkStateCookieOptions(), maxAge: 0 });
-  if (result.ok) response.cookies.set(SESSION_COOKIE, result.sessionToken, sessionCookieOptions());
+  if (result.ok) {
+    response.cookies.set(SESSION_COOKIE, result.sessionToken, sessionCookieOptions());
+    response.cookies.set(completionCookie({ event: "auth_completed", params: { provider: "vk" } }));
+  }
   else console.warn("vk login failed", result.error);
   return response;
 }

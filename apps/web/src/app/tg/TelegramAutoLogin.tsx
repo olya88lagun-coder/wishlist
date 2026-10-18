@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { safeNextPath } from "./next-path";
+import { collectAnalyticsCompletions } from "@/lib/analytics-completions";
 
 type TelegramWindow = Window & { Telegram?: { WebApp?: { initData: string; ready: () => void } } };
 
@@ -36,6 +37,7 @@ export function TelegramAutoLogin() {
           body: JSON.stringify({ initData: webApp.initData }),
         });
         if (!res.ok) throw new Error(`login failed: ${res.status}`);
+        collectAnalyticsCompletions();
         router.replace(safeNextPath(new URLSearchParams(window.location.search).get("next")));
       })
       .catch((error: unknown) => {

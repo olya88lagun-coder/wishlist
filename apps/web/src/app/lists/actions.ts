@@ -8,6 +8,7 @@ import { editLimiter } from "@/server/rate-limit";
 import { clientKey, requireUser } from "@/server/viewer";
 import { errorState, type FormState, formValues, LIMIT_MESSAGES } from "./form-state";
 import { giftReturnPath } from "@/lib/gift-return-path";
+import { recordCompletion } from "@/server/analytics-completion";
 
 export async function createListAction(_prev: FormState, form: FormData): Promise<FormState> {
   const user = await requireUser();
@@ -16,5 +17,6 @@ export async function createListAction(_prev: FormState, form: FormData): Promis
   if (!parsed.ok) return errorState(parsed.errors, null, formValues(form));
   const created = await createWishlist(getDb(), user.id, parsed.value);
   if (!created.ok) return errorState({}, LIMIT_MESSAGES.wishlists, formValues(form));
+  await recordCompletion({ event: "wishlist_created", params: { source: giftReturnPath(form.get("returnTo")) ? "finder" : "direct" } });
   redirect(giftReturnPath(form.get("returnTo")) ?? `/lists/${created.wishlist.id}`);
 }

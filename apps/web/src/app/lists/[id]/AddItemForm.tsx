@@ -5,11 +5,13 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { initialFormState } from "../form-state";
 import { addItemAction } from "./actions";
 import { ItemFields, itemDefaultsFor } from "./ItemFields";
+import { useItemAnalytics } from "@/components/use-item-analytics";
 
 const EMPTY = { title: "", url: "", price: "", note: "", isMustHave: false };
 
 export function AddItemForm({ wishlistId, defaultOpen }: { wishlistId: string; defaultOpen: boolean }) {
   const [state, action] = useActionState(addItemAction.bind(null, wishlistId), initialFormState);
+  useItemAnalytics(state);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {

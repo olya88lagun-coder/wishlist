@@ -1,9 +1,17 @@
-import Script from "next/script";
+"use client";
 
-const DEFAULT_METRIKA_ID = "112836417";
+import Script from "next/script";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { initializeAnalytics } from "@/lib/analytics";
+import { collectAnalyticsCompletions } from "@/lib/analytics-completions";
+import { METRIKA_ID, validMetrikaId } from "@/lib/analytics-events";
 
 export function YandexMetrika() {
-  const id = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID ?? DEFAULT_METRIKA_ID;
+  const pathname = usePathname();
+  useEffect(() => { initializeAnalytics(); collectAnalyticsCompletions(); }, [pathname]);
+  const id = METRIKA_ID;
+  if (!validMetrikaId) return null;
 
   return (
     <>
@@ -21,6 +29,7 @@ export function YandexMetrika() {
 
           ym(${id}, "init", {
             ssr: true,
+            triggerEvent: true,
             webvisor: false,
             clickmap: true,
             ecommerce: "dataLayer",

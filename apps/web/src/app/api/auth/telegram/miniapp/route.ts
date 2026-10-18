@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { loginWithTelegramInitData } from "@/server/auth-service";
 import { authDeps } from "@/server/deps";
+import { completionCookie } from "@/server/analytics-completion";
 import { SESSION_COOKIE, sessionCookieOptions } from "@/server/http";
 
 const bodySchema = z.object({ initData: z.string().min(1).max(4096) });
@@ -13,5 +14,6 @@ export async function POST(request: NextRequest) {
   if (!result.ok) return NextResponse.json({ ok: false, error: result.error }, { status: 401 });
   const response = NextResponse.json({ ok: true });
   response.cookies.set(SESSION_COOKIE, result.sessionToken, sessionCookieOptions());
+  response.cookies.set(completionCookie({ event: "auth_completed", params: { provider: "telegram_miniapp" } }));
   return response;
 }

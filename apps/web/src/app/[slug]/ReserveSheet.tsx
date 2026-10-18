@@ -4,12 +4,13 @@ import { useActionState, useEffect, useState } from "react";
 import { SubmitButton } from "@/components/SubmitButton";
 import { initialFormState } from "../lists/form-state";
 import { reserveAction } from "./actions";
+import { withActionAnalytics } from "@/lib/action-analytics";
 
 type Props = { slug: string; itemId: string; itemTitle: string; priceText: string | null; ownerName: string; defaultName: string };
 
 export function ReserveSheet({ slug, itemId, itemTitle, priceText, ownerName, defaultName }: Props) {
   const [open, setOpen] = useState(false);
-  const [state, action] = useActionState(reserveAction.bind(null, slug, itemId), initialFormState);
+  const [state, action] = useActionState(withActionAnalytics(reserveAction.bind(null, slug, itemId), "wishlist_reserved"), initialFormState);
 
   useEffect(() => {
     if (state.status === "success") setOpen(false);
