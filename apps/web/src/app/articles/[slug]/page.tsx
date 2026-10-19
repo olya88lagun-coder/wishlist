@@ -96,7 +96,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <p className="editorial-kicker">{article.kicker}</p>
           <h1>{article.title}</h1>
           <p>{article.description}</p>
-          <small>{article.readingMinutes} минут чтения · обновлено 21 сентября 2026</small>
+          <small>
+            {article.readingMinutes} минут чтения · обновлено <time dateTime={article.updatedAt}>
+              {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(article.updatedAt))}
+            </time>
+          </small>
         </header>
 
         <div className="article-body">
