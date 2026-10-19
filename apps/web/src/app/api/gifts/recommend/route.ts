@@ -12,6 +12,7 @@ import {
   startOfUtcDay,
 } from "@/server/ai-budget";
 import { getDb } from "@/server/db";
+import { openAiResponseText } from "@/server/openai-response-text";
 import { giftAiLimiter } from "@/server/rate-limit";
 import { clientKey, readViewer } from "@/server/viewer";
 
@@ -142,7 +143,7 @@ function isWeakGiftSet(ideas: z.infer<typeof outputSchema>["ideas"], interests: 
 
 function parseJsonResponse(payload: any, useRouterAi: boolean): unknown {
   const message = useRouterAi ? payload?.choices?.[0]?.message : null;
-  const rawContent = useRouterAi ? message?.content : payload?.output_text;
+  const rawContent = useRouterAi ? message?.content : openAiResponseText(payload);
   const toolArguments = useRouterAi && Array.isArray(message?.tool_calls)
     ? message.tool_calls.map((call: unknown) => {
         if (!call || typeof call !== "object") return "";
