@@ -11,6 +11,7 @@ export * from "./public-view";
 export * from "./reservations";
 export * from "./parsing";
 export * from "./notifications";
+export * from "./deletion-outbox";
 export * from "./bot";
 export * from "./affiliate";
 export * from "./interest";

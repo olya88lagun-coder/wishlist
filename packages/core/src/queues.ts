@@ -3,6 +3,7 @@ export const QUEUES = {
   parseItem: "parse-item",
   maintenance: "maintenance",
   notify: "notify",
+  wishlistDeletion: "wishlist-deletion",
   reminders: "reminders",
   ownerDigest: "owner-digest",
   canary: "canary",

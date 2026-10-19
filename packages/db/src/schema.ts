@@ -110,6 +110,28 @@ export const notificationLog = pgTable(
   ],
 );
 
+// Снимок для дарителя сохраняется в транзакции удаления; ссылки на удаляемый список нет.
+export const wishlistDeletionNotices = pgTable(
+  "wishlist_deletion_notices",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    wishlistId: uuid("wishlist_id").notNull(),
+    guestUserId: uuid("guest_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    wishlistTitle: text("wishlist_title").notNull(),
+    createdAt: createdAt(),
+    availableAt: timestamp("available_at", { withTimezone: true }).notNull().defaultNow(),
+    attempts: integer("attempts").notNull().default(0),
+    leaseToken: uuid("lease_token"),
+    leaseUntil: timestamp("lease_until", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    outcome: text("outcome"),
+  },
+  (t) => [
+    uniqueIndex("wishlist_deletion_notices_once_uq").on(t.wishlistId, t.guestUserId),
+    index("wishlist_deletion_notices_pending_idx").on(t.availableAt).where(sql`${t.completedAt} is null`),
+  ],
+);
+
 // Статистика переходов гостей в магазин: только подарок, магазин и время
 export const affiliateClicks = pgTable(
   "affiliate_clicks",
