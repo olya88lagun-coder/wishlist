@@ -117,6 +117,12 @@ a { color: inherit; }
 .guest-cta { border: 1px solid var(--line); }
 .guest-cta .button { min-height: 44px; }
 .site-footer { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
+.login-back { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-soft); font-size: 14px; text-underline-offset: 4px; }
+.login-back:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.login-page > .display { margin-top: 16px; }
+.login-intro { max-width: 46ch; margin: 16px 0 8px; color: var(--ink-soft); line-height: 1.7; }
+.login-page .error { font-size: 14px; }
+@media (prefers-color-scheme: dark) { .login-page .error { color: #ffb4b4; } }
 .site-footer a { color: var(--ink-soft); }
 .legal h2 { font-size: 18px; margin: 18px 0 0; }
 .legal p, .legal li { margin: 6px 0; }

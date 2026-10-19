@@ -57,3 +57,26 @@ test("mobile menu reflects the signed-in account and closes when the desktop nav
   await nav.getByRole("link", { name: "Статьи", exact: true }).click();
   await expect(page).toHaveURL(/\/articles$/);
 });
+
+test("login explains the next step, offers a safe way back and retains the gift continuation", async ({ page }, testInfo) => {
+  await page.goto("/login?analytics_test=1");
+  await expect(page.getByRole("link", { name: "На главную", exact: false })).toHaveAttribute("href", "/");
+  await expect(page.getByText("После входа вы сможете создать список желаний", { exact: false })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Войти через Telegram", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Войти через VK ID", exact: true })).toHaveAttribute("href", "/api/auth/vk/start");
+
+  await page.goto("/login?error=telegram_state_mismatch&returnTo=%2Fgifts%2Funder-1000");
+  await expect(page.getByText("Вход устарел или начат в другой вкладке.", { exact: false })).toBeVisible();
+  await expect(page.getByText("После входа вы вернётесь к подборке.", { exact: false })).toBeVisible();
+  const back = page.getByRole("link", { name: "Вернуться к подборке", exact: false });
+  await expect(back).toHaveAttribute("href", "/gifts/under-1000#gift-finder");
+  await expect(page.getByRole("link", { name: "Войти через VK ID", exact: true })).toHaveAttribute("href", "/api/auth/vk/start?returnTo=%2Fgifts%2Funder-1000");
+  await page.screenshot({ path: testInfo.outputPath("login-continuation.png") });
+  await back.click();
+  await expect(page).toHaveURL(/\/gifts\/under-1000#gift-finder$/);
+  await expect(page.getByLabel("Бюджет", { exact: true })).toHaveValue("1000");
+
+  await page.goto("/login?returnTo=https%3A%2F%2Fexample.com");
+  await expect(page.getByText("После входа вы сможете создать список желаний", { exact: false })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Вернуться к подборке", exact: false })).toHaveCount(0);
+});
