@@ -2,18 +2,20 @@
 
 import { useActionState } from "react";
 import { SubmitButton } from "@/components/SubmitButton";
+import { useFormErrorFocus } from "@/components/use-form-error-focus";
 import { initialFormState } from "../form-state";
 import { updateItemAction } from "./actions";
 import { type ItemDefaults, ItemFields, itemDefaultsFor } from "./ItemFields";
 
 export function ItemEditor({ wishlistId, itemId, defaults }: { wishlistId: string; itemId: string; defaults: ItemDefaults }) {
   const [state, action] = useActionState(updateItemAction.bind(null, wishlistId, itemId), initialFormState);
+  const formRef = useFormErrorFocus(state);
   return (
     <details>
       <summary className="link-button">Изменить</summary>
-      <form action={action} className="stack panel" style={{ marginTop: 8 }} noValidate>
+      <form ref={formRef} action={action} className="stack panel" style={{ marginTop: 8 }} noValidate>
         <ItemFields idPrefix={`edit-${itemId}`} defaults={itemDefaultsFor(state, defaults)} errors={state.errors} />
-        {state.message && <p className={state.status === "error" ? "error" : "muted"} role="status">{state.message}</p>}
+        {state.message && <p className={state.status === "error" ? "error" : "muted"} role="status" tabIndex={-1} data-form-error>{state.message}</p>}
         <SubmitButton pendingText="Сохраняем…">Сохранить</SubmitButton>
       </form>
     </details>

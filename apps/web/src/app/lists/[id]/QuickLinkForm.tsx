@@ -1,15 +1,16 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect } from "react";
 import { SubmitButton } from "@/components/SubmitButton";
 import { initialFormState } from "../form-state";
 import { addItemAction } from "./actions";
 import { useItemAnalytics } from "@/components/use-item-analytics";
+import { useFormErrorFocus } from "@/components/use-form-error-focus";
 
 export function QuickLinkForm({ wishlistId }: { wishlistId: string }) {
   const [state, action] = useActionState(addItemAction.bind(null, wishlistId), initialFormState);
   useItemAnalytics(state);
-  const formRef = useRef<HTMLFormElement>(null);
+  const formRef = useFormErrorFocus(state);
 
   useEffect(() => {
     if (state.status === "success") formRef.current?.reset();
@@ -31,7 +32,8 @@ export function QuickLinkForm({ wishlistId }: { wishlistId: string }) {
     return () => document.removeEventListener("paste", onPaste);
   }, []);
 
-  const error = state.errors.url ?? state.errors.title ?? (state.status === "error" ? state.message : null);
+  const fieldError = state.errors.url ?? state.errors.title;
+  const error = fieldError ?? (state.status === "error" ? state.message : null);
 
   return (
     <form ref={formRef} action={action} className="panel stack quick-link owner-quick-link" noValidate>
@@ -46,10 +48,12 @@ export function QuickLinkForm({ wishlistId }: { wishlistId: string }) {
           placeholder="https://www.wildberries.ru/catalog/…"
           defaultValue={state.status === "error" ? (state.values.url ?? "") : ""}
           autoComplete="off"
+          aria-invalid={fieldError ? true : undefined}
+          aria-describedby={fieldError ? "quick-url-error" : undefined}
         />
         <SubmitButton pendingText="Добавляем…">Добавить</SubmitButton>
       </div>
-      {error && <p className="error" role="alert">{error}</p>}
+      {error && <p id="quick-url-error" className="error" role="alert" tabIndex={-1} data-form-error>{error}</p>}
       {state.status === "success" && state.message && <p className="muted" role="status">{state.message}</p>}
     </form>
   );

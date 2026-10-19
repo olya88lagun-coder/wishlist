@@ -68,7 +68,7 @@ export default async function PublicWishlistPage({ params }: Props) {
   ) : null;
 
   return (
-    <main className="page page--wide">
+    <main className="page page--wide wishlist-page">
       <div className="row row--between">
         <p className="eyebrow">список {ownerName}</p>
         <CountdownSticker occasion={wishlist.occasion} eventDate={wishlist.eventDate} />
