@@ -114,6 +114,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             </section>
           ))}
 
+          <section className="article-selection" aria-label="Подборка по теме статьи">
+            <h2>{article.giftCollection.title}</h2>
+            <p>{article.giftCollection.description}</p>
+            <Link href={article.giftCollection.href}>{article.giftCollection.label}</Link>
+          </section>
+
           <aside className="article-cta">
             <h2>Сохраните идеи в одном списке</h2>
             <p>Добавьте подходящие подарки и поделитесь ссылкой с близкими.</p>
