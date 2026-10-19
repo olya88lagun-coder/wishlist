@@ -63,7 +63,7 @@
   padding: 40px 0 54px;
   border-bottom: 1px solid var(--owner-line);
 }
-.owner-hero__copy { max-width: 780px; }
+.owner-hero__copy { max-width: 780px; min-width: 0; }
 .owner-hero__eyebrow,
 .owner-section-kicker {
   display: flex;
@@ -79,6 +79,7 @@
 .owner-hero__eyebrow::before { width: 22px; height: 1px; background: currentColor; content: ""; }
 .owner-hero__title {
   margin: 0;
+  overflow-wrap: anywhere;
   font: 500 clamp(52px, 7vw, 88px)/.98 var(--font-playfair), Georgia, serif;
   letter-spacing: -.035em;
 }
@@ -104,7 +105,7 @@
 }
 .owner-list-card:hover { transform: translateY(-4px); border-color: rgb(166 124 67 / .55); box-shadow: 0 30px 64px rgb(86 61 30 / .13); }
 .owner-list-card__topline { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; color: var(--owner-gold-deep); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-.owner-list-card__body { margin: auto 0; }
+.owner-list-card__body { margin: auto 0; min-width: 0; overflow-wrap: anywhere; }
 .owner-list-card h2 { margin: 34px 0 8px; font: 500 clamp(31px, 4vw, 44px)/1.06 var(--font-playfair), Georgia, serif; }
 .owner-list-card__body p { margin: 0; color: var(--owner-soft); font-size: 14px; }
 .owner-list-card__open { display: flex; justify-content: space-between; gap: 16px; padding-top: 20px; border-top: 1px solid var(--owner-line); color: var(--owner-soft); font-size: 14px; }

@@ -18,6 +18,45 @@ async function expectFieldError(page: Page, field: Locator, message: string) {
   await expect(page.locator(`[id="${errorId}"]`)).toHaveText(message);
 }
 
+async function expectNoOverflow(page: Page, selectors: string[], surface: string) {
+  const widths = await page.evaluate((targets) => ({
+    page: document.documentElement.scrollWidth,
+    viewport: window.innerWidth,
+    nodes: targets.flatMap((selector) => Array.from(document.querySelectorAll<HTMLElement>(selector), (node) => ({
+      selector, scroll: node.scrollWidth, width: node.clientWidth,
+    }))),
+  }), selectors);
+  expect.soft(widths.page, `${surface}: page width`).toBeLessThanOrEqual(widths.viewport + 1);
+  for (const node of widths.nodes) expect.soft(node.scroll, `${surface}: ${node.selector}`).toBeLessThanOrEqual(node.width + 1);
+}
+
+test("maximum unbroken titles and notes stay within owner, overview and public layouts", async ({ page, browser }, testInfo) => {
+  if (testInfo.project.name === "mobile") await page.setViewportSize({ width: 320, height: 568 });
+  const title = "Д".repeat(80);
+  const gift = "Ж".repeat(200);
+  const note = "З".repeat(300);
+  await createList(page, title);
+  await addGift(page, gift, note);
+  await expectNoOverflow(page, [".owner-hero__title", ".card__title", ".card__meta"], "owner");
+  await page.getByRole("heading", { level: 1 }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath("long-owner-title.png") });
+  const publicHref = await page.getByRole("link", { name: "Как видят гости" }).getAttribute("href");
+  await page.goto("/lists");
+  await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
+  await expectNoOverflow(page, [".owner-list-card h2"], "overview");
+  const guest = await browser.newContext({ viewport: page.viewportSize()! });
+  await blockMetrika(guest);
+  try {
+    const guestPage = await guest.newPage();
+    await guestPage.goto(`${publicHref!}?analytics_test=1`);
+    await expect(guestPage.getByRole("heading", { level: 1 })).toHaveText(title);
+    await expect(guestPage.locator(".card__title")).toHaveText(gift);
+    await expect(guestPage.locator(".card__meta")).toHaveText(note);
+    await expectNoOverflow(guestPage, [".display", ".card__title", ".card__meta"], "public");
+    await guestPage.screenshot({ path: testInfo.outputPath("long-public-title.png") });
+  } finally { await guest.close(); }
+});
+
 test("invalid list creation focuses its field on each attempt and preserves the occasion and date", async ({ page }, testInfo) => {
   await page.goto(`/api/dev/login?name=Create-errors-${Date.now()}`);
   const title = page.getByLabel("Название", { exact: true });

@@ -80,12 +80,12 @@ a { color: inherit; }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
 @media (min-width: 900px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
-.card { position: relative; display: grid; gap: 6px; align-content: start; }
+.card { position: relative; display: grid; gap: 6px; align-content: start; min-width: 0; }
 .card--dimmed .tile { opacity: 0.55; }
 .card__sticker { position: absolute; right: -4px; top: -8px; z-index: 1; }
 .card__title { font-size: 14px; margin: 2px 0 0; overflow-wrap: anywhere; }
 .card__price { font-family: var(--font-playfair), Georgia, serif; font-size: 15px; margin: 0; }
-.card__meta { font-size: 12px; color: var(--ink-faint); margin: 0; }
+.card__meta { font-size: 12px; color: var(--ink-faint); margin: 0; overflow-wrap: anywhere; }
 .card__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 
 .tile { aspect-ratio: 4 / 5; border-radius: 6px; background: var(--paper-deep); display: grid; place-items: center; position: relative; overflow: hidden; }
@@ -95,6 +95,7 @@ a { color: inherit; }
 
 .list-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--line); text-decoration: none; }
 .list-row__title { font-family: var(--font-playfair), Georgia, serif; font-size: 22px; margin: 0; }
+.wishlist-page > .display { overflow-wrap: anywhere; }
 
 .reserve-sheet-trigger { min-height: 44px; }
 .sheet { position: fixed; inset: auto 0 var(--sheet-viewport-bottom, 0px); width: 100%; max-width: 560px; max-height: calc(var(--sheet-viewport-height, 100dvh) - 16px); margin: 0 auto; border: 0; background: var(--card); color: var(--ink); border-radius: 18px 18px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; }
