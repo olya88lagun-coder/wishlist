@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getEnv } from "@/server/env";
 import { LoginOptions } from "./LoginOptions";
@@ -16,11 +17,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const returnTo = giftReturnPath(rawReturnTo);
   const env = getEnv();
   return (
-    <main className="page">
+    <main className="page login-page">
+      <Link className="login-back" href="/">← На главную</Link>
       <h1 className="display">
         Ваш <i>вишлист</i>
       </h1>
-      {error && <p className="error">{ERROR_TEXT[error] ?? "Не получилось войти. Попробуйте ещё раз."}</p>}
+      {error && <p className="error" role="alert">{ERROR_TEXT[error] ?? "Не получилось войти. Попробуйте ещё раз."}</p>}
       <LoginOptions
         botUsername={env.TELEGRAM_BOT_USERNAME}
         returnTo={returnTo}

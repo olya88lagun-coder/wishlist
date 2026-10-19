@@ -176,7 +176,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
   }
 
   return (
-    <section className="gift-finder" id="gift-finder">
+    <section className="gift-finder" id="gift-finder" tabIndex={-1} aria-label="Подбор подарка по интересам">
       <form className="panel gift-finder__form" onSubmit={submit}>
         <div className="gift-finder__intro">
           <span className="sticker sticker--countdown">AI gift finder</span>
