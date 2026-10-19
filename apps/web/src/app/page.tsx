@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { EditorialMenu } from "@/components/EditorialMenu";
+import { HomeMobileMenu } from "@/components/HomeMobileMenu";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
 import { HOME_GIFT_LINK_GROUPS } from "@/content/home-gift-links";
@@ -176,6 +177,7 @@ export default async function Home() {
         <div className="home-header__actions">
           {signedIn ? <Link className="home-login" href="/me">Профиль</Link> : <Link className="home-login" href="/login">Войти</Link>}
           <Link className="home-create" href={signedIn ? "/lists" : "/login"}>{signedIn ? "Мои списки" : "Создать список"}</Link>
+          <HomeMobileMenu signedIn={signedIn} />
         </div>
       </header>
 
