@@ -47,7 +47,7 @@ a { color: inherit; }
 .display i { font-style: italic; }
 .serif { font-family: var(--font-playfair), Georgia, serif; }
 .muted { color: var(--ink-soft); font-size: 14px; }
-.error { color: var(--danger); font-size: 13px; margin: 4px 0 0; }
+.error { color: var(--danger); font-size: 14px; margin: 4px 0 0; }
 
 .row { display: flex; align-items: center; gap: 10px; }
 .row--between { justify-content: space-between; }

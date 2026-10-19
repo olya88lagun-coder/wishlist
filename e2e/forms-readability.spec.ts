@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { blockMetrika } from "./analytics-counter";
 
 test.beforeEach(async ({ context }) => blockMetrika(context));
@@ -10,6 +10,94 @@ async function createList(page: Page, title = "Проверка форм и по
   await page.getByRole("button", { name: "Создать список", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
 }
+
+async function expectFieldError(page: Page, field: Locator, message: string) {
+  await expect(field).toHaveAttribute("aria-invalid", "true");
+  const errorId = await field.getAttribute("aria-describedby");
+  expect(errorId).toBeTruthy();
+  await expect(page.locator(`[id="${errorId}"]`)).toHaveText(message);
+}
+
+test("invalid list creation focuses its field on each attempt and preserves the occasion and date", async ({ page }, testInfo) => {
+  await page.goto(`/api/dev/login?name=Create-errors-${Date.now()}`);
+  const title = page.getByLabel("Название", { exact: true });
+  await page.getByLabel("Повод", { exact: true }).selectOption("new_year");
+  await page.getByLabel("Дата праздника", { exact: true }).fill("2026-12-31");
+  const submit = page.getByRole("button", { name: "Создать список", exact: true });
+  await submit.click();
+  await expectFieldError(page, title, "Введите название списка");
+  await expect(title).toBeFocused();
+  await expect(page.getByLabel("Повод", { exact: true })).toHaveValue("new_year");
+  await page.getByLabel("Повод", { exact: true }).focus();
+  await submit.click();
+  await expect(title).toBeFocused();
+  await expect(page.getByLabel("Повод", { exact: true })).toHaveValue("new_year");
+  await expect(page.getByLabel("Дата праздника", { exact: true })).toHaveValue("2026-12-31");
+  await page.screenshot({ path: testInfo.outputPath("create-list-error.png") });
+  await title.fill("Новогодние желания");
+  await submit.click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Новогодние желания");
+});
+
+test("quick and manual gift entry explain field errors, retain values and recover", async ({ page }, testInfo) => {
+  await createList(page);
+  const quick = page.locator("form.quick-link");
+  const quickUrl = quick.getByLabel("Вставьте ссылку на подарок");
+  await quick.getByRole("button", { name: "Добавить", exact: true }).click();
+  await expectFieldError(page, quickUrl, "Вставьте ссылку или напишите название");
+  await expect(quickUrl).toBeFocused();
+  const manual = page.locator("details.owner-manual-add");
+  await manual.getByText("Добавить вручную или заполнить все поля").click();
+  const url = manual.getByLabel("Ссылка на товар");
+  const price = manual.getByLabel("Цена, ₽");
+  await url.fill("не ссылка");
+  await manual.getByLabel("Что подарить").fill("Книга для вечера");
+  await price.fill("не число");
+  await manual.getByLabel("Заметка").fill("Сохранить эту заметку");
+  const submit = manual.getByRole("button", { name: "Добавить", exact: true });
+  await submit.click();
+  await expectFieldError(page, url, "Ссылка должна начинаться с https://");
+  await expectFieldError(page, price, "Цена — число в рублях, например 2 490");
+  await expect(url).toBeFocused();
+  await price.focus();
+  await submit.click();
+  await expect(url).toBeFocused();
+  await expect(price).toHaveValue("не число");
+  await expect(manual.getByLabel("Заметка")).toHaveValue("Сохранить эту заметку");
+  await page.screenshot({ path: testInfo.outputPath("manual-gift-errors.png") });
+  await url.fill("");
+  await price.fill("2490");
+  await submit.click();
+  await expect(page.getByRole("heading", { name: "Книга для вечера", exact: true })).toBeVisible();
+  await expect(url).not.toHaveAttribute("aria-invalid", "true");
+  await expect(price).not.toHaveAttribute("aria-invalid", "true");
+});
+
+test("gift and list editors associate errors with their own fields and remain usable", async ({ page }) => {
+  await createList(page);
+  await addGift(page);
+  const card = page.locator("article.card").first();
+  const editor = card.locator("details");
+  await editor.getByText("Изменить", { exact: true }).click();
+  const title = editor.getByLabel("Что подарить");
+  await title.fill("");
+  await editor.getByRole("button", { name: "Сохранить", exact: true }).click();
+  await expectFieldError(page, title, "Вставьте ссылку или напишите название");
+  await expect(title).toBeFocused();
+  await title.fill("Исправленный подарок");
+  await editor.getByRole("button", { name: "Сохранить", exact: true }).click();
+  await expect(card.getByRole("heading", { name: "Исправленный подарок", exact: true })).toBeVisible();
+  const settings = page.locator("details.owner-settings-card");
+  await settings.getByText("Настройки списка", { exact: false }).click();
+  const listTitle = settings.getByLabel("Название", { exact: true });
+  await listTitle.fill("");
+  await settings.getByRole("button", { name: "Сохранить", exact: true }).click();
+  await expectFieldError(page, listTitle, "Введите название списка");
+  await expect(listTitle).toBeFocused();
+  await listTitle.fill("Исправленный список");
+  await settings.getByRole("button", { name: "Сохранить", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Исправленный список");
+});
 
 async function addGift(page: Page, title = "Подарок для проверки", note = "Тестовая заметка") {
   const manual = page.locator("details").filter({ hasText: "Добавить вручную или заполнить все поля" });
