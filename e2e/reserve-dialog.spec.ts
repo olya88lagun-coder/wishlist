@@ -3,6 +3,19 @@ import { blockMetrika } from "./analytics-counter";
 
 const giftTitle = "Подарок для уютного вечера с большой компанией друзей и долгими разговорами за чаем";
 
+function contrastRatio(foreground: string, background: string) {
+  const luminance = (color: string) => {
+    const channels = color.match(/\d+(?:\.\d+)?/g)!.slice(0, 3).map(Number).map((channel) => {
+      const value = channel / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    });
+    return channels[0]! * 0.2126 + channels[1]! * 0.7152 + channels[2]! * 0.0722;
+  };
+  const light = luminance(foreground);
+  const dark = luminance(background);
+  return (Math.max(light, dark) + 0.05) / (Math.min(light, dark) + 0.05);
+}
+
 async function openGuestList(browser: Browser, page: Page) {
   const owner = await browser.newContext();
   await blockMetrika(owner);
@@ -113,4 +126,52 @@ test("successful reservation releases the modal and page scroll when its trigger
   await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe(originalOverflow);
   await cancel.focus();
   await expect(cancel).toBeFocused();
+});
+
+test("invalid reservation name is described by its error and receives focus on every failed attempt", async ({ browser, page }, testInfo) => {
+  await openGuestList(browser, page);
+  await page.getByRole("button", { name: "Я подарю", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: giftTitle });
+  const name = dialog.getByLabel("Как вас подписать");
+  await name.fill("   ");
+  const submit = dialog.getByRole("button", { name: "Я подарю", exact: true });
+  await submit.click();
+  const error = dialog.getByText("Напишите имя — до 40 символов", { exact: true });
+  await expect(error).toBeVisible();
+  await expect(name).toHaveAttribute("aria-invalid", "true");
+  const descriptionId = await name.getAttribute("aria-describedby");
+  expect(descriptionId).toBeTruthy();
+  await expect(error).toHaveAttribute("id", descriptionId!);
+  await expect(name).toBeFocused();
+  await expect(name).toHaveValue("   ");
+  await page.screenshot({ path: testInfo.outputPath("reservation-name-error.png") });
+
+  await submit.click();
+  await expect(name).toBeFocused();
+  await name.fill("Гость после ошибки");
+  await submit.click();
+  await expect(page.getByRole("button", { name: "Снять бронь", exact: true })).toBeVisible();
+  await expect(dialog).toBeHidden();
+});
+
+for (const colorScheme of ["light", "dark"] as const) test(`reservation guidance and validation remain readable in ${colorScheme} mode on a narrow screen`, async ({ browser, page }, testInfo) => {
+  await page.emulateMedia({ colorScheme });
+  await page.setViewportSize({ width: 320, height: 568 });
+  await openGuestList(browser, page);
+  await page.getByRole("button", { name: "Я подарю", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: giftTitle });
+  const name = dialog.getByLabel("Как вас подписать");
+  await expect(name).not.toHaveAttribute("aria-invalid", "true");
+  await expect(name).not.toHaveAttribute("aria-describedby", /.+/);
+  await dialog.getByRole("button", { name: "Я подарю", exact: true }).click();
+  await expect(dialog.getByText("Напишите имя — до 40 символов", { exact: true })).toBeVisible();
+  const background = await dialog.evaluate((element) => getComputedStyle(element).backgroundColor);
+  const textStyles = await dialog.locator("label, .muted, .error").evaluateAll((elements) =>
+    elements.map((element) => ({ size: Number.parseFloat(getComputedStyle(element).fontSize), color: getComputedStyle(element).color })));
+  expect(textStyles.length).toBeGreaterThanOrEqual(4);
+  for (const text of textStyles) {
+    expect(text.size).toBeGreaterThanOrEqual(14);
+    expect(contrastRatio(text.color, background)).toBeGreaterThanOrEqual(4.5);
+  }
+  await page.screenshot({ path: testInfo.outputPath(`reservation-readable-${colorScheme}.png`) });
 });

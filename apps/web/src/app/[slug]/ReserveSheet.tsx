@@ -17,6 +17,7 @@ export function ReserveSheet({ slug, itemId, itemTitle, priceText, ownerName, de
 
   useEffect(() => {
     if (state.status === "success") setOpen(false);
+    else if (state.status === "error" && state.errors.guestName) nameRef.current?.focus();
   }, [state]);
 
   useEffect(() => {
@@ -88,11 +89,22 @@ export function ReserveSheet({ slug, itemId, itemTitle, priceText, ownerName, de
             <form action={action} className="stack" noValidate>
               <div className="field">
                 <label htmlFor={`guest-${itemId}`}>Как вас подписать</label>
-                <input ref={nameRef} id={`guest-${itemId}`} name="guestName" className="input" maxLength={40} defaultValue={state.status === "error" ? (state.values.guestName ?? "") : defaultName} autoFocus required />
-                {state.errors.guestName && <p className="error">{state.errors.guestName}</p>}
+                <input
+                  ref={nameRef}
+                  id={`guest-${itemId}`}
+                  name="guestName"
+                  className="input"
+                  maxLength={40}
+                  defaultValue={state.status === "error" ? (state.values.guestName ?? "") : defaultName}
+                  aria-invalid={state.errors.guestName ? true : undefined}
+                  aria-describedby={state.errors.guestName ? `guest-error-${itemId}` : undefined}
+                  autoFocus
+                  required
+                />
+                {state.errors.guestName && <p id={`guest-error-${itemId}`} className="error">{state.errors.guestName}</p>}
               </div>
               <p className="muted" style={{ margin: 0 }}>{ownerName} не узнает, кто дарит</p>
-              <p className="muted" style={{ margin: 0, fontSize: 12 }}>
+              <p className="muted" style={{ margin: 0 }}>
                 Нажимая «Я подарю», вы соглашаетесь на обработку указанного имени по{" "}
                 <a href="/privacy" target="_blank" rel="noopener noreferrer">политике конфиденциальности</a>.
               </p>
