@@ -102,20 +102,18 @@ export default async function PublicWishlistPage({ params }: Props) {
                   defaultName={defaultName}
                 />
               )}
-              {!isOwner && item.status === "reserved_by_me" && (
-                <div className="row" style={{ flexWrap: "wrap" }}>
-                  <CancelReservationButton slug={wishlist.slug} itemId={item.id} />
-                  {item.remindReservationId && (
-                    <a
-                      className="link-button"
-                      href={reminderBotLink(env.TELEGRAM_BOT_USERNAME, item.remindReservationId, env.SESSION_SECRET)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Напомнить в Telegram
-                    </a>
-                  )}
-                </div>
+              {!isOwner && (
+                <CancelReservationButton slug={wishlist.slug} itemId={item.id} reserved={item.status === "reserved_by_me"} />
+              )}
+              {!isOwner && item.status === "reserved_by_me" && item.remindReservationId && (
+                <a
+                  className="link-button"
+                  href={reminderBotLink(env.TELEGRAM_BOT_USERNAME, item.remindReservationId, env.SESSION_SECRET)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Напомнить в Telegram
+                </a>
               )}
             </ItemCard>
           ))}
