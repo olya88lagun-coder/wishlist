@@ -96,7 +96,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <p className="editorial-kicker">{article.kicker}</p>
           <h1>{article.title}</h1>
           <p>{article.description}</p>
-          <small>{article.readingMinutes} минут чтения · обновлено 21 сентября 2026</small>
+          <small>
+            {article.readingMinutes} минут чтения · обновлено <time dateTime={article.updatedAt}>
+              {new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(article.updatedAt))}
+            </time>
+          </small>
         </header>
 
         <div className="article-body">
@@ -113,6 +117,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               )}
             </section>
           ))}
+
+          <section className="article-selection" aria-label="Подборка по теме статьи">
+            <h2>{article.giftCollection.title}</h2>
+            <p>{article.giftCollection.description}</p>
+            <Link href={article.giftCollection.href}>{article.giftCollection.label}</Link>
+          </section>
 
           <aside className="article-cta">
             <h2>Сохраните идеи в одном списке</h2>

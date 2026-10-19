@@ -32,7 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: slug.startsWith("for-") ? 0.7 : 0.65,
     })),
-    { url: `${baseUrl}/articles`, lastModified: CONTENT_UPDATED, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/articles`, lastModified: new Date(Math.max(...ARTICLES.map((article) => new Date(article.updatedAt).getTime()))), changeFrequency: "weekly", priority: 0.8 },
     ...ARTICLES.map((article) => ({
       url: `${baseUrl}/articles/${article.slug}`,
       lastModified: new Date(article.updatedAt),

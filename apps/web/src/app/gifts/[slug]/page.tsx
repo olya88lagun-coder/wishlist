@@ -956,6 +956,9 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
         <section className="gift-ideas" aria-labelledby="gift-ideas-title">
           <h2 id="gift-ideas-title">{ideas.title}</h2>
           <p className="gift-ideas__intro">{ideas.intro}</p>
+          <p className="gift-ideas__note">
+            Цены — примерные диапазоны для планирования бюджета, а не проверенные предложения магазинов. Перед покупкой уточните цену, наличие и стоимость доставки у продавца.
+          </p>
           {ideas.groups.map((group) => (
             <div className="gift-ideas__group" key={group.title}>
               <h3>{group.title}</h3>
@@ -985,7 +988,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
             </ul>
           </div>
           <p className="gift-ideas__note">
-            Цены — ориентир по крупным маркетплейсам. Понравившиеся варианты можно сохранить в вишлист и отправить близким одной ссылкой.
+            Понравившиеся варианты можно сохранить в вишлист и отправить близким одной ссылкой.
           </p>
         </section>
       ) : null}

@@ -679,6 +679,25 @@ a { color: inherit; }
   border-bottom: 1px solid var(--line);
 }
 
+.article-selection {
+  margin: 48px 0;
+  padding: 8px 0 8px 24px;
+  border-left: 2px solid #b79c70;
+}
+
+.article-selection h2 {
+  margin-top: 0;
+  font-size: 28px;
+}
+
+.article-selection a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #725326;
+  text-underline-offset: 4px;
+}
+
 .article-cta h2 {
   margin-top: 0;
 }
