@@ -74,6 +74,11 @@ export function metrikaLoaderScript(id: number): string {
     (function() {
       var testTraffic = (${isAnalyticsTestTraffic.toString()});
       var stopCounter = (${stopMetrikaForTestTraffic.toString()});
+      // Remember readiness even if the suspended React context has not mounted.
+      document.addEventListener("yacounter${id}inited", function() {
+        if (testTraffic(window)) { stopCounter(${id}, window); return; }
+        if (window.__wlMetrikaStarted !== false) window.__wlMetrikaReady = true;
+      });
       window.__wlLoadMetrika = function() {
         if (testTraffic(window)) { stopCounter(${id}, window); return; }
         if (window.__wlMetrikaStarted) return;

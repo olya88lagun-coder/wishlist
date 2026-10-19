@@ -55,14 +55,26 @@ test("a restored document reads a reset saved by another document in the same ta
   expect(isAnalyticsTestTraffic(page)).toBe(false);
 });
 
-function loader(page = tab()) {
+function loader(page = tab(), readyDuringInit = false) {
   const anchor = { parentNode: { insertBefore: vi.fn() } };
-  const document = { scripts: [] as { src?: string }[], referrer: "", createElement: vi.fn(() => ({})), getElementsByTagName: () => [anchor] };
+  const document = Object.assign(new EventTarget(), { scripts: [] as { src?: string }[], referrer: "", createElement: vi.fn(() => ({})), getElementsByTagName: () => [anchor] });
+  if (readyDuringInit) page.ym = vi.fn((_id: number, action: string) => {
+    if (action === "init") document.dispatchEvent(new Event("yacounter112836417inited"));
+  });
   anchor.parentNode.insertBefore.mockImplementation((script: { src?: string }) => { document.scripts.push(script); });
   const scope = { window: page, document, URLSearchParams, Date };
   runInNewContext(metrikaLoaderScript(112836417), scope);
   return { page, document, anchor };
 }
+
+test("the inline loader remembers readiness before the React listener mounts", () => {
+  const { page, document } = loader(tab(), true);
+  expect(page.__wlMetrikaReady).toBe(true);
+  page.location.search = "?analytics_test=1";
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  expect(page.__wlMetrikaReady).toBe(false);
+  expect(page.__wlMetrikaStarted).toBe(false);
+});
 
 test("the inline loader makes no script or init call in URL or inherited QA context", () => {
   const first = loader(tab("?analytics_test=1"));

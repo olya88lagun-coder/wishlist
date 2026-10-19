@@ -27,6 +27,18 @@ test("an early click waits for counter readiness and is sent exactly once", asyn
   expect(ym).toHaveBeenCalledExactlyOnceWith(112836417, "reachGoal", "guest_wishlist_cta_click", { destination: "site", placement: "after_reservation" });
 });
 
+test("initialization drains a queue when inline readiness preceded React mounting", async () => {
+  tabStorage.setItem("wl_metrika_queue_112836417", JSON.stringify([
+    { event: "wishlist_created", params: { source: "finder" }, at: Date.now() },
+  ]));
+  window.ym = vi.fn();
+  window.__wlMetrikaReady = true;
+  const { initializeAnalytics } = await import("./analytics");
+  initializeAnalytics();
+  initializeAnalytics();
+  expect(window.ym).toHaveBeenCalledExactlyOnceWith(112836417, "reachGoal", "wishlist_created", { source: "finder" });
+});
+
 test("an early navigation keeps the click for the next document", async () => {
   (await import("./analytics")).trackEvent("guest_wishlist_cta_click", { destination: "site" });
   vi.resetModules();
