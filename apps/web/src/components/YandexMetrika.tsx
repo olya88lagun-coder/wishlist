@@ -1,44 +1,33 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { Suspense, useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { initializeAnalytics } from "@/lib/analytics";
 import { collectAnalyticsCompletions } from "@/lib/analytics-completions";
 import { METRIKA_ID, validMetrikaId } from "@/lib/analytics-events";
+import { metrikaLoaderScript } from "@/lib/analytics-test-traffic";
+
+function AnalyticsContext() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    initializeAnalytics();
+    collectAnalyticsCompletions();
+    window.__wlLoadMetrika?.();
+  }, [pathname, searchParams]);
+  return null;
+}
 
 export function YandexMetrika() {
-  const pathname = usePathname();
-  useEffect(() => { initializeAnalytics(); collectAnalyticsCompletions(); }, [pathname]);
   const id = METRIKA_ID;
   if (!validMetrikaId) return null;
 
   return (
     <>
+      <Suspense fallback={null}><AnalyticsContext /></Suspense>
       <Script id="yandex-metrika" strategy="lazyOnload">
-        {`
-          (function(m,e,t,r,i,k,a){
-              m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-              m[i].l=1*new Date();
-              for (var j = 0; j < document.scripts.length; j++) {
-                if (document.scripts[j].src === r) { return; }
-              }
-              k=e.createElement(t),a=e.getElementsByTagName(t)[0],
-              k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-          })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js?id=${id}", "ym");
-
-          ym(${id}, "init", {
-            ssr: true,
-            triggerEvent: true,
-            webvisor: false,
-            clickmap: true,
-            ecommerce: "dataLayer",
-            referrer: document.referrer,
-            url: location.href,
-            accurateTrackBounce: true,
-            trackLinks: true
-          });
-        `}
+        {metrikaLoaderScript(id)}
       </Script>
       <noscript>
         <div>

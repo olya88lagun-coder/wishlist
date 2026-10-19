@@ -86,7 +86,7 @@ test("a cached document that only loaded the queue does not replay goals drained
   expect(firstPage.ym).not.toHaveBeenCalled();
 });
 
-test("marks a direct login test before its first completion event", async () => {
+test("QA traffic stays isolated after full navigation before a completion", async () => {
   const module = await import("./analytics");
   window.location.search = "?analytics_test=1";
   module.initializeAnalytics();
@@ -95,7 +95,87 @@ test("marks a direct login test before its first completion event", async () => 
   page.ym = vi.fn();
   (await import("./analytics")).trackEvent("auth_completed", { provider: "vk" });
   document.dispatchEvent(new Event("yacounter112836417inited"));
-  expect(page.ym).toHaveBeenCalledWith(112836417, "reachGoal", "auth_completed", { provider: "vk", test_traffic: true });
+  expect(page.ym).not.toHaveBeenCalled();
+  expect(tabStorage.getItem("wl_metrika_queue_112836417")).toBeNull();
+});
+
+test("enabling QA clears early normal events and never queues QA goals", async () => {
+  const { initializeAnalytics, trackEvent } = await import("./analytics");
+  trackEvent("guest_wishlist_cta_click", { destination: "site" });
+  expect(tabStorage.getItem("wl_metrika_queue_112836417")).not.toBeNull();
+  window.location.search = "?analytics_test=1";
+  initializeAnalytics();
+  trackEvent("wishlist_created", { source: "direct" });
+  window.ym = vi.fn();
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  expect(window.ym).not.toHaveBeenCalled();
+  expect(tabStorage.getItem("wl_metrika_queue_112836417")).toBeNull();
+});
+
+test("explicit reset resumes normal goals without replaying discarded QA events", async () => {
+  const { trackEvent } = await import("./analytics");
+  window.location.search = "?analytics_test=1";
+  window.ym = vi.fn();
+  trackEvent("wishlist_reserved");
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  window.location.search = "?analytics_test=0";
+  trackEvent("wishlist_created", { source: "direct" });
+  window.__wlMetrikaStarted = true;
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  expect(window.ym).toHaveBeenCalledExactlyOnceWith(112836417, "reachGoal", "wishlist_created", { source: "direct" });
+});
+
+test("legacy QA goals are discarded while ordinary persisted goals still arrive", async () => {
+  tabStorage.setItem("wl_metrika_queue_112836417", JSON.stringify([
+    { event: "auth_completed", at: Date.now(), params: { provider: "vk", test_traffic: true } },
+    { event: "wishlist_created", at: Date.now(), params: { source: "direct" } },
+  ]));
+  window.ym = vi.fn();
+  (await import("./analytics")).initializeAnalytics();
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  expect(window.ym).toHaveBeenCalledExactlyOnceWith(112836417, "reachGoal", "wishlist_created", { source: "direct" });
+});
+
+test("QA suppression survives blocked storage and query-only navigation", async () => {
+  const page = browser();
+  page.sessionStorage.getItem = () => { throw new Error("blocked"); };
+  page.sessionStorage.setItem = () => { throw new Error("blocked"); };
+  page.sessionStorage.removeItem = () => { throw new Error("blocked"); };
+  page.ym = vi.fn();
+  const { trackEvent } = await import("./analytics");
+  page.location.search = "?analytics_test=1";
+  trackEvent("wishlist_reserved");
+  page.location.search = "?other=1";
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  trackEvent("wishlist_created");
+  expect(page.ym).not.toHaveBeenCalled();
+  page.location.search = "?analytics_test=0";
+  trackEvent("wishlist_reserved");
+  window.__wlMetrikaStarted = true;
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  expect(page.ym).toHaveBeenCalledExactlyOnceWith(112836417, "reachGoal", "wishlist_reserved", undefined);
+});
+
+test("normal-to-QA stops the active counter and late readiness never reopens QA goals", async () => {
+  const { initializeAnalytics, trackEvent } = await import("./analytics");
+  window.ym = vi.fn();
+  window.__wlMetrikaStarted = true;
+  initializeAnalytics();
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  window.location.search = "?analytics_test=1";
+  initializeAnalytics();
+  trackEvent("wishlist_created", { source: "direct" });
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  expect(window.ym).toHaveBeenCalledExactlyOnceWith(112836417, "destruct");
+  expect(window.__wlMetrikaReady).toBe(false);
+  expect(window.__wlMetrikaStarted).toBe(false);
+  window.location.search = "?analytics_test=0";
+  trackEvent("wishlist_reserved");
+  expect(window.ym).toHaveBeenCalledTimes(1);
+  window.__wlMetrikaStarted = true;
+  document.dispatchEvent(new Event("yacounter112836417inited"));
+  expect(window.ym).toHaveBeenLastCalledWith(112836417, "reachGoal", "wishlist_reserved", undefined);
+  expect(window.ym).toHaveBeenCalledTimes(2);
 });
 
 test("keeps analytics optional when tab storage and the counter fail", async () => {

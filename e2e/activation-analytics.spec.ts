@@ -24,7 +24,7 @@ test("successful activation, copy and reservation emit once without personal fie
   const ownerGoals = await captureGoals(context);
   await context.addInitScript(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => {} } }));
   await page.route("**/api/gifts/recommend", (route) => route.fulfill({ json: { ideas: [idea] } }));
-  await page.goto("/gifts/under-1000?analytics_test=1");
+  await page.goto("/gifts/under-1000");
   await page.getByLabel("Что человек любит и чем занимается?").fill("Акварель и путешествия");
   await page.getByRole("button", { name: "Подобрать подарок", exact: true }).click();
   await page.getByRole("link", { name: "Войти и сохранить", exact: true }).click();
@@ -69,7 +69,7 @@ test("successful activation, copy and reservation emit once without personal fie
   const guest = await browser.newContext();
   const guestGoals = await captureGoals(guest);
   const guestPage = await guest.newPage();
-  await guestPage.goto(`${publicHref}?analytics_test=1`);
+  await guestPage.goto(publicHref!);
   await guestPage.getByRole("button", { name: "Я подарю", exact: true }).first().click();
   await guestPage.getByRole("dialog").getByRole("button", { name: "Я подарю", exact: true }).click();
   await expect(guestPage.getByRole("dialog").locator(".error").first()).toBeVisible();
@@ -84,7 +84,7 @@ test("successful activation, copy and reservation emit once without personal fie
 
   const serialized = JSON.stringify([...ownerGoals, ...guestGoals]);
   for (const privateValue of ["Личный тестовый список", idea.title, idea.reason, "Акварель и путешествия", "Тестовый владелец", "Тестовый гость", publicHref!]) expect(serialized).not.toContain(privateValue);
-  expect([...ownerGoals, ...guestGoals].every((goal) => goal.params?.test_traffic === true)).toBe(true);
+  expect([...ownerGoals, ...guestGoals].every((goal) => goal.params?.test_traffic !== true)).toBe(true);
   await guest.close();
 });
 
@@ -100,7 +100,7 @@ test("a fast guest CTA survives full navigation before counter readiness", async
   const release = new Promise<void>((resolve) => { ready = resolve; });
   const goals = await captureGoals(guest, release);
   const guestPage = await guest.newPage();
-  await guestPage.goto(`${publicHref}?analytics_test=1`);
+  await guestPage.goto(publicHref!);
   await guestPage.getByRole("link", { name: "Собрать на сайте", exact: true }).click();
   await expect(guestPage).toHaveURL(/\/login$/);
   expect(goals).toHaveLength(0);
