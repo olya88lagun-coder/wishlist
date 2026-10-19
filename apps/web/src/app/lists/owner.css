@@ -1,4 +1,16 @@
 .owner-shell {
+  /* Кремовый кабинет сохраняет светлую палитру и при тёмной теме устройства. */
+  --paper: #f6f1e7;
+  --paper-deep: #ede7da;
+  --ink: #2c2c2a;
+  --ink-soft: #5f5e5a;
+  --ink-faint: #62615b;
+  --line: #d3d1c7;
+  --card: #fffdf8;
+  --danger: #a32d2d;
+  --pink-text: #a73561;
+  --sticker-bg: var(--ink);
+  --sticker-ink: var(--yellow);
   --owner-ink: #211e1a;
   --owner-soft: #696056;
   --owner-gold: #a67c43;
