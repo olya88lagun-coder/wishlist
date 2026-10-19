@@ -57,7 +57,7 @@ export function readTokenUsage(payload: unknown): TokenUsage {
   return {
     inputTokens: num(usage.prompt_tokens) || num(usage.input_tokens),
     // Часть провайдеров уже включает рассуждения в выходные токены — тогда не считаем их дважды
-    outputTokens: reasoning > 0 && output > reasoning ? output - reasoning : output,
+    outputTokens: reasoning > 0 && output >= reasoning ? output - reasoning : output,
     reasoningTokens: reasoning,
   };
 }
@@ -75,10 +75,10 @@ export type BudgetLimits = { guestPerDay: number; userPerDay: number; dailyBudge
 
 export function readLimits(env: NodeJS.ProcessEnv = process.env): BudgetLimits {
   const int = (value: string | undefined, fallback: number) => {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : fallback;
+    const parsed = value?.trim() ? Number(value) : NaN;
+    return Number.isSafeInteger(Math.floor(parsed)) && parsed >= 0 ? Math.floor(parsed) : fallback;
   };
-  const rub = Number(env.AI_DAILY_BUDGET_RUB);
+  const rub = env.AI_DAILY_BUDGET_RUB?.trim() ? Number(env.AI_DAILY_BUDGET_RUB) : NaN;
   return {
     guestPerDay: int(env.AI_DAILY_LIMIT_GUEST, 5),
     userPerDay: int(env.AI_DAILY_LIMIT_USER, 30),

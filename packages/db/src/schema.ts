@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, date, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { bigint, boolean, date, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 export const authProviderEnum = pgEnum("auth_provider", ["telegram", "vk"]);
 export const occasionEnum = pgEnum("occasion", ["birthday", "new_year", "other"]);
@@ -158,12 +158,38 @@ export const storeSearchClicks = pgTable(
   (t) => [index("store_search_clicks_time_idx").on(t.clickedAt), index("store_search_clicks_source_idx").on(t.source)],
 );
 
+// Блокировка одной строки дня сериализует выдачу квот между всеми процессами.
+export const aiQuotaDays = pgTable("ai_quota_days", {
+  day: timestamp("day", { withTimezone: true }).primaryKey(),
+});
+
+// Резерв хранит верхнюю оценку расходов до завершения всех попыток.
+// Незавершённый запрос занимает квоту весь день: неизвестный расход не освобождаем.
+export const aiQuotaReservations = pgTable(
+  "ai_quota_reservations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    day: timestamp("day", { withTimezone: true }).notNull().references(() => aiQuotaDays.day),
+    clientHash: text("client_hash").notNull(),
+    networkHash: text("network_hash"),
+    signedIn: boolean("signed_in").notNull(),
+    reservedMicroRub: bigint("reserved_micro_rub", { mode: "number" }).notNull(),
+    settledMicroRub: bigint("settled_micro_rub", { mode: "number" }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("ai_quota_reservations_day_client_idx").on(t.day, t.clientHash),
+    index("ai_quota_reservations_day_network_idx").on(t.day, t.networkHash).where(sql`${t.signedIn} = false`),
+  ],
+);
+
 // Расход на AI-подбор подарков: токены и стоимость каждой попытки.
 // Клиент хранится хешем — нужен только для дневного лимита, восстановить IP по нему нельзя.
 export const aiUsage = pgTable(
   "ai_usage",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    requestId: uuid("request_id").references(() => aiQuotaReservations.id),
     clientHash: text("client_hash").notNull(),
     signedIn: boolean("signed_in").notNull().default(false),
     provider: text("provider").notNull(),

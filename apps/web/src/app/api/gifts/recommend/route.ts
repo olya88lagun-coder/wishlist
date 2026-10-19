@@ -1,10 +1,8 @@
-import { countAiRequestsSince, recordAiUsage, sumAiCostSince } from "@wishlist/db";
+import { recordAiUsage, reserveAiQuota, settleAiQuota } from "@wishlist/db";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
   costMicroRub,
-  decideBudget,
-  formatRub,
   hashClientKey,
   priceFor,
   readLimits,
@@ -12,9 +10,11 @@ import {
   startOfUtcDay,
 } from "@/server/ai-budget";
 import { getDb } from "@/server/db";
+import { getEnv } from "@/server/env";
+import { aiNetworkHash, guestNetworkLimit, hasBillableUsage, reservationCost } from "@/server/ai-request-quota";
 import { openAiResponseText } from "@/server/openai-response-text";
 import { giftAiLimiter } from "@/server/rate-limit";
-import { clientKey, readViewer } from "@/server/viewer";
+import { readViewer } from "@/server/viewer";
 
 const inputSchema = z.object({
   person: z.string().min(1).max(40),
@@ -200,13 +200,22 @@ const formatRetryPrompt = systemPrompt + `
 
 Предыдущий ответ не прошёл проверку формата. Верни строго JSON по заданной схеме: объект с полем ideas и пятью элементами, каждый с полями title, reason, type и searchQuery. Без пояснений, комментариев и текста вокруг JSON.`;
 
+const qualityRetryPrompt = systemPrompt + `
+
+Предыдущая попытка была слишком общей. Перегенерируй подборку с нуля.
+Сделай интересы главным источником идей: если пользователь написал конкретное хобби или образ жизни, минимум 3 из 5 идей должны прямо использовать эту тему.
+Не используй универсальные подарки из списка запретов, если только интересы не делают их явно уместными.
+Не добавляй подарки ради разнообразия — все 5 идей должны быть релевантны человеку, поводу и бюджету.
+`;
+
 export async function POST(request: Request) {
   const parsed = inputSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Некорректные данные" }, { status: 400 });
 
   const viewer = await readViewer();
-  const key = await clientKey(viewer.viewer);
-  if (!giftAiLimiter.allow(key)) {
+  const networkHash = aiNetworkHash(request.headers, getEnv().SESSION_SECRET);
+  const key = viewer.user ? `u:${viewer.user.id}` : viewer.viewer.guestToken ? `g:${viewer.viewer.guestToken}` : `network:${networkHash}`;
+  if (!giftAiLimiter.allow(key) || (!viewer.user && !giftAiLimiter.allow(`ai-network:${networkHash}`))) {
     return NextResponse.json({ error: "Слишком много запросов. Попробуйте снова через минуту.", code: "RATE_LIMITED" }, { status: 429 });
   }
 
@@ -216,14 +225,26 @@ export async function POST(request: Request) {
   const clientHash = hashClientKey(key);
   const since = startOfUtcDay();
   const limits = readLimits();
-  const [requestsToday, spentTodayMicroRub] = await Promise.all([
-    countAiRequestsSince(db, clientHash, since),
-    sumAiCostSince(db, since),
-  ]);
-  const decision = decideBudget({ signedIn, requestsToday, spentTodayMicroRub, limits });
+  const routerAiKey = process.env.ROUTERAI_API_KEY;
+  const openAiKey = process.env.OPENAI_API_KEY;
+  if (!routerAiKey && !openAiKey) {
+    return NextResponse.json({ error: "AI пока не подключён на сервере", code: "AI_NOT_CONFIGURED" }, { status: 503 });
+  }
+  const useRouterAi = Boolean(routerAiKey);
+  const requestedModel = useRouterAi ? routerAiBody(parsed.data).model : openAiBody(parsed.data).model;
+  const provider = useRouterAi ? "routerai" : "openai";
+  const bodies = [systemPrompt, formatRetryPrompt, qualityRetryPrompt].map((prompt) => useRouterAi ? routerAiBody(parsed.data, prompt) : openAiBody(parsed.data, prompt));
+  const requestPrice = priceFor(provider, requestedModel);
+  const reservedMicroRub = reservationCost(bodies, requestPrice);
+  const decision = await reserveAiQuota(db, {
+    day: since, clientHash, networkHash, signedIn,
+    clientLimit: signedIn ? limits.userPerDay : limits.guestPerDay,
+    networkLimit: guestNetworkLimit(limits.guestPerDay), dailyBudgetMicroRub: limits.dailyBudgetMicroRub,
+    reserveMicroRub: reservedMicroRub,
+  });
   if (!decision.allowed) {
     if (decision.reason === "daily_budget") {
-      console.warn("Gift AI daily budget reached", { spentRub: formatRub(spentTodayMicroRub) });
+      console.warn("Gift AI daily budget reached");
       return NextResponse.json(
         { error: "AI-подбор сегодня недоступен: исчерпан дневной лимит сервиса. Попробуйте завтра.", code: "AI_BUDGET_REACHED" },
         { status: 503 },
@@ -240,154 +261,155 @@ export async function POST(request: Request) {
     );
   }
 
-  const routerAiKey = process.env.ROUTERAI_API_KEY;
-  const openAiKey = process.env.OPENAI_API_KEY;
-  if (!routerAiKey && !openAiKey) {
-    return NextResponse.json({ error: "AI пока не подключён на сервере", code: "AI_NOT_CONFIGURED" }, { status: 503 });
-  }
-
-  const useRouterAi = Boolean(routerAiKey);
+  const reservationId = decision.reservationId;
   const apiKey = useRouterAi ? routerAiKey : openAiKey;
   const endpoint = useRouterAi
     ? `${process.env.ROUTERAI_BASE_URL ?? "https://routerai.ru/api/v1"}/chat/completions`
     : "https://api.openai.com/v1/responses";
 
-  const provider = useRouterAi ? "routerai" : "openai";
-  const requestedModel = useRouterAi ? routerAiBody(parsed.data).model : openAiBody(parsed.data).model;
-
-  // Каждая попытка попадает в ai_usage: по ней считаются дневной бюджет и стоимость сессии
-  async function record(attempt: number, payload: unknown, outcome: "ok" | "invalid" | "error", latencyMs: number) {
-    const usage = readTokenUsage(payload);
-    const payloadModel = (payload as { model?: unknown } | null)?.model;
-    const model = typeof payloadModel === "string" ? payloadModel : requestedModel;
-    try {
-      await recordAiUsage(db, {
-        clientHash,
-        signedIn,
-        provider,
-        model,
-        attempt,
-        ...usage,
-        costMicroRub: costMicroRub(usage, priceFor(provider, model)),
-        latencyMs,
-        outcome,
-      });
-    } catch (error) {
-      console.error("Gift AI usage not recorded", error);
-    }
-  }
-
-  // Номер попытки: по первым попыткам считается дневной лимит клиента
-  let attempts = 1;
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20_000);
-  const startedAt = Date.now();
-  let response: Response;
-
+  let chargedMicroRub = 0;
+  let unknownAttempts = 0;
   try {
-    response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      signal: controller.signal,
-      body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data) : openAiBody(parsed.data)),
-    });
-  } catch {
-    await record(1, null, "error", Date.now() - startedAt);
-    return NextResponse.json({ error: "AI сейчас недоступен. Попробуйте ещё раз." }, { status: 502 });
-  } finally {
-    clearTimeout(timeout);
-  }
 
-  if (!response.ok) {
-    await record(1, null, "error", Date.now() - startedAt);
-    return NextResponse.json(
-      { error: response.status === 429 ? "AI временно перегружен. Попробуйте чуть позже." : "Не удалось получить рекомендации от AI" },
-      { status: response.status === 429 ? 503 : 502 },
-    );
-  }
-
-  const payload = await response.json();
-  let result = readIdeas(payload, useRouterAi);
-  await record(1, payload, result.success ? "ok" : "invalid", Date.now() - startedAt);
-
-  // Модель иногда отвечает не по схеме. Для человека это выглядит как ошибка сервиса,
-  // поэтому повторяем один раз сами, прежде чем показывать сообщение.
-  if (!result.success) {
-    console.error("Gift AI bad response, retrying once", {
-      model: payload?.model,
-      finishReason: payload?.choices?.[0]?.finish_reason,
-      issues: result.issues,
-      preview: String(payload?.choices?.[0]?.message?.content ?? payload?.output_text ?? "").slice(0, 300),
-    });
-
-    const formatController = new AbortController();
-    const formatTimeout = setTimeout(() => formatController.abort(), 15_000);
-    const formatStartedAt = Date.now();
-    try {
-      const formatResponse = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        signal: formatController.signal,
-        body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data, formatRetryPrompt) : openAiBody(parsed.data, formatRetryPrompt)),
-      });
-      if (formatResponse.ok) {
-        const formatPayload = await formatResponse.json();
-        result = readIdeas(formatPayload, useRouterAi);
-        await record(++attempts, formatPayload, result.success ? "ok" : "invalid", Date.now() - formatStartedAt);
-      } else {
-        await record(++attempts, null, "error", Date.now() - formatStartedAt);
+    // Каждая попытка попадает в ai_usage: по ней считаются дневной бюджет и стоимость сессии
+    async function record(attempt: number, payload: unknown, outcome: "ok" | "invalid" | "error", latencyMs: number) {
+      const knownUsage = hasBillableUsage(payload);
+      const usage = readTokenUsage(knownUsage ? payload : null);
+      const payloadModel = (payload as { model?: unknown } | null)?.model;
+      const model = typeof payloadModel === "string" ? payloadModel : requestedModel;
+      // A returned alias cannot change the configured tariff after admission.
+      const cost = costMicroRub(usage, requestPrice);
+      if (knownUsage) { unknownAttempts--; chargedMicroRub += cost; }
+      try {
+        await recordAiUsage(db, {
+          requestId: reservationId,
+          clientHash,
+          signedIn,
+          provider,
+          model,
+          attempt,
+          ...usage,
+          costMicroRub: cost,
+          latencyMs,
+          outcome,
+        });
+      } catch (error) {
+        console.error("Gift AI usage not recorded", error);
       }
-    } catch (error) {
-      console.error("Gift AI format retry failed", error);
-      await record(++attempts, null, "error", Date.now() - formatStartedAt);
-    } finally {
-      clearTimeout(formatTimeout);
     }
-  }
 
-  if (!result.success) {
-    return NextResponse.json({ error: "AI не смог подобрать идеи. Попробуйте ещё раз." }, { status: 502 });
-  }
+    // Номер попытки: по первым попыткам считается дневной лимит клиента
+    let attempts = 1;
 
-  let ideas = result.ideas.slice(0, 6);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20_000);
+    const startedAt = Date.now();
+    let response: Response;
+    let payload: unknown;
 
-  if (isWeakGiftSet(ideas, parsed.data.interests)) {
-    const retryPrompt = systemPrompt + `
-
-Предыдущая попытка была слишком общей. Перегенерируй подборку с нуля.
-Сделай интересы главным источником идей: если пользователь написал конкретное хобби или образ жизни, минимум 3 из 5 идей должны прямо использовать эту тему.
-Не используй универсальные подарки из списка запретов, если только интересы не делают их явно уместными.
-Не добавляй подарки ради разнообразия — все 5 идей должны быть релевантны человеку, поводу и бюджету.
-`;
-    const retryController = new AbortController();
-    const retryTimeout = setTimeout(() => retryController.abort(), 15_000);
-    const retryStartedAt = Date.now();
     try {
-      const retryResponse = await fetch(endpoint, {
+      unknownAttempts++;
+      response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        signal: retryController.signal,
-        body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data, retryPrompt) : openAiBody(parsed.data, retryPrompt)),
+        signal: controller.signal,
+        body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data) : openAiBody(parsed.data)),
       });
-      if (retryResponse.ok) {
-        const retryPayload = await retryResponse.json();
-        const retryJson = parseJsonResponse(retryPayload, useRouterAi);
-        const retryResult = outputSchema.safeParse(retryJson);
-        await record(++attempts, retryPayload, retryResult.success ? "ok" : "invalid", Date.now() - retryStartedAt);
-        if (retryResult.success && !isWeakGiftSet(retryResult.data.ideas, parsed.data.interests)) {
-          ideas = retryResult.data.ideas.slice(0, 6);
+      if (response.ok) payload = await response.json().catch(() => null);
+    } catch {
+      await record(1, null, "error", Date.now() - startedAt);
+      return NextResponse.json({ error: "AI сейчас недоступен. Попробуйте ещё раз." }, { status: 502 });
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    if (!response.ok) {
+      await record(1, null, "error", Date.now() - startedAt);
+      return NextResponse.json(
+        { error: response.status === 429 ? "AI временно перегружен. Попробуйте чуть позже." : "Не удалось получить рекомендации от AI" },
+        { status: response.status === 429 ? 503 : 502 },
+      );
+    }
+
+    let result = readIdeas(payload, useRouterAi);
+    await record(1, payload, result.success ? "ok" : "invalid", Date.now() - startedAt);
+
+    // Модель иногда отвечает не по схеме. Для человека это выглядит как ошибка сервиса,
+    // поэтому повторяем один раз сами, прежде чем показывать сообщение.
+    if (!result.success) {
+      console.error("Gift AI bad response, retrying once", {
+        issues: result.issues,
+      });
+
+      const formatController = new AbortController();
+      const formatTimeout = setTimeout(() => formatController.abort(), 15_000);
+      const formatStartedAt = Date.now();
+      try {
+        unknownAttempts++;
+        const formatResponse = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          signal: formatController.signal,
+          body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data, formatRetryPrompt) : openAiBody(parsed.data, formatRetryPrompt)),
+        });
+        if (formatResponse.ok) {
+          const formatPayload = await formatResponse.json();
+          result = readIdeas(formatPayload, useRouterAi);
+          await record(++attempts, formatPayload, result.success ? "ok" : "invalid", Date.now() - formatStartedAt);
+        } else {
+          await record(++attempts, null, "error", Date.now() - formatStartedAt);
         }
-      } else {
-        await record(++attempts, null, "error", Date.now() - retryStartedAt);
+      } catch (error) {
+        console.error("Gift AI format retry failed", error);
+        await record(++attempts, null, "error", Date.now() - formatStartedAt);
+      } finally {
+        clearTimeout(formatTimeout);
       }
-    } catch (error) {
-      console.error("Gift AI quality retry failed", error);
-      await record(++attempts, null, "error", Date.now() - retryStartedAt);
-    } finally {
-      clearTimeout(retryTimeout);
     }
-  }
 
-  return NextResponse.json({ ideas });
+    if (!result.success) {
+      return NextResponse.json({ error: "AI не смог подобрать идеи. Попробуйте ещё раз." }, { status: 502 });
+    }
+
+    let ideas = result.ideas.slice(0, 6);
+
+    if (isWeakGiftSet(ideas, parsed.data.interests)) {
+      const retryController = new AbortController();
+      const retryTimeout = setTimeout(() => retryController.abort(), 15_000);
+      const retryStartedAt = Date.now();
+      try {
+        unknownAttempts++;
+        const retryResponse = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          signal: retryController.signal,
+          body: JSON.stringify(useRouterAi ? routerAiBody(parsed.data, qualityRetryPrompt) : openAiBody(parsed.data, qualityRetryPrompt)),
+        });
+        if (retryResponse.ok) {
+          const retryPayload = await retryResponse.json();
+          const retryJson = parseJsonResponse(retryPayload, useRouterAi);
+          const retryResult = outputSchema.safeParse(retryJson);
+          await record(++attempts, retryPayload, retryResult.success ? "ok" : "invalid", Date.now() - retryStartedAt);
+          if (retryResult.success && !isWeakGiftSet(retryResult.data.ideas, parsed.data.interests)) {
+            ideas = retryResult.data.ideas.slice(0, 6);
+          }
+        } else {
+          await record(++attempts, null, "error", Date.now() - retryStartedAt);
+        }
+      } catch (error) {
+        console.error("Gift AI quality retry failed", error);
+        await record(++attempts, null, "error", Date.now() - retryStartedAt);
+      } finally {
+        clearTimeout(retryTimeout);
+      }
+    }
+
+    return NextResponse.json({ ideas });
+  } finally {
+    // A timeout, missing usage or process failure must never free an unknown bill.
+    // If settlement itself fails, the original database reservation remains held.
+    try {
+      await settleAiQuota(db, reservationId, unknownAttempts > 0 ? Math.max(chargedMicroRub, reservedMicroRub) : chargedMicroRub);
+    } catch (error) { console.error("Gift AI quota settlement failed", error); }
+  }
 }

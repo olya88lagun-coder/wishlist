@@ -3,6 +3,7 @@ import { aiUsage } from "./schema";
 import type { Database } from "./types";
 
 export type AiUsageRecord = {
+  requestId?: string;
   clientHash: string;
   signedIn: boolean;
   provider: string;

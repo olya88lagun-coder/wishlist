@@ -17,3 +17,4 @@ export * from "./affiliate";
 export * from "./interest";
 export * from "./stats";
 export * from "./ai-usage";
+export * from "./ai-quota";
