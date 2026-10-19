@@ -11,6 +11,10 @@ import {
 } from "./ai-budget";
 
 describe("readTokenUsage", () => {
+  test("reasoning-only output is charged once", () => {
+    expect(readTokenUsage({ usage: { input_tokens: 10, output_tokens: 400, output_tokens_details: { reasoning_tokens: 400 } } }))
+      .toEqual({ inputTokens: 10, outputTokens: 0, reasoningTokens: 400 });
+  });
   test("reads the RouterAI shape and keeps reasoning out of output tokens", () => {
     expect(readTokenUsage({ usage: { prompt_tokens: 1500, completion_tokens: 400, completion_tokens_details: { reasoning_tokens: 120 } } }))
       .toEqual({ inputTokens: 1500, outputTokens: 280, reasoningTokens: 120 });
@@ -49,6 +53,10 @@ describe("costMicroRub", () => {
 });
 
 describe("readLimits", () => {
+  test("blank env values use defaults while explicit zeros disable quota", () => {
+    expect(readLimits({ NODE_ENV: "test", AI_DAILY_LIMIT_GUEST: "", AI_DAILY_LIMIT_USER: " ", AI_DAILY_BUDGET_RUB: "" })).toEqual({ guestPerDay: 5, userPerDay: 30, dailyBudgetMicroRub: 50_000_000 });
+    expect(readLimits({ NODE_ENV: "test", AI_DAILY_LIMIT_GUEST: "0", AI_DAILY_LIMIT_USER: "0", AI_DAILY_BUDGET_RUB: "0" })).toEqual({ guestPerDay: 0, userPerDay: 0, dailyBudgetMicroRub: 0 });
+  });
   test("uses defaults when nothing is configured", () => {
     expect(readLimits({} as unknown as NodeJS.ProcessEnv)).toEqual({ guestPerDay: 5, userPerDay: 30, dailyBudgetMicroRub: 50_000_000 });
   });

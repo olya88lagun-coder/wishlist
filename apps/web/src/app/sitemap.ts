@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { ARTICLES } from "@/content/articles";
-import { GIFT_IDEAS } from "@/content/gift-ideas";
+import { GIFT_COLLECTION_CONTENT_UPDATED, GIFTS_HUB_CONTENT_UPDATED, HOME_CONTENT_UPDATED } from "@/content/content-dates";
 import { CHILD_GIFT_COLLECTIONS, CHILDREN_HUB_SLUG, CHILDREN_CONTENT_UPDATED } from "@/content/children-gifts";
 
 const GIFT_SLUGS = [
@@ -8,18 +8,12 @@ const GIFT_SLUGS = [
   "birthday","new-year","wedding","anniversary","housewarming","valentines-day","march-8","february-23","secret-santa","books","sport","under-1000","under-3000","under-5000","under-10000","under-15000","under-20000",
 ];
 
-// Дата последней правки главной и страниц подарков; обновлять при заметных изменениях содержания
-const CONTENT_UPDATED = new Date("2026-09-21");
-// Страницы, на которые добавлены конкретные идеи подарков
-const GIFT_IDEAS_UPDATED = new Date("2026-09-22");
-const PUBLIC_PAGES_UPDATED = new Date("2026-10-01");
-
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = (process.env.APP_URL ?? "https://my-wish-list.online").replace(/\/$/, "");
 
   return [
-    { url: baseUrl, lastModified: PUBLIC_PAGES_UPDATED, changeFrequency: "weekly", priority: 1 },
-    { url: `${baseUrl}/gifts`, lastModified: new Date(CHILDREN_CONTENT_UPDATED), changeFrequency: "weekly", priority: 0.9 },
+    { url: baseUrl, lastModified: new Date(HOME_CONTENT_UPDATED), changeFrequency: "weekly", priority: 1 },
+    { url: `${baseUrl}/gifts`, lastModified: new Date(GIFTS_HUB_CONTENT_UPDATED), changeFrequency: "weekly", priority: 0.9 },
     ...[CHILDREN_HUB_SLUG, ...CHILD_GIFT_COLLECTIONS.map(collection => collection.slug)].map(slug => ({
       url: `${baseUrl}/gifts/${slug}`,
       lastModified: new Date(CHILDREN_CONTENT_UPDATED),
@@ -28,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     ...GIFT_SLUGS.map((slug) => ({
       url: `${baseUrl}/gifts/${slug}`,
-      lastModified: slug === "books" || slug === "sport" ? new Date("2026-10-14") : slug === "under-3000" ? new Date("2026-10-08") : GIFT_IDEAS[slug] ? GIFT_IDEAS_UPDATED : CONTENT_UPDATED,
+      lastModified: new Date(GIFT_COLLECTION_CONTENT_UPDATED),
       changeFrequency: "monthly" as const,
       priority: slug.startsWith("for-") ? 0.7 : 0.65,
     })),

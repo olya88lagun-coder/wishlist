@@ -30,3 +30,13 @@ export async function captureGoals(context: BrowserContext, ready?: Promise<void
 export async function blockMetrika(context: BrowserContext) {
   await context.route(METRIKA_HOST, (route) => route.abort());
 }
+
+// Считаем даже попытки обращения: в QA запросов к счётчику не должно быть совсем.
+export async function captureMetrikaRequests(context: BrowserContext) {
+  const requests: string[] = [];
+  await context.route(METRIKA_HOST, (route) => {
+    requests.push(route.request().url());
+    return route.abort();
+  });
+  return requests;
+}

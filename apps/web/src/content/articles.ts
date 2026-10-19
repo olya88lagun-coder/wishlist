@@ -343,6 +343,29 @@ export const ARTICLES = [
   }
 ] as const satisfies readonly GiftArticle[];
 
+type ArticleSlug = (typeof ARTICLES)[number]["slug"];
+
+// Порядок редакционный: сначала продолжение темы, затем смежный способ выбора.
+export const RELATED_ARTICLE_SLUGS = {
+  "kak-sostavit-vishlist": ["idei-podarkov-na-den-rozhdeniya", "podarki-do-3000-rubley"],
+  "chto-podarit-mame-na-den-rozhdeniya": ["idei-podarkov-na-den-rozhdeniya", "podarki-do-3000-rubley"],
+  "idei-podarkov-na-den-rozhdeniya": ["chto-podarit-mame-na-den-rozhdeniya", "podarki-do-3000-rubley", "kak-sostavit-vishlist"],
+  "podarki-do-3000-rubley": ["idei-podarkov-na-den-rozhdeniya", "chto-podarit-mame-na-den-rozhdeniya", "kak-sostavit-vishlist"],
+} as const satisfies Record<ArticleSlug, readonly ArticleSlug[]>;
+
 export function getArticle(slug: string): GiftArticle | undefined {
   return ARTICLES.find((article) => article.slug === slug);
+}
+
+export function getRelatedArticles(slug: string): readonly GiftArticle[] {
+  const article = ARTICLES.find((item) => item.slug === slug);
+  if (!article) return [];
+
+  return RELATED_ARTICLE_SLUGS[article.slug].map((relatedSlug) => {
+    const related = getArticle(relatedSlug);
+    if (!related || related.slug === article.slug) {
+      throw new Error(`Invalid related article: ${article.slug} -> ${relatedSlug}`);
+    }
+    return related;
+  });
 }
