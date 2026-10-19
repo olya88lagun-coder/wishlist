@@ -917,6 +917,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
       <p className="eyebrow">my wish list · идеи подарков</p>
       <h1 className="display">{page.heading}</h1>
       <p className="gifts-page__lead">{page.intro}</p>
+      <p className="gifts-page__finder-link"><a className="button button--ghost" href="#gift-finder">Подобрать по интересам</a></p>
 
       <section className="gifts-page__visuals" aria-labelledby="gift-visuals-title">
         <div className="gifts-page__visuals-intro">

@@ -129,6 +129,7 @@ a { color: inherit; }
 .legal .display { hyphens: auto; overflow-wrap: break-word; }
 
 .gifts-page__lead { max-width: 700px; font-size: 19px; margin: 0 0 28px; }
+.gifts-page__finder-link { margin: 0 0 32px; }
 .gifts-page__how {
   display: grid;
   grid-template-columns: 1fr;
@@ -393,7 +394,8 @@ a { color: inherit; }
 .gifts-page__seo .quick-link__row { gap: 10px 14px; margin-top: 22px; }
 .gifts-page__seo .quick-link__row .button { min-height: 36px; padding: 0 12px; font-size: 13px; border-color: var(--line); color: var(--ink-soft); }
 .gifts-page__seo .quick-link__row .button:hover { color: var(--ink); border-color: var(--ink); }
-.gift-finder { display: grid; gap: 24px; max-width: 760px; }
+.gift-finder { display: grid; gap: 24px; max-width: 760px; scroll-margin-top: 24px; }
+.gift-finder:focus-visible { outline: 2px solid var(--ink-soft); outline-offset: 4px; border-radius: var(--radius); }
 .gift-finder__form { display: grid; gap: 16px; }
 .gift-finder__intro { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 4px; }
 .gift-finder__results { display: grid; gap: 14px; }

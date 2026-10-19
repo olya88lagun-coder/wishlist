@@ -80,3 +80,27 @@ test("login explains the next step, offers a safe way back and retains the gift 
   await expect(page.getByText("После входа вы сможете создать список желаний", { exact: false })).toBeVisible();
   await expect(page.getByRole("link", { name: "Вернуться к подборке", exact: false })).toHaveCount(0);
 });
+
+for (const [slug, person, budget] of [["for-mom", "mom", "5000"], ["under-1000", "other", "1000"]]) {
+  test(`the early CTA reaches the existing finder and keeps the ${slug} context without an AI request`, async ({ page }, testInfo) => {
+    let requests = 0;
+    page.on("request", (request) => { if (request.url().includes("/api/gifts/recommend")) requests++; });
+    await page.goto(`/gifts/${slug}?analytics_test=1`);
+    const jump = page.getByRole("link", { name: "Подобрать по интересам", exact: true });
+    await expect(jump).toBeVisible();
+    await expect(jump).toBeInViewport();
+    await expect(jump).toHaveAttribute("href", "#gift-finder");
+    await page.screenshot({ path: testInfo.outputPath(`finder-entry-${slug}.png`) });
+    await jump.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#gift-finder$/);
+    const finder = page.locator("#gift-finder");
+    await expect(finder).toBeFocused();
+    await expect(page.getByLabel("Для кого подарок?")).toHaveValue(person!);
+    await expect(page.getByLabel("Бюджет", { exact: true })).toHaveValue(budget!);
+    await page.keyboard.press("Tab");
+    await expect(page.getByLabel("Для кого подарок?")).toBeFocused();
+    expect(requests).toBe(0);
+    await page.screenshot({ path: testInfo.outputPath(`finder-target-${slug}.png`) });
+  });
+}
