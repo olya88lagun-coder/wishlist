@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGES } from "@/content/og";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ARTICLES, getArticle } from "@/content/articles";
+import { ARTICLES, getArticle, getRelatedArticles } from "@/content/articles";
 
 type ArticlePageProps = {
   params: Promise<{ slug: string }>;
@@ -74,7 +74,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     ],
   };
 
-  const related = ARTICLES.filter((item) => item.slug !== article.slug).slice(0, 3);
+  const related = getRelatedArticles(article.slug);
 
   return (
     <main className="article-page">
