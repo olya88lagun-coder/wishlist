@@ -11,6 +11,7 @@ import { CANARY_CRON, checkHealth, createUptimeMonitor, runCanary, UPTIME_CRON }
 import { runNotify } from "./notify";
 import { runParseItem } from "./parse-item";
 import { REMINDERS_CRON, runReminders } from "./reminders";
+import { runWishlistDeletionNotices, WISHLIST_DELETION_CRON } from "./wishlist-deletion";
 import type { ObjectStorage } from "./storage";
 import type { Messenger } from "./telegram/messenger";
 
@@ -97,6 +98,13 @@ export async function registerJobs(boss: PgBoss, deps: JobDeps): Promise<void> {
     await runOwnerDigest({ db: deps.db, messenger: deps.messenger, now: () => new Date(), log: deps.log });
   });
   await boss.schedule(QUEUES.ownerDigest, OWNER_DIGEST_CRON, {}, { tz: MAINTENANCE_TZ });
+
+  // Снимки лежат в основной БД: сбой очереди или выключенный бот их не теряет.
+  await boss.work(QUEUES.wishlistDeletion, async () => {
+    if (!deps.messenger || !deps.telegram) return;
+    await runWishlistDeletionNotices({ db: deps.db, messenger: deps.messenger, now: () => new Date(), log: deps.log });
+  });
+  await boss.schedule(QUEUES.wishlistDeletion, WISHLIST_DELETION_CRON, {}, { tz: MAINTENANCE_TZ });
 
   const alert = async (text: string) => {
     const adminId = deps.telegram?.adminId ?? null;

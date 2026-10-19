@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { authIdentities, type AuthProvider, reservations, users, wishlists } from "./schema";
+import { authIdentities, type AuthProvider, reservations, users, wishlistDeletionNotices, wishlists } from "./schema";
 import type { Database } from "./types";
 
 export type IdentityInput = { provider: AuthProvider; providerUserId: string; displayName: string; avatarUrl: string | null };
@@ -77,6 +77,13 @@ export async function linkIdentity(
       .update(authIdentities)
       .set({ userId })
       .where(and(eq(authIdentities.provider, input.provider), eq(authIdentities.providerUserId, input.providerUserId)));
+    // У удалённого списка уже нет броней, но сообщение дарителю ещё может ожидать отправки.
+    const notices = await tx.select().from(wishlistDeletionNotices).where(eq(wishlistDeletionNotices.guestUserId, owner)).for("update");
+    for (const notice of notices) {
+      const [duplicate] = await tx.select({ id: wishlistDeletionNotices.id }).from(wishlistDeletionNotices)
+        .where(and(eq(wishlistDeletionNotices.guestUserId, userId), eq(wishlistDeletionNotices.wishlistId, notice.wishlistId))).limit(1);
+      if (!duplicate) await tx.update(wishlistDeletionNotices).set({ guestUserId: userId }).where(eq(wishlistDeletionNotices.id, notice.id));
+    }
     await tx.delete(users).where(eq(users.id, owner));
   });
   return { ok: true };
