@@ -6,6 +6,7 @@ export const BRAND_TEMPLATE_ENV: Record<BrandId, string> = {
   mts: "AFFILIATE_MTS_TEMPLATE",
   sportmaster: "AFFILIATE_SPORTMASTER_TEMPLATE",
   deparfum: "AFFILIATE_DEPARFUM_TEMPLATE",
+  ormatek: "AFFILIATE_ORMATEK_TEMPLATE",
 };
 
 // Карточки бренда показываем, только если задан его партнёрский шаблон

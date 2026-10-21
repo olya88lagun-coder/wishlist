@@ -17,7 +17,7 @@ describe("brand offers content", () => {
   test("offers appear only on existing gift pages and never promise a price", () => {
     for (const offer of BRAND_OFFERS) {
       for (const slug of offer.pages) expect(GIFT_IDEAS[slug], `${offer.id} → ${slug}`).toBeDefined();
-      expect(offer.text).not.toMatch(/₽|скидк|дешев/i);
+      expect(offer.text).not.toMatch(/₽|скидк|дешев|промокод|купон|акци[яиюе]|распродаж/i);
     }
   });
 
@@ -82,6 +82,33 @@ describe("Де-Парфюм section cards", () => {
     expect(brandOffersForPage("february-23", ["deparfum"]).map((offer) => offer.id)).toContain("deparfum-muzhskaya");
     expect(brandOffersForPage("for-husband", ["deparfum"]).map((offer) => offer.id)).not.toContain("deparfum-zhenskaya");
     expect(brandOffersForPage("under-5000", ["deparfum"])).toEqual([]);
+  });
+});
+
+describe("Ormatek section cards", () => {
+  test("link to verified catalog sections of ormatek.com and name the advertiser", () => {
+    const offers = BRAND_OFFERS.filter((offer) => offer.brand === "ormatek");
+    expect(offers.map((offer) => new URL(offer.target).pathname)).toEqual([
+      "/catalog/podushki/",
+      "/catalog/textile/",
+      "/catalog/goods-for-bedrooms/",
+      "/catalog/matrasy/",
+    ]);
+    expect(BRAND_ADVERTISER.ormatek).toEqual({ name: "АО ОРМАТЕК", inn: "7724890784", site: "ormatek.com", label: "Ormatek" });
+  });
+
+  test("fit housing, wedding and family pages but not men's or budget pages", () => {
+    expect(brandOffersForPage("housewarming", ["ormatek"]).length).toBeGreaterThan(0);
+    expect(brandOffersForPage("wedding", ["ormatek"]).length).toBeGreaterThan(0);
+    expect(brandOffersForPage("for-grandma", ["ormatek"]).length).toBeGreaterThan(0);
+    expect(brandOffersForPage("february-23", ["ormatek"])).toEqual([]);
+    expect(brandOffersForPage("under-1000", ["ormatek"])).toEqual([]);
+  });
+
+  test("rank after Tefal and before KRUPS when they compete for the four places", () => {
+    const brands = brandOffersForPage("housewarming", ["tefal", "krups", "mts", "ormatek"]).map((offer) => offer.brand);
+    expect(brands).toEqual(["tefal", "tefal", "ormatek", "ormatek"]);
+    expect(brandOffersForPage("for-mom", ["krups", "ormatek"]).map((offer) => offer.brand)).toEqual(["ormatek", "ormatek"]);
   });
 });
 

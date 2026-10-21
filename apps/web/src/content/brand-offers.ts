@@ -2,7 +2,7 @@
 // конкретные товары приходят и уходят, а раздел остаётся. Цены не указываем, их показывает магазин.
 // Партнёрская ссылка собирается из шаблона на сервере (AFFILIATE_TEFAL_TEMPLATE / AFFILIATE_KRUPS_TEMPLATE),
 // поэтому в коде нет ни кода площадки, ни erid.
-export type BrandId = "tefal" | "krups" | "mts" | "sportmaster" | "deparfum";
+export type BrandId = "tefal" | "krups" | "mts" | "sportmaster" | "deparfum" | "ormatek";
 
 export type BrandOffer = {
   id: string;
@@ -20,6 +20,7 @@ export const BRAND_ADVERTISER: Record<BrandId, { name: string; inn: string; site
   mts: { name: "АО «РТК»", inn: "7709356049", site: "shop.mts.ru", label: "МТС Shop" },
   sportmaster: { name: "ООО «Спортмастер»", inn: "7728551528", site: "sportmaster.ru", label: "Спортмастер" },
   deparfum: { name: "ИП Банникова Инесса Владимировна", inn: "661219938108", site: "de-parfum.ru", label: "Де-Парфюм" },
+  ormatek: { name: "АО ОРМАТЕК", inn: "7724890784", site: "ormatek.com", label: "Ormatek" },
 };
 
 export const BRAND_OFFERS: readonly BrandOffer[] = [
@@ -263,6 +264,38 @@ export const BRAND_OFFERS: readonly BrandOffer[] = [
     target: "https://de-parfum.ru/catalog/aromaticheskie-svechi/",
     pages: ["housewarming", "for-colleague", "for-teacher", "for-grandma", "march-8"],
   },
+  {
+    id: "ormatek-podushki",
+    brand: "ormatek",
+    title: "Подушки Ormatek",
+    text: "Раздел с подушками для сна. Подходящая жёсткость и высота зависят от привычной позы человека, поэтому лучше заранее узнать, как он спит.",
+    target: "https://ormatek.com/catalog/podushki/",
+    pages: ["housewarming", "for-grandma", "for-grandpa", "for-mom", "wedding"],
+  },
+  {
+    id: "ormatek-textile",
+    brand: "ormatek",
+    title: "Текстиль для спальни: одеяла и постельное бельё",
+    text: "Одеяла, пледы и комплекты белья. Узнайте размер кровати и любимый материал, чтобы комплект подошёл.",
+    target: "https://ormatek.com/catalog/textile/",
+    pages: ["housewarming", "wedding", "for-mom", "for-grandma", "new-year", "anniversary"],
+  },
+  {
+    id: "ormatek-aksessuary",
+    brand: "ormatek",
+    title: "Аксессуары для спальни",
+    text: "Небольшие вещи для уютной спальни. Подойдёт, когда хочется подарок для дома без крупной покупки.",
+    target: "https://ormatek.com/catalog/goods-for-bedrooms/",
+    pages: ["housewarming", "for-wife", "for-girlfriend", "for-sister"],
+  },
+  {
+    id: "ormatek-matrasy",
+    brand: "ormatek",
+    title: "Матрасы Ormatek",
+    text: "Крупный подарок для дома или для пары. Жёсткость и размер подбирают под человека, поэтому такой подарок лучше обсудить заранее.",
+    target: "https://ormatek.com/catalog/matrasy/",
+    pages: ["housewarming", "wedding", "anniversary"],
+  },
 ];
 
 const MAX_OFFERS_PER_PAGE = 4;
@@ -274,7 +307,7 @@ const MAX_OFFERS_BY_PAGE: Record<string, number> = { sport: 12 };
 // Спортмастер 1394 ₽, Де-Парфюм 747 ₽ (в основном за счёт CPC 8 ₽ за клик), Tefal 258 ₽, KRUPS 45 ₽.
 // По МТС Shop данных не нашли, он между Tefal и KRUPS до появления своей статистики.
 // Когда накопится /stats и отчёт Admitad, порядок стоит пересмотреть по нашим кликам и заказам.
-const BRAND_PRIORITY: readonly BrandId[] = ["sportmaster", "deparfum", "tefal", "mts", "krups"];
+const BRAND_PRIORITY: readonly BrandId[] = ["sportmaster", "deparfum", "tefal", "ormatek", "mts", "krups"];
 
 export function brandOfferById(id: string): BrandOffer | undefined {
   return BRAND_OFFERS.find((offer) => offer.id === id);
