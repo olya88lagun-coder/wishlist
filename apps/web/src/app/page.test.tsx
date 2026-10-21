@@ -9,7 +9,7 @@ const { readViewer, getEnv } = vi.hoisted(() => ({
 vi.mock("@/server/viewer", () => ({ readViewer }));
 vi.mock("@/server/env", () => ({ getEnv }));
 
-import Home from "./page";
+import Home, { generateMetadata } from "./page";
 import sitemap from "./sitemap";
 
 const guestViewer = { user: null, viewer: { userId: null, guestToken: null } };
@@ -36,7 +36,7 @@ describe("Home", () => {
 
     const html = renderToStaticMarkup(await Home());
 
-    expect(html).toContain("Подарки, которые");
+    expect(html).toContain("подарки, которые");
     expect(html).toContain("Открыть мои списки");
     expect(html).toContain('href="/lists"');
     expect(html).toContain('href="/articles"');
@@ -50,7 +50,7 @@ describe("Home", () => {
     expect(scripts).toHaveLength(1);
     const schema = JSON.parse(scripts[0]![1]!);
     expect(schema.map((item: { "@type": string }) => item["@type"])).toEqual([
-      "WebSite", "Organization", "WebApplication",
+      "WebSite", "Organization", "WebApplication", "FAQPage",
     ]);
     expect(schema[1].logo).toBe("https://my-wish-list.online/apple-icon.png");
     expect(html).toContain("Подарки не повторяются");
@@ -82,5 +82,35 @@ describe("Home", () => {
     expect(block).toContain('href="/gifts/under-3000"');
     expect(block).toContain('href="/gifts/books"');
     expect(block).toContain(">Подарки маме<");
+  });
+
+  test("puts the main query into the title, the H1 and the description", async () => {
+    const metadata = generateMetadata();
+    const html = renderToStaticMarkup(await Home());
+
+    expect(metadata.title).toEqual({ absolute: expect.stringContaining("Список желаний онлайн") });
+    expect(metadata.description).toContain("Список желаний онлайн");
+    expect(html).toMatch(/<h1[^>]*>Список желаний онлайн:/);
+  });
+
+  test("offers the AI gift finder on the first screen and sends the typed interests to /gifts", async () => {
+    const html = renderToStaticMarkup(await Home());
+    const hero = html.slice(html.indexOf('class="hero"'), html.indexOf("home-trust"));
+
+    expect(hero).toMatch(/<form[^>]*action="\/gifts"[^>]*method="get"/);
+    expect(hero).toContain('name="interests"');
+    expect(hero).toContain("Подобрать с AI");
+  });
+
+  test("shows the FAQ and publishes the same questions as FAQPage data", async () => {
+    const html = renderToStaticMarkup(await Home());
+    const scripts = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)];
+    const faq = JSON.parse(scripts[0]![1]!).find((item: { "@type": string }) => item["@type"] === "FAQPage");
+
+    expect(faq.mainEntity.length).toBeGreaterThanOrEqual(5);
+    for (const entry of faq.mainEntity as { name: string; acceptedAnswer: { text: string } }[]) {
+      expect(html).toContain(entry.name);
+      expect(html).toContain(entry.acceptedAnswer.text);
+    }
   });
 });

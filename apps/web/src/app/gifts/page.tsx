@@ -3,18 +3,23 @@ import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "./GiftFinder";
 import { getDb } from "@/server/db";
-import { giftsHubJsonLd } from "@/lib/structured-data";
+import { GIFTS_HUB_FAQ } from "@/content/gifts-hub-faq";
+import { faqPageJsonLd, giftsHubJsonLd } from "@/lib/structured-data";
 import { isAffiliateEnabled } from "@/server/affiliate-notice";
 import { enabledExtraStores } from "@/server/store-routing";
 import { readViewer } from "@/server/viewer";
 
+const HUB_TITLE = "AI-подбор подарков: идеи по человеку, поводу и бюджету";
+const HUB_DESCRIPTION =
+  "AI-помощник подбирает идеи подарков по человеку, поводу, интересам и бюджету. Понравившиеся варианты можно найти в магазинах и сохранить в вишлист.";
+
 export const metadata: Metadata = {
-  title: "Идеи подарков — AI-помощник",
-  description: "Ответьте на несколько вопросов и получите персональные идеи подарков по человеку, поводу, интересам и бюджету.",
+  title: HUB_TITLE,
+  description: HUB_DESCRIPTION,
   alternates: { canonical: "/gifts" },
   openGraph: {
-    title: "Идеи подарков — AI-помощник",
-    description: "Персональные идеи подарков по человеку, поводу, интересам и бюджету.",
+    title: HUB_TITLE,
+    description: HUB_DESCRIPTION,
     url: "/gifts",
     siteName: SITE_NAME,
     images: DEFAULT_OG_IMAGES,
@@ -24,8 +29,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     images: ["/opengraph-image.jpg"],
-    title: "Идеи подарков — AI-помощник",
-    description: "Персональные идеи подарков по человеку, поводу, интересам и бюджету.",
+    title: HUB_TITLE,
+    description: HUB_DESCRIPTION,
   },
 };
 
@@ -56,20 +61,25 @@ const PUBLIC_URL = process.env.APP_URL ?? "https://my-wish-list.online";
 
 export const dynamic = "force-dynamic";
 
-export default async function GiftsPage() {
+// Поле на главной передаёт интересы в адресе: подставляем их в форму, но запрос к AI отправляет только сам человек
+const MAX_PREFILL_INTERESTS = 200;
+
+export default async function GiftsPage({ searchParams }: { searchParams: Promise<{ interests?: string | string[] }> }) {
+  const { interests } = await searchParams;
+  const initialInterests = (typeof interests === "string" ? interests : "").trim().slice(0, MAX_PREFILL_INTERESTS);
   const { user } = await readViewer();
   const wishlists = user ? await listWishlistsForOwner(getDb(), user.id) : [];
 
   return (
     <main className="page page--wide gifts-page">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(giftsHubJsonLd(PUBLIC_URL)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([...giftsHubJsonLd(PUBLIC_URL), faqPageJsonLd(GIFTS_HUB_FAQ)]) }} />
       <p className="eyebrow">my wish list · подарки</p>
-      <h1 className="display">Найти подарок, который <i>попадёт в точку</i></h1>
+      <h1 className="display">AI-подбор подарков: идеи, которые <i>попадут в точку</i></h1>
       <p className="gifts-page__lead">
         Расскажите о человеке, поводе и бюджете. Подберём идеи, которые можно сохранить в вишлист.
       </p>
 
-      <GiftFinder wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={isAffiliateEnabled()} extraStores={enabledExtraStores()} />
+      <GiftFinder initialInterests={initialInterests} wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={isAffiliateEnabled()} extraStores={enabledExtraStores()} />
 
       <section className="gifts-page__how" aria-labelledby="gift-how-title">
         <div className="gifts-page__how-copy">
@@ -122,6 +132,16 @@ export default async function GiftsPage() {
           <a className="button button--ghost button--small" href="/gifts/under-15000">До 15 000 ₽</a>
           <a className="button button--ghost button--small" href="/gifts/under-20000">До 20 000 ₽</a>
         </div>
+      </section>
+
+      <section className="gifts-page__seo">
+        <h2>Частые вопросы</h2>
+        {GIFTS_HUB_FAQ.map((item) => (
+          <div key={item.question}>
+            <h3>{item.question}</h3>
+            <p>{item.answer}</p>
+          </div>
+        ))}
       </section>
     </main>
   );

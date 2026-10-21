@@ -6,13 +6,16 @@ import { EditorialMenu } from "@/components/EditorialMenu";
 import { HomeMobileMenu } from "@/components/HomeMobileMenu";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
+import { HOME_FAQ } from "@/content/home-faq";
 import { HOME_GIFT_LINK_GROUPS } from "@/content/home-gift-links";
+import { faqPageJsonLd } from "@/lib/structured-data";
 import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
 import "./home.css";
 
+const HOME_TITLE = "Список желаний онлайн — создать вишлист бесплатно | MyWishList";
 const HOME_DESCRIPTION =
-  "Создайте вишлист на день рождения, свадьбу или Новый год. Добавляйте товары из Wildberries, Ozon и любых магазинов, делитесь одной ссылкой — друзья выберут подарок без повторов.";
+  "Список желаний онлайн: создайте вишлист на сайте или в Telegram, добавьте подарки из любых магазинов и поделитесь одной ссылкой. Бронь без регистрации.";
 
 // Коды подтверждения Яндекс Вебмастера и Search Console публичны (попадают в HTML),
 // поэтому известные значения лежат в коде; переменные окружения могут их переопределить
@@ -23,7 +26,7 @@ export function generateMetadata(): Metadata {
   const yandex = process.env.YANDEX_VERIFICATION || DEFAULT_YANDEX_VERIFICATION;
   const google = process.env.GOOGLE_SITE_VERIFICATION || DEFAULT_GOOGLE_SITE_VERIFICATION;
   return {
-    title: { absolute: "Вишлист онлайн — список желаний и подарков | MyWishList" },
+    title: { absolute: HOME_TITLE },
     description: HOME_DESCRIPTION,
     alternates: { canonical: "/" },
     verification: {
@@ -66,6 +69,7 @@ function homeJsonLd(baseUrl: string) {
       operatingSystem: "Web, Telegram",
       offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" },
     },
+    faqPageJsonLd(HOME_FAQ),
   ];
 }
 
@@ -184,12 +188,12 @@ export default async function Home() {
       <main>
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__copy">
-            <p className="hero__eyebrow">Подарки</p>
+            <p className="hero__eyebrow">Вишлист</p>
             <h1 id="hero-title" className="hero__title">
-              Подарки, которые <em className="hero__accent">правда</em> <em>хочется</em>
+              Список желаний онлайн: <em>подарки, которые</em> <em className="hero__accent">правда хочется</em>
             </h1>
             <p className="hero__lead">
-              Соберите список желаний за минуту и поделитесь им. Друзья выберут подарок — и никто не подарит второй такой же.
+              Создайте вишлист на сайте или в Telegram за минуту и отправьте друзьям одну ссылку. Они выберут подарок без регистрации, и никто не подарит второй такой же.
             </p>
             <div className="hero__actions">
               {signedIn ? (
@@ -220,6 +224,24 @@ export default async function Home() {
                 </>
               )}
             </div>
+            <form className="hero-finder" action="/gifts" method="get" aria-labelledby="hero-finder-title">
+              <p id="hero-finder-title" className="hero-finder__title">Не знаете, что подарить? Подберём идеи с AI</p>
+              <div className="hero-finder__row">
+                <input
+                  className="hero-finder__input"
+                  type="text"
+                  name="interests"
+                  maxLength={200}
+                  autoComplete="off"
+                  placeholder="Например: брат, походы, кофе"
+                  aria-label="Кому вы выбираете подарок и что этот человек любит"
+                />
+                <button className="hero-finder__submit" type="submit">Подобрать с AI</button>
+              </div>
+              <p className="hero-finder__hint">
+                Идеи по человеку, поводу и бюджету — понравившиеся сохраните в вишлист.
+              </p>
+            </form>
           </div>
           <div className="hero__scene">
             <Image
@@ -316,6 +338,19 @@ export default async function Home() {
             ))}
           </ul>
           <Link className="home-more" href="/articles">Все статьи →</Link>
+        </section>
+
+        <section id="faq" className="home-section home-faq" aria-labelledby="faq-title">
+          <p className="home-section__eyebrow">Вопросы и ответы</p>
+          <h2 id="faq-title" className="home-section__title">Частые вопросы о списке желаний</h2>
+          <dl className="home-faq__list">
+            {HOME_FAQ.map((item) => (
+              <div className="home-faq__item" key={item.question}>
+                <dt>{item.question}</dt>
+                <dd>{item.answer}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         <section id="about" className="home-section home-about" aria-labelledby="about-title">

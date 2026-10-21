@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { GIFT_IDEAS, giftIdeaSearchLinks, giftIdeasCountLabel } from "@/content/gift-ideas";
+import { relatedGiftLinks } from "@/content/gift-related-links";
+import { faqPageJsonLd } from "@/lib/structured-data";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { listWishlistsForOwner } from "@wishlist/db";
@@ -844,6 +846,12 @@ function getVisuals(slug: string) {
   }));
 }
 
+// Заголовок страницы в выдаче: у подборок с готовыми идеями в нём указано их число
+function pageTitle(slug: string, page: (typeof PAGES)[Slug]): string {
+  const ideas = GIFT_IDEAS[slug];
+  return ideas ? `${page.heading.replace("?", "")}: ${giftIdeasCountLabel(ideas)} с ценами` : page.title;
+}
+
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -852,8 +860,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (childMetadata) return childMetadata;
   const page = PAGES[slug as Slug];
   if (!page) return {};
-  const ideas = GIFT_IDEAS[slug];
-  const title = ideas ? `${page.heading.replace("?", "")}: ${giftIdeasCountLabel(ideas)} с ценами` : page.title;
+  const title = pageTitle(slug, page);
   return {
     title,
     description: page.description,
@@ -883,6 +890,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
   if (!page) notFound();
 
   const ideas = GIFT_IDEAS[slug];
+  const seo = getSeoContent(slug, page);
   const adLabel = isAffiliateEnabled();
   const extraStores = enabledExtraStores();
   const { user } = await readViewer();
@@ -892,7 +900,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
     {
       "@context": "https://schema.org",
       "@type": "WebPage",
-      name: page.title,
+      name: pageTitle(slug, page),
       description: page.description,
       url: `${base}/gifts/${slug}`,
       isPartOf: { "@type": "WebSite", name: "MyWishList", url: base },
@@ -906,6 +914,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
         { "@type": "ListItem", position: 3, name: page.heading, item: `${base}/gifts/${slug}` },
       ],
     },
+    faqPageJsonLd(seo.faq),
   ];
 
   return (
@@ -999,44 +1008,35 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
 
       <GiftFinder key={slug} wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={adLabel} extraStores={extraStores} initialPerson={page.person} initialBudget={slug.startsWith("under-") ? slug.slice(6) : undefined} initialOccasion={slug} returnPath={`/gifts/${slug}`} />
 
-      {(() => {
-        const seo = getSeoContent(slug, page);
-        return (
-          <>
-            <section className="gifts-page__seo">
-              <h2>Идеи подарков: с чего начать</h2>
-              <p>{seo.overview}</p>
-              {seo.sections.map((section) => (
-                <div key={section.title}>
-                  <h3>{section.title}</h3>
-                  <p>{section.text}</p>
-                </div>
-              ))}
-            </section>
+      <section className="gifts-page__seo">
+        <h2>Идеи подарков: с чего начать</h2>
+        <p>{seo.overview}</p>
+        {seo.sections.map((section) => (
+          <div key={section.title}>
+            <h3>{section.title}</h3>
+            <p>{section.text}</p>
+          </div>
+        ))}
+      </section>
 
-            <section className="gifts-page__seo">
-              <h2>Частые вопросы</h2>
-              {seo.faq.map((item) => (
-                <div key={item.question}>
-                  <h3>{item.question}</h3>
-                  <p>{item.answer}</p>
-                </div>
-              ))}
-            </section>
-          </>
-        );
-      })()}
+      <section className="gifts-page__seo">
+        <h2>Частые вопросы</h2>
+        {seo.faq.map((item) => (
+          <div key={item.question}>
+            <h3>{item.question}</h3>
+            <p>{item.answer}</p>
+          </div>
+        ))}
+      </section>
 
       <section className="gifts-page__seo">
         <p className="eyebrow">Ещё идеи</p>
         <h2>Подберите подарок по конкретным условиям</h2>
         <p className="muted">Можно изменить повод, интересы и бюджет в форме выше или перейти к общему AI-помощнику.</p>
         <div className="quick-link__row">
-          <a className="button button--ghost button--small" href="/gifts/birthday">На день рождения</a>
-          <a className="button button--ghost button--small" href="/gifts/new-year">На Новый год</a>
-          <a className="button button--ghost button--small" href="/gifts/wedding">На свадьбу</a>
-          <a className="button button--ghost button--small" href="/gifts/under-5000">До 5 000 ₽</a>
-          <a className="button button--ghost button--small" href="/gifts/under-10000">До 10 000 ₽</a>
+          {relatedGiftLinks(slug).map((link) => (
+            <a key={link.href} className="button button--ghost button--small" href={link.href}>{link.label}</a>
+          ))}
           <a className="button button--ghost button--small" href="/gifts">Открыть AI-подбор</a>
         </div>
       </section>
