@@ -18,8 +18,8 @@ export function giftsHubJsonLd(base: string) {
     {
       "@context": "https://schema.org",
       "@type": "WebPage" as const,
-      name: "Идеи подарков — AI-помощник",
-      description: "Подбор подарков по получателю, поводу и бюджету, готовые подборки и сохранение в вишлист.",
+      name: "AI-подбор подарков: идеи по человеку, поводу и бюджету",
+      description: "AI-помощник подбирает идеи подарков по получателю, поводу и бюджету. Есть готовые подборки и сохранение в вишлист.",
       url,
       inLanguage: "ru-RU",
       isPartOf: { "@type": "WebSite", name: SITE_NAME, url: base },
@@ -56,4 +56,16 @@ export function articlesHubJsonLd(base: string) {
       { name: "Статьи", url },
     ]),
   ] as const;
+}
+
+export function faqPageJsonLd(items: readonly { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage" as const,
+    mainEntity: items.map((item) => ({
+      "@type": "Question" as const,
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer" as const, text: item.answer },
+    })),
+  };
 }

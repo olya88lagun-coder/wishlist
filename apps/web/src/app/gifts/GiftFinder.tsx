@@ -26,10 +26,10 @@ function makeIdeas(person: string, occasion: string, interests: string): Result[
   ];
 }
 
-export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = false, extraStores = [], initialPerson = "mom", initialBudget = "5000", initialOccasion = "birthday", returnPath = "/gifts" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; showAdLabel?: boolean; extraStores?: readonly ExtraStore[]; initialPerson?: Person; initialBudget?: string; initialOccasion?: string; returnPath?: string }) {
+export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = false, extraStores = [], initialPerson = "mom", initialBudget = "5000", initialOccasion = "birthday", initialInterests = "", returnPath = "/gifts" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; showAdLabel?: boolean; extraStores?: readonly ExtraStore[]; initialPerson?: Person; initialBudget?: string; initialOccasion?: string; initialInterests?: string; returnPath?: string }) {
   const [person, setPerson] = useState<Person>(initialPerson);
   const [occasion, setOccasion] = useState(OCCASIONS.some(([value]) => value === initialOccasion) ? initialOccasion : "birthday");
-  const [interests, setInterests] = useState("");
+  const [interests, setInterests] = useState(initialInterests);
   const [budget, setBudget] = useState<string>(initialBudget);
   const [customBudget, setCustomBudget] = useState("");
   const [results, setResults] = useState<Result[]>([]);

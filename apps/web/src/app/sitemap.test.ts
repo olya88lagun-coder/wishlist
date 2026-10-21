@@ -28,11 +28,11 @@ test("article sitemap dates match their content and the hub uses the latest upda
 });
 
 test.each([
-  ["/gifts", "2026-10-14"],
-  ["/gifts/for-mom", "2026-10-19"],
-  ["/gifts/under-3000", "2026-10-19"],
-  ["/gifts/books", "2026-10-19"],
-  ["/gifts/sport", "2026-10-19"],
+  ["/gifts", "2026-10-22"],
+  ["/gifts/for-mom", "2026-10-22"],
+  ["/gifts/under-3000", "2026-10-22"],
+  ["/gifts/books", "2026-10-22"],
+  ["/gifts/sport", "2026-10-22"],
   ["/gifts/for-children", "2026-10-08"],
   ["/gifts/for-child-3-years", "2026-10-08"],
 ])("%s uses its last substantive content change (%s)", (path, expectedDate) => {
@@ -41,13 +41,13 @@ test.each([
   expect(new Date(entry!.lastModified!).toISOString().slice(0, 10)).toBe(expectedDate);
 });
 
-test("all ordinary collections include the shared price guidance updated on October 19", () => {
+test("all ordinary collections include the shared related links and FAQ markup updated on October 22", () => {
   const collections = sitemap().filter((entry) => entry.url.includes("/gifts/")
     && !entry.url.includes("/gifts/for-child"));
   for (const entry of collections) {
     const slug = entry.url.split("/").at(-1)!;
     expect(GIFT_IDEAS[slug]).toBeDefined();
-    expect(new Date(entry.lastModified!).toISOString().slice(0, 10)).toBe("2026-10-19");
+    expect(new Date(entry.lastModified!).toISOString().slice(0, 10)).toBe("2026-10-22");
   }
 });
 
