@@ -234,3 +234,23 @@ test("shows Де-Парфюм cards with advertiser, ИНН and erid on women's 
     else process.env.AFFILIATE_DEPARFUM_TEMPLATE = saved;
   }
 });
+
+test("shows Ormatek cards with advertiser, ИНН and erid on housewarming only when its template is set", async () => {
+  const saved = process.env.AFFILIATE_ORMATEK_TEMPLATE;
+  try {
+    delete process.env.AFFILIATE_ORMATEK_TEMPLATE;
+    const plain = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "housewarming" }) }));
+    expect(plain).not.toContain("/go/brand?offer=ormatek");
+    expect(plain).not.toContain("ОРМАТЕК");
+
+    process.env.AFFILIATE_ORMATEK_TEMPLATE = "https://partner.example/g/CODE/?erid=ORMERID&ulp={url}";
+    const withCards = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "housewarming" }) }));
+    expect(withCards).toContain("/go/brand?offer=ormatek-");
+    expect(withCards).toContain("АО ОРМАТЕК");
+    expect(withCards).toContain("7724890784");
+    expect(withCards).toContain("ORMERID");
+  } finally {
+    if (saved === undefined) delete process.env.AFFILIATE_ORMATEK_TEMPLATE;
+    else process.env.AFFILIATE_ORMATEK_TEMPLATE = saved;
+  }
+});

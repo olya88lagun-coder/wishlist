@@ -41,6 +41,16 @@ describe("GET /go/brand", () => {
     expect(recordStoreSearchClick).toHaveBeenCalledWith(expect.anything(), { store: "deparfum", source: "gifts/for-mom", query: perfume.id });
   });
 
+  test("builds the Ormatek partner link and counts the click under its own store", async () => {
+    process.env.AFFILIATE_ORMATEK_TEMPLATE = "https://partner.example/g/CODE/?erid=ERID&ulp={url}";
+    const pillows = BRAND_OFFERS.find((item) => item.id === "ormatek-podushki")!;
+
+    const response = await GET(request(`offer=${pillows.id}&from=gifts%2Fhousewarming`));
+
+    expect(response.headers.get("location")).toBe(`https://partner.example/g/CODE/?erid=ERID&ulp=${encodeURIComponent(pillows.target)}`);
+    expect(recordStoreSearchClick).toHaveBeenCalledWith(expect.anything(), { store: "ormatek", source: "gifts/housewarming", query: pillows.id });
+  });
+
   test("goes straight to the brand page when no template is set", async () => {
     delete process.env.AFFILIATE_TEFAL_TEMPLATE;
     const response = await GET(request(`offer=${offer.id}&from=gifts%2Ffor-mom`));
