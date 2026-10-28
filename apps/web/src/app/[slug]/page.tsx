@@ -1,10 +1,11 @@
-import { getPublicWishlist, type PublicItemView } from "@wishlist/db";
+import { getDesignAccess, getPublicWishlist, type PublicItemView } from "@wishlist/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AffiliateNotice } from "@/components/AffiliateNotice";
 import { CountdownSticker } from "@/components/CountdownSticker";
 import { EmptyState } from "@/components/EmptyState";
+import { WishlistTheme } from "@/components/WishlistTheme";
 import { ItemCard } from "@/components/ItemCard";
 import { imageUrlFor } from "@/components/item-image";
 import { toCardModel } from "@/components/item-card-model";
@@ -54,6 +55,7 @@ export default async function PublicWishlistPage({ params }: Props) {
   const view = await getPublicWishlist(getDb(), slug, viewer);
   if (!view) notFound();
   const { wishlist, items, ownerName, isOwner } = view;
+  const design = await getDesignAccess(getDb(), wishlist.id);
   const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
   const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
   const defaultName = user?.displayName.split(" ")[0] ?? "";
@@ -68,7 +70,7 @@ export default async function PublicWishlistPage({ params }: Props) {
   ) : null;
 
   return (
-    <main className="page page--wide wishlist-page">
+    <WishlistTheme theme={design.theme}><main className="page page--wide wishlist-page">
       <div className="row row--between">
         <p className="eyebrow">список {ownerName}</p>
         <CountdownSticker occasion={wishlist.occasion} eventDate={wishlist.eventDate} />
@@ -132,6 +134,6 @@ export default async function PublicWishlistPage({ params }: Props) {
       </div>
       {!isOwner && <AffiliateNotice />}
       <SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />
-    </main>
+    </main></WishlistTheme>
   );
 }

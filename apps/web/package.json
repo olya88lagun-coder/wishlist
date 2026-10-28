@@ -12,14 +12,20 @@
     "@wishlist/core": "workspace:*",
     "@wishlist/db": "workspace:*",
     "drizzle-orm": "0.45.2",
+    "lucide-react": "^1.62.0",
     "next": "16.3.5",
     "pg-boss": "12.31.1",
+    "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@types/pngjs": "6.0.5",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0"
+    "@types/react-dom": "19.3.0",
+    "jsqr": "^1.4.0",
+    "pngjs": "7.0.0"
   }
 }

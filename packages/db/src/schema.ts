@@ -219,3 +219,18 @@ export const featureInterest = pgTable(
   },
   (t) => [uniqueIndex("feature_interest_user_feature_uq").on(t.userId, t.feature)],
 );
+
+export const designPurchases = pgTable("design_purchases", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  // Payment records must survive list/profile deletion for reconciliation and refunds.
+  userId: uuid("user_id").notNull(),
+  wishlistId: uuid("wishlist_id").notNull(),
+  product: text("product").notNull(),
+  amountKopecks: integer("amount_kopecks").notNull(),
+  testMode: boolean("test_mode").notNull().default(false),
+  email: text("email").notNull(),
+  paymentId: text("payment_id").unique(),
+  confirmationUrl: text("confirmation_url"),
+  status: text("status").notNull().default("pending"),
+  createdAt: createdAt(),
+}, (t) => [index("design_purchases_list_idx").on(t.wishlistId)]);

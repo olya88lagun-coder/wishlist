@@ -16,5 +16,6 @@ export * from "./bot";
 export * from "./affiliate";
 export * from "./interest";
 export * from "./stats";
+export * from "./design-purchases";
 export * from "./ai-usage";
 export * from "./ai-quota";
