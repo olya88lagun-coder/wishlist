@@ -1,5 +1,5 @@
 import { formatKopecks } from "@wishlist/core";
-import { FEATURE_THEMES, getOwnerWishlistView, hasInterest, type OwnerItemView } from "@wishlist/db";
+import { getOwnerWishlistView, type OwnerItemView } from "@wishlist/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CountdownSticker } from "@/components/CountdownSticker";
@@ -21,7 +21,6 @@ import { ListSettings } from "./ListSettings";
 import { parseHint } from "./parse-hint";
 import { PendingRefresher } from "./PendingRefresher";
 import { QuickLinkForm } from "./QuickLinkForm";
-import { ThemeInterest } from "./ThemeInterest";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +43,6 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
   const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
   const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
   const pendingCount = items.filter((item) => item.parseStatus === "pending").length;
-  const votedForThemes = await hasInterest(getDb(), user.id, FEATURE_THEMES);
   const giftCountText = items.length === 0
     ? "Пока без подарков — добавьте первое желание."
     : `${items.length} ${items.length === 1 ? "подарок" : items.length < 5 ? "подарка" : "подарков"} в вашем списке.`;
@@ -115,7 +113,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
       )}
 
       <section className="owner-settings" aria-label="Настройки оформления и списка">
-        <ThemeInterest wishlistId={wishlist.id} voted={votedForThemes} />
+        <Link className="button button--ghost" href={`/lists/${wishlist.id}/design`}>Оформление и приглашение</Link>
         <ListSettings wishlist={wishlist} />
       </section>
       <div className="owner-footer"><SiteFooter /></div>

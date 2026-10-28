@@ -1,0 +1,1 @@
+ALTER TABLE "design_purchases" ADD COLUMN "test_mode" boolean DEFAULT false NOT NULL;
