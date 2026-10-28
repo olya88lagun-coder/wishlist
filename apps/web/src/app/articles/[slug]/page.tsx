@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGES } from "@/content/og";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { OtherProjects } from "@/components/OtherProjects";
 import { ARTICLES, getArticle, getRelatedArticles } from "@/content/articles";
 
 type ArticlePageProps = {
@@ -152,6 +153,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           ))}
         </div>
       </section>
+
+      <OtherProjects placement="article" />
     </main>
   );
 }
