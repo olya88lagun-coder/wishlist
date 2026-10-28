@@ -1,0 +1,32 @@
+/* Цвета берём из переменных страницы (главная — --home-*, статьи — --ink/--line), чтобы блок подстраивался под любое оформление */
+.other-projects {
+  --op-ink: var(--home-ink, var(--ink, #2c2c2a));
+  --op-soft: var(--home-soft, var(--ink-soft, #5f5e5a));
+  --op-line: var(--home-line, var(--line, #d3d1c7));
+  max-width: 760px;
+  margin: 56px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--op-line);
+}
+
+.home-section .other-projects { max-width: none; margin-top: 0; padding-top: 0; border-top: 0; }
+
+.other-projects__title { margin: 0 0 12px; font-size: 14px; font-weight: 600; letter-spacing: 0.04em; color: var(--op-soft); }
+
+.other-projects__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+
+.other-projects__list a {
+  display: block;
+  height: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--op-line);
+  border-radius: 10px;
+  color: var(--op-ink);
+  text-decoration: none;
+}
+
+.other-projects__list a:hover { border-color: var(--op-ink); }
+
+.other-projects__name { display: block; margin-bottom: 4px; font-size: 16px; font-weight: 600; }
+
+.other-projects__summary { display: block; font-size: 14px; line-height: 1.5; color: var(--op-soft); }

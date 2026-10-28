@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { OtherProjects } from "@/components/OtherProjects";
 import { SiteFooter } from "@/components/SiteFooter";
 import { EditorialMenu } from "@/components/EditorialMenu";
 import { HomeMobileMenu } from "@/components/HomeMobileMenu";
@@ -361,6 +362,10 @@ export default async function Home() {
             из любых магазинов, отмечайте, чего хочется больше всего, и отправляйте близким одну ссылку. Гости видят,
             что уже выбрано, и бронируют подарок без регистрации, а вы не узнаете, кто и что подарит, до самого праздника.
           </p>
+        </section>
+
+        <section className="home-section">
+          <OtherProjects placement="home" />
         </section>
       </main>
 
