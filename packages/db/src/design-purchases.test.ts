@@ -21,7 +21,7 @@ test("only owner may buy or select a theme; unpaid theme stays locked", async ()
   expect(await beginDesignPurchase(db, stranger, id, "children", "a@example.com")).toBeNull();
   expect(await setWishlistTheme(db, owner, id, "children")).toBe(false);
   expect(await setWishlistTheme(db, stranger, id, "journal")).toBe(false);
-  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false });
 });
 
 test("149/199 prices are server-owned; retries reuse order; pending cannot unlock", async () => {
@@ -41,7 +41,7 @@ test("confirmed payment unlocks just its list and handles duplicate confirmation
   expect(await confirmDesignPayment(db, order.id, "wrong")).toBe(false);
   expect(await confirmDesignPayment(db, order.id, "provider-1")).toBe(true);
   expect(await confirmDesignPayment(db, order.id, "provider-1")).toBe(true);
-  expect(await getDesignAccess(db, id)).toEqual({ theme: "children", children: true, invitation: true });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "children", children: true, invitation: true, newYear: false });
   expect(await setWishlistTheme(db, owner, id, "journal")).toBe(true);
   expect((await getDesignAccess(db, id)).theme).toBe("journal");
   expect(await setWishlistTheme(db, owner, id, "children")).toBe(true);
@@ -60,7 +60,7 @@ test("test payments never grant real entitlements or consume real purchase", asy
   const order = (await beginDesignPurchase(db, owner, id, "children_invitation", "a@example.com", true))!;
   await attachDesignPayment(db, order.id, "test-payment", "https://yoomoney.ru/checkout/test");
   await confirmDesignPayment(db, order.id, "test-payment");
-  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false });
   expect((await beginDesignPurchase(db, owner, id, "children_invitation", "a@example.com"))?.amountKopecks).toBe(19900);
 });
 
@@ -80,4 +80,29 @@ test("payment audit record survives list deletion", async () => {
   await attachDesignPayment(db, order.id, "real-payment", "https://yoomoney.ru/checkout/test");
   expect(await deleteWishlist(db, owner, id)).toBe(true);
   expect((await getDesignOrderByPayment(db, "real-payment"))?.wishlistId).toBe(id);
+});
+
+test("New Year is a separate 149-ruble theme and does not unlock children or invitations", async () => {
+  expect(await setWishlistTheme(db, owner, id, "new-year")).toBe(false);
+  const order = (await beginDesignPurchase(db, owner, id, "new_year", "a@example.com"))!;
+  expect(order.amountKopecks).toBe(14900);
+  await attachDesignPayment(db, order.id, "newyear-payment", "https://yoomoney.ru/checkout/test");
+  await confirmDesignPayment(db, order.id, "newyear-payment");
+  expect(await getDesignAccess(db, id)).toMatchObject({ theme: "new-year", newYear: true, children: false, invitation: false });
+  expect(await setWishlistTheme(db, owner, id, "children-pink")).toBe(false);
+  expect(await setWishlistTheme(db, stranger, id, "new-year")).toBe(false);
+  expect(await beginDesignPurchase(db, owner, id, "new_year", "a@example.com")).toBeNull();
+  expect((await beginDesignPurchase(db, owner, id, "children_invitation", "a@example.com"))?.amountKopecks).toBe(19900);
+});
+
+test("child bundle does not block a separate New Year purchase", async () => {
+  const child = (await beginDesignPurchase(db, owner, id, "children_invitation", "a@example.com"))!;
+  await attachDesignPayment(db, child.id, "child-payment", "https://yoomoney.ru/checkout/test");
+  await confirmDesignPayment(db, child.id, "child-payment");
+  const holiday = (await beginDesignPurchase(db, owner, id, "new_year", "a@example.com"))!;
+  expect(holiday.amountKopecks).toBe(14900);
+  await attachDesignPayment(db, holiday.id, "newyear-payment", "https://yoomoney.ru/checkout/test");
+  await confirmDesignPayment(db, holiday.id, "newyear-payment");
+  expect(await setWishlistTheme(db, owner, id, "children-pink")).toBe(true);
+  expect(await setWishlistTheme(db, owner, id, "new-year")).toBe(true);
 });

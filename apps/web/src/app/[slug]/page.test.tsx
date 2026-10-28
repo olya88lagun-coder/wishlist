@@ -32,13 +32,13 @@ function wishlist(status: PublicWishlistView["items"][number]["status"], isOwner
 }
 
 beforeEach(() => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false });
   vi.mocked(readViewer).mockResolvedValue({ viewer: { userId: null, guestToken: "test-guest" }, user: null });
 });
 
 test("renders the purchased pink theme without changing gifts or reservation controls", async () => {
   vi.mocked(getPublicWishlist).mockResolvedValue(wishlist("free"));
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "children-pink", children: true, invitation: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "children-pink", children: true, invitation: false, newYear: false });
   const html = renderToStaticMarkup(await PublicWishlistPage({ params: Promise.resolve({ slug: "abcdefghij" }) }));
   expect(html).toContain('data-theme="children-pink"');
   expect(html).toContain("Тестовый подарок");
@@ -54,6 +54,15 @@ test("shows one invitation before the gifts only when this guest has a reservati
   expect(html).toContain('href="/login"');
   expect(html).toContain("Создать свой список");
   expect(html).toContain("Снять бронь");
+});
+
+test("New Year styling preserves the real gift and reservation action", async () => {
+  vi.mocked(getPublicWishlist).mockResolvedValue(wishlist("free"));
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "new-year", children: false, invitation: false, newYear: true });
+  const html = renderToStaticMarkup(await PublicWishlistPage({ params: Promise.resolve({ slug: "abcdefghij" }) }));
+  expect(html).toContain('data-theme="new-year"');
+  expect(html).toContain("Тестовый подарок");
+  expect(html).toContain("Я подарю");
 });
 
 test.each(["free", "reserved_by_other"] as const)("keeps the invitation after the gifts for status %s", async (status) => {

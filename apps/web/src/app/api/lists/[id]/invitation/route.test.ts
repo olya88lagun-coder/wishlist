@@ -17,7 +17,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(readViewer).mockResolvedValue({ user: { id: "owner" } as never, viewer: { userId: "owner", guestToken: null } });
   vi.mocked(getOwnedWishlist).mockResolvedValue({ id: "list-1", slug: "trusted-slug" } as never);
-  vi.mocked(getDesignAccess).mockResolvedValue({ children: true, invitation: true, theme: "children" });
+  vi.mocked(getDesignAccess).mockResolvedValue({ children: true, invitation: true, theme: "children", newYear: false });
   vi.mocked(renderInvitation).mockImplementation(async () => new Response("png", { headers: { "Content-Type": "image/png" } }));
 });
 
@@ -32,7 +32,7 @@ test("rejects cross-origin, unauthenticated and foreign-list requests", async ()
 });
 
 test("149-ruble theme alone cannot export a paid invitation", async () => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ children: true, invitation: false, theme: "children" });
+  vi.mocked(getDesignAccess).mockResolvedValue({ children: true, invitation: false, theme: "children", newYear: false });
   expect((await POST(request(), context)).status).toBe(403);
   expect(renderInvitation).not.toHaveBeenCalled();
 });

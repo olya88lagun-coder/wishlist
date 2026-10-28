@@ -3,23 +3,25 @@ import { isUuid } from "./errors";
 import { designPurchases, wishlists } from "./schema";
 import type { Database } from "./types";
 
-export type DesignProduct = "children" | "children_invitation";
-export type WishlistTheme = "journal" | "children" | "children-pink";
+export type DesignProduct = "children" | "children_invitation" | "new_year";
+export type WishlistTheme = "journal" | "children" | "children-pink" | "new-year";
 export type DesignOrder = typeof designPurchases.$inferSelect;
-export type DesignAccess = { theme: WishlistTheme; children: boolean; invitation: boolean };
+export type DesignAccess = { theme: WishlistTheme; children: boolean; invitation: boolean; newYear: boolean };
 
 export async function getDesignAccess(db: Database, wishlistId: string): Promise<DesignAccess> {
-  if (!isUuid(wishlistId)) return { theme: "journal", children: false, invitation: false };
+  if (!isUuid(wishlistId)) return { theme: "journal", children: false, invitation: false, newYear: false };
   const [list] = await db.select({ theme: wishlists.themeId }).from(wishlists).where(eq(wishlists.id, wishlistId));
   const paid = await db.select({ product: designPurchases.product }).from(designPurchases)
     .where(and(eq(designPurchases.wishlistId, wishlistId), eq(designPurchases.status, "succeeded"), eq(designPurchases.testMode, false)));
   const invitation = paid.some((p) => p.product === "children_invitation");
   const children = invitation || paid.some((p) => p.product === "children");
-  return { theme: children && (list?.theme === "children" || list?.theme === "children-pink") ? list.theme : "journal", children, invitation };
+  const newYear = paid.some((p) => p.product === "new_year");
+  const theme = newYear && list?.theme === "new-year" ? "new-year" : children && (list?.theme === "children" || list?.theme === "children-pink") ? list.theme : "journal";
+  return { theme, children, invitation, newYear };
 }
 
 export async function beginDesignPurchase(db: Database, userId: string, wishlistId: string, product: DesignProduct, email: string, testMode = false): Promise<DesignOrder | null> {
-  if (!isUuid(wishlistId) || !["children", "children_invitation"].includes(product)) return null;
+  if (!isUuid(wishlistId) || !["children", "children_invitation", "new_year"].includes(product)) return null;
   return db.transaction(async (tx) => {
     const [list] = await tx.select({ id: wishlists.id }).from(wishlists)
       .where(and(eq(wishlists.id, wishlistId), eq(wishlists.ownerId, userId))).for("update");
@@ -28,10 +30,11 @@ export async function beginDesignPurchase(db: Database, userId: string, wishlist
     const paid = orders.filter((o) => o.status === "succeeded");
     const bundle = paid.some((o) => o.product === "children_invitation");
     const theme = bundle || paid.some((o) => o.product === "children");
-    if (bundle || (product === "children" && theme)) return null;
+    const newYear = paid.some((o) => o.product === "new_year");
+    if (product === "new_year" ? newYear : bundle || (product === "children" && theme)) return null;
     const pending = orders.find((o) => o.status === "pending");
     if (pending) return pending.product === product ? pending : null;
-    const amountKopecks = product === "children" ? 14900 : theme ? 5000 : 19900;
+    const amountKopecks = product === "children_invitation" ? theme ? 5000 : 19900 : 14900;
     const [order] = await tx.insert(designPurchases).values({ userId, wishlistId, product, amountKopecks, email, testMode }).returning();
     return order ?? null;
   });
@@ -66,14 +69,17 @@ export async function confirmDesignPayment(db: Database, orderId: string, paymen
     if (!order || order.status === "canceled") return false;
     if (order.status === "succeeded") return true;
     await tx.update(designPurchases).set({ status: "succeeded" }).where(eq(designPurchases.id, order.id));
-    if (!order.testMode) await tx.update(wishlists).set({ themeId: "children" }).where(and(eq(wishlists.id, order.wishlistId), eq(wishlists.ownerId, order.userId)));
+    if (!order.testMode) await tx.update(wishlists).set({ themeId: order.product === "new_year" ? "new-year" : "children" }).where(and(eq(wishlists.id, order.wishlistId), eq(wishlists.ownerId, order.userId)));
     return true;
   });
 }
 
 export async function setWishlistTheme(db: Database, userId: string, wishlistId: string, theme: WishlistTheme): Promise<boolean> {
-  if (!isUuid(wishlistId) || !["journal", "children", "children-pink"].includes(theme)) return false;
-  if (theme !== "journal" && !(await getDesignAccess(db, wishlistId)).children) return false;
+  if (!isUuid(wishlistId) || !["journal", "children", "children-pink", "new-year"].includes(theme)) return false;
+  if (theme !== "journal") {
+    const access = await getDesignAccess(db, wishlistId);
+    if (theme === "new-year" ? !access.newYear : !access.children) return false;
+  }
   const rows = await db.update(wishlists).set({ themeId: theme }).where(and(eq(wishlists.id, wishlistId), eq(wishlists.ownerId, userId))).returning({ id: wishlists.id });
   return rows.length > 0;
 }
