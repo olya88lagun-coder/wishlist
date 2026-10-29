@@ -1,5 +1,5 @@
 import { formatKopecks } from "@wishlist/core";
-import { getOwnerWishlistView, type OwnerItemView } from "@wishlist/db";
+import { getDesignAccess, getOwnerWishlistView, type OwnerItemView } from "@wishlist/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CountdownSticker } from "@/components/CountdownSticker";
@@ -10,12 +10,15 @@ import { ReservedSticker } from "@/components/ReservedSticker";
 import { ShareBar } from "@/components/ShareBar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { OwnerPageHeader } from "@/components/OwnerPageHeader";
+import { WishlistTheme } from "@/components/WishlistTheme";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
+import { freeDesignTelegramIds } from "@/server/free-designs";
 import { requireUser } from "@/server/viewer";
 import { deleteItemAction } from "./actions";
 import { AddItemForm } from "./AddItemForm";
 import { ConfirmButton } from "./ConfirmButton";
+import { DesignPromo } from "./DesignPromo";
 import { ItemEditor } from "./ItemEditor";
 import { ListSettings } from "./ListSettings";
 import { parseHint } from "./parse-hint";
@@ -40,6 +43,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
   const view = await getOwnerWishlistView(getDb(), user.id, id);
   if (!view) notFound();
   const { wishlist, items, surpriseMode } = view;
+  const design = await getDesignAccess(getDb(), id, freeDesignTelegramIds());
   const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
   const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
   const pendingCount = items.filter((item) => item.parseStatus === "pending").length;
@@ -48,7 +52,8 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
     : `${items.length} ${items.length === 1 ? "подарок" : items.length < 5 ? "подарка" : "подарков"} в вашем списке.`;
 
   return (
-    <main className="page owner-page owner-page--detail">
+    <WishlistTheme theme={design.theme}>
+    <main className={`page owner-page owner-page--detail${design.theme === "journal" ? "" : " wishlist-page"}`}>
       <OwnerPageHeader
         eyebrow="Ваш список желаний"
         title={wishlist.title}
@@ -61,6 +66,8 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
           </>
         )}
       />
+
+      <DesignPromo wishlistId={wishlist.id} access={design} />
 
       {surpriseMode && <p className="owner-surprise-note">Режим «Полный сюрприз»: брони скрыты от владельца</p>}
 
@@ -113,10 +120,10 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
       )}
 
       <section className="owner-settings" aria-label="Настройки оформления и списка">
-        <Link className="button button--ghost" href={`/lists/${wishlist.id}/design`}>Оформление и приглашение</Link>
         <ListSettings wishlist={wishlist} />
       </section>
       <div className="owner-footer"><SiteFooter /></div>
     </main>
+    </WishlistTheme>
   );
 }

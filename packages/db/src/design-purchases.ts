@@ -1,6 +1,6 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { isUuid } from "./errors";
-import { designPurchases, wishlists } from "./schema";
+import { authIdentities, designPurchases, wishlists } from "./schema";
 import type { Database } from "./types";
 
 export type DesignProduct = "children" | "children_invitation" | "new_year";
@@ -8,9 +8,23 @@ export type WishlistTheme = "journal" | "children" | "children-pink" | "new-year
 export type DesignOrder = typeof designPurchases.$inferSelect;
 export type DesignAccess = { theme: WishlistTheme; children: boolean; invitation: boolean; newYear: boolean };
 
-export async function getDesignAccess(db: Database, wishlistId: string): Promise<DesignAccess> {
+const PAID_THEMES: readonly WishlistTheme[] = ["children", "children-pink", "new-year"];
+
+// Список Telegram ID, которым все оформления доступны без оплаты (задаётся владельцем сервиса в окружении).
+async function ownerIsFree(db: Database, ownerId: string, freeTelegramIds: readonly string[]): Promise<boolean> {
+  if (freeTelegramIds.length === 0) return false;
+  const rows = await db.select({ id: authIdentities.id }).from(authIdentities)
+    .where(and(eq(authIdentities.userId, ownerId), eq(authIdentities.provider, "telegram"), inArray(authIdentities.providerUserId, [...freeTelegramIds])));
+  return rows.length > 0;
+}
+
+export async function getDesignAccess(db: Database, wishlistId: string, freeTelegramIds: readonly string[] = []): Promise<DesignAccess> {
   if (!isUuid(wishlistId)) return { theme: "journal", children: false, invitation: false, newYear: false };
-  const [list] = await db.select({ theme: wishlists.themeId }).from(wishlists).where(eq(wishlists.id, wishlistId));
+  const [list] = await db.select({ theme: wishlists.themeId, ownerId: wishlists.ownerId }).from(wishlists).where(eq(wishlists.id, wishlistId));
+  if (list && await ownerIsFree(db, list.ownerId, freeTelegramIds)) {
+    const theme = PAID_THEMES.find((value) => value === list.theme) ?? "journal";
+    return { theme, children: true, invitation: true, newYear: true };
+  }
   const paid = await db.select({ product: designPurchases.product }).from(designPurchases)
     .where(and(eq(designPurchases.wishlistId, wishlistId), eq(designPurchases.status, "succeeded"), eq(designPurchases.testMode, false)));
   const invitation = paid.some((p) => p.product === "children_invitation");
@@ -74,10 +88,10 @@ export async function confirmDesignPayment(db: Database, orderId: string, paymen
   });
 }
 
-export async function setWishlistTheme(db: Database, userId: string, wishlistId: string, theme: WishlistTheme): Promise<boolean> {
+export async function setWishlistTheme(db: Database, userId: string, wishlistId: string, theme: WishlistTheme, freeTelegramIds: readonly string[] = []): Promise<boolean> {
   if (!isUuid(wishlistId) || !["journal", "children", "children-pink", "new-year"].includes(theme)) return false;
   if (theme !== "journal") {
-    const access = await getDesignAccess(db, wishlistId);
+    const access = await getDesignAccess(db, wishlistId, freeTelegramIds);
     if (theme === "new-year" ? !access.newYear : !access.children) return false;
   }
   const rows = await db.update(wishlists).set({ themeId: theme }).where(and(eq(wishlists.id, wishlistId), eq(wishlists.ownerId, userId))).returning({ id: wishlists.id });

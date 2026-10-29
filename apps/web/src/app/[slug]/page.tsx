@@ -15,6 +15,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { isAffiliateEnabled } from "@/server/affiliate-notice";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
+import { freeDesignTelegramIds } from "@/server/free-designs";
 import { readViewer } from "@/server/viewer";
 import { CancelReservationButton } from "./CancelReservationButton";
 import { GuestCta } from "./GuestCta";
@@ -55,7 +56,7 @@ export default async function PublicWishlistPage({ params }: Props) {
   const view = await getPublicWishlist(getDb(), slug, viewer);
   if (!view) notFound();
   const { wishlist, items, ownerName, isOwner } = view;
-  const design = await getDesignAccess(getDb(), wishlist.id);
+  const design = await getDesignAccess(getDb(), wishlist.id, freeDesignTelegramIds());
   const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
   const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
   const defaultName = user?.displayName.split(" ")[0] ?? "";
