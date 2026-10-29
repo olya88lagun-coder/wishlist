@@ -14,6 +14,7 @@ export function SiteFooter({ botUsername = process.env.TELEGRAM_BOT_USERNAME ?? 
         Написать отзыв
       </a>
       <a href="/privacy">Политика конфиденциальности</a>
+      <a href="/oferta">Условия покупки</a>
       <span>
         Другие проекты автора:{" "}
         {OTHER_PROJECTS.map((project, index) => (

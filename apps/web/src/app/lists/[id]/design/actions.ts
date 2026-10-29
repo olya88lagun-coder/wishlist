@@ -16,7 +16,7 @@ export async function checkoutDesignAction(wishlistId: string, _state: DesignSta
   if (!editLimiter.allow(`design:${user.id}`)) return { message: "Слишком много запросов. Попробуйте через минуту." };
   const parsed = z.object({ product: z.enum(["children", "children_invitation", "new_year"]), email: z.email().max(254), consent: z.literal("on") })
     .safeParse(Object.fromEntries(form));
-  if (!parsed.success) return { message: "Укажите email для чека и подтвердите условия покупки." };
+  if (!parsed.success) return { message: "Укажите email и подтвердите условия покупки." };
   let url: string | null;
   try { url = await createDesignCheckout(user.id, wishlistId, parsed.data.product, parsed.data.email); }
   catch { return { message: "Не удалось начать оплату. Повторите попытку: новый платёж не будет создан вместо уже начатого." }; }
