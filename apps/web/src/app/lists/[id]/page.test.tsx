@@ -22,7 +22,7 @@ beforeEach(() => {
 });
 
 test("owner sees the purchased theme on the management page, not only guests on the public page", async () => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "children-pink", children: true, invitation: false, newYear: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "children-pink", children: true, invitation: false, newYear: false, celebration: false });
   const html = renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }));
   expect(html).toContain('data-theme="children-pink"');
   expect(html).toMatch(/<main class="[^"]*\bwishlist-page\b/);
@@ -30,7 +30,7 @@ test("owner sees the purchased theme on the management page, not only guests on 
 });
 
 test("without a purchased theme the management page keeps the plain journal look", async () => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
   const html = renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }));
   expect(html).toContain('data-theme="journal"');
   expect(html).not.toContain("wishlist-page");
@@ -39,7 +39,7 @@ test("without a purchased theme the management page keeps the plain journal look
 const gotoDesign = 'href="/lists/list-1/design"';
 
 test("a list without a purchased design gets a prominent promo above the gift tools", async () => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
   const html = renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }));
   expect(html).toContain("Оформите список");
   expect(html).toContain("Выбрать оформление");
@@ -49,23 +49,31 @@ test("a list without a purchased design gets a prominent promo above the gift to
 });
 
 test("the design link is not buried in the settings section any more", async () => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
   const html = renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }));
   expect(html.split(gotoDesign)).toHaveLength(2);
   expect(html.slice(html.indexOf('class="owner-settings"'))).not.toContain(gotoDesign);
 });
 
 test("with a purchased design the card names the active theme and offers to change it", async () => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "children-pink", children: true, invitation: false, newYear: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "children-pink", children: true, invitation: false, newYear: false, celebration: false });
   const html = renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }));
   expect(html).not.toContain("Оформите список");
   expect(html).toContain("Розовое оформление");
-  expect(html).toContain("Цвет и приглашение");
+  expect(html).toContain("Настроить оформление");
   expect(html).toContain(gotoDesign);
 });
 
 test("a bought design that is not applied yet asks the owner to pick a colour", async () => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: true, invitation: false, newYear: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: true, invitation: false, newYear: false, celebration: false });
   const html = renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }));
   expect(html).toContain("Оформление куплено, но не применено");
+});
+
+test("celebration purchase is recognized in the owner promo without offering another purchase", async () => {
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "celebration", children: false, invitation: false, newYear: false, celebration: true });
+  const html = renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }));
+  expect(html).toContain("Оформление «Праздник»");
+  expect(html).not.toContain("Оформите список");
+  expect(html).toContain("Настроить оформление");
 });

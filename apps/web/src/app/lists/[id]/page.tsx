@@ -9,6 +9,7 @@ import { imageUrlFor } from "@/components/item-image";
 import { ReservedSticker } from "@/components/ReservedSticker";
 import { ShareBar } from "@/components/ShareBar";
 import { SiteFooter } from "@/components/SiteFooter";
+import { CelebrationHeading } from "@/components/CelebrationHeading";
 import { OwnerPageHeader } from "@/components/OwnerPageHeader";
 import { WishlistTheme } from "@/components/WishlistTheme";
 import { getDb } from "@/server/db";
@@ -54,7 +55,16 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
   return (
     <WishlistTheme theme={design.theme}>
     <main className={`page owner-page owner-page--detail${design.theme === "journal" ? "" : " wishlist-page"}`}>
-      <OwnerPageHeader
+      {design.theme !== "journal" ? <>
+        <div className="owner-hero__actions theme-owner-navigation">
+          <Link className="owner-back-link" href="/lists">← Все списки</Link>
+          <Link className="button button--ghost button--small" href={`/${wishlist.slug}`}>Как видят гости</Link>
+        </div>
+        <CelebrationHeading theme={design.theme} title={wishlist.title} eventDate={wishlist.eventDate}>
+          <CountdownSticker occasion={wishlist.occasion} eventDate={wishlist.eventDate} />
+        </CelebrationHeading>
+        <p className="muted">{giftCountText}</p>
+      </> : <OwnerPageHeader
         eyebrow="Ваш список желаний"
         title={wishlist.title}
         description={giftCountText}
@@ -65,7 +75,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
             <Link className="button button--ghost button--small" href={`/${wishlist.slug}`}>Как видят гости</Link>
           </>
         )}
-      />
+      />}
 
       <DesignPromo wishlistId={wishlist.id} access={design} />
 
