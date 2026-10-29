@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getDb } from "@/server/db";
 import { createDesignCheckout, refreshDesignPayment } from "@/server/design-payments";
+import { freeDesignTelegramIds } from "@/server/free-designs";
 import { editLimiter } from "@/server/rate-limit";
 import { requireUser } from "@/server/viewer";
 
@@ -28,7 +29,7 @@ export async function selectThemeAction(wishlistId: string, _state: DesignState,
   const user = await requireUser();
   if (!editLimiter.allow(`design:${user.id}`)) return { message: "Попробуйте через минуту." };
   const theme = z.enum(["journal", "children", "children-pink", "new-year", "celebration"]).safeParse(form.get("theme"));
-  if (!theme.success || !(await setWishlistTheme(getDb(), user.id, wishlistId, theme.data))) return { message: "Оформление недоступно." };
+  if (!theme.success || !(await setWishlistTheme(getDb(), user.id, wishlistId, theme.data, freeDesignTelegramIds()))) return { message: "Оформление недоступно." };
   const list = await getOwnedWishlist(getDb(), user.id, wishlistId);
   revalidatePath(`/lists/${wishlistId}/design`);
   if (list) revalidatePath(`/${list.slug}`);

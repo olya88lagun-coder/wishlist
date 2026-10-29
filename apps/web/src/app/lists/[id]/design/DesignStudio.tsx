@@ -6,9 +6,10 @@ import type { DesignAccess, WishlistTheme as Theme } from "@wishlist/db";
 import { WishlistTheme } from "@/components/WishlistTheme";
 import { CelebrationHeading } from "@/components/CelebrationHeading";
 import { checkDesignPaymentAction, checkoutDesignAction, selectThemeAction } from "./actions";
+import { isUnsavedSelection } from "./design-state";
 
-export function DesignStudio({ wishlistId, title, eventDate, access, salesEnabled, testMode, offerUrl, receiptByProvider = false, preview, invitationEditor, defaultTheme = "children", checkOnReturn = false }: {
-  wishlistId: string; title: string; eventDate?: string | null; access: DesignAccess; salesEnabled: boolean; testMode: boolean; offerUrl: string | null; receiptByProvider?: boolean; preview: ReactNode; invitationEditor?: ReactNode; defaultTheme?: Theme; checkOnReturn?: boolean;
+export function DesignStudio({ wishlistId, title, eventDate, access, salesEnabled, testMode, offerUrl, receiptByProvider = false, publicHref, preview, invitationEditor, defaultTheme = "children", checkOnReturn = false }: {
+  wishlistId: string; title: string; eventDate?: string | null; access: DesignAccess; salesEnabled: boolean; testMode: boolean; offerUrl: string | null; receiptByProvider?: boolean; publicHref?: string; preview: ReactNode; invitationEditor?: ReactNode; defaultTheme?: Theme; checkOnReturn?: boolean;
 }) {
   const [theme, setTheme] = useState<Theme>(access.children || access.newYear || access.celebration ? access.theme : defaultTheme);
   const [product, setProduct] = useState("children_invitation");
@@ -22,6 +23,7 @@ export function DesignStudio({ wishlistId, title, eventDate, access, salesEnable
   const holiday = theme === "new-year";
   const child = theme === "children" || theme === "children-pink";
   const purchased = celebration ? access.celebration : holiday ? access.newYear : child ? access.children : true;
+  const unsaved = isUnsavedSelection(theme, access.theme, purchased);
   return <><section className="design-studio" aria-label="Оформление списка">
     <div>
       <form action={select}>
@@ -29,8 +31,10 @@ export function DesignStudio({ wishlistId, title, eventDate, access, salesEnable
           {([["journal", "Журнал", "journal"], ["celebration", "Праздник", "celebration"], ["children", "Голубой", "blue"], ["children-pink", "Розовый", "pink"], ["new-year", "Новый год", "new-year"]] as const).map(([value, label, color]) =>
             <label key={value}><input type="radio" name="theme" value={value} checked={theme === value} onChange={() => setTheme(value)} /><span className={`design-swatch design-swatch--${color}`} aria-hidden="true" />{label}</label>)}
         </div></fieldset>
-        <button className="button button--ghost" disabled={saving || !purchased}><Palette aria-hidden="true" />{saving ? "Сохраняем…" : "Применить"}</button>
+        {unsaved && <p className="design-status" role="status">Это пока только предпросмотр. Нажмите «Применить», чтобы список стал таким.</p>}
+        <button className={unsaved ? "button" : "button button--ghost"} disabled={saving || !purchased}><Palette aria-hidden="true" />{saving ? "Сохраняем…" : "Применить"}</button>
         {selection.message && <p role="status">{selection.message}</p>}
+        {publicHref && !unsaved && <p><a href={publicHref} target="_blank" rel="noopener noreferrer">Посмотреть, как список видят гости</a></p>}
       </form>
       {((celebration && !access.celebration) || (holiday && !access.newYear) || (child && !access.invitation)) && <form action={buy} className="design-checkout">
         <fieldset><legend>{celebration ? "Праздник" : holiday ? "Новогоднее оформление" : access.children ? "Приглашение" : "Детское оформление"}</legend>
@@ -53,6 +57,6 @@ export function DesignStudio({ wishlistId, title, eventDate, access, salesEnable
       {holiday && access.newYear && <p className="row"><Check size={18} aria-hidden="true" />Новогоднее оформление куплено</p>}
       {child && access.invitation && <p className="row"><Check size={18} aria-hidden="true" />Оформление и приглашение куплены</p>}
     </div>
-    <div className="design-preview"><p className="design-preview__label">Предпросмотр</p><WishlistTheme theme={theme}>{celebration ? <CelebrationHeading title={title} eventDate={eventDate} preview /> : <h2>{title}</h2>}{preview}</WishlistTheme></div>
+    <div className="design-preview"><p className="design-preview__label">Предпросмотр</p><WishlistTheme theme={theme}>{theme !== "journal" ? <CelebrationHeading theme={theme} title={title} eventDate={eventDate} preview /> : <h2>{title}</h2>}{preview}</WishlistTheme></div>
   </section>{child && invitationEditor}</>;
 }

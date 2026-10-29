@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { createRequire } from "node:module";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { blockMetrika } from "./analytics-counter";
 
 const databaseUrl = process.env.E2E_DATABASE_URL;
@@ -24,7 +24,7 @@ test(`paid ${product} theme saves once with a full-page background`, async ({ pa
   const celebration = product === "celebration";
   const standalone = product !== "children_invitation";
   const holiday = product === "new_year";
-  const expectedTheme = celebration ? "celebration" : holiday ? "new-year" : "children-pink";
+  const expectedTheme = celebration ? "celebration" : holiday ? "new-year" : testInfo.project.name === "mobile" ? "children" : "children-pink";
   try {
     await sql`insert into users (id, display_name) values (${userId}, 'E2E оформление')`;
     await sql`insert into wishlists (id, owner_id, title, occasion, slug, theme_id) values (${wishlistId}, ${userId}, ${holiday ? 'Новогодние желания' : celebration ? 'День рождения' : 'Праздник Саши'}, ${holiday ? 'new_year' : 'birthday'}, ${slug}, ${expectedTheme})`;
@@ -34,7 +34,17 @@ test(`paid ${product} theme saves once with a full-page background`, async ({ pa
     const token = await new SignJWT({}).setProtectedHeader({ alg: "HS256" }).setSubject(userId).setAudience("session").setIssuedAt().setExpirationTime("1h").sign(new TextEncoder().encode(secret!));
     await context.addCookies([{ name: "wl_session", value: token, url: baseURL! }]);
     await blockMetrika(context);
+    // An already-purchased, already-selected theme upgrades without Apply or a new purchase.
+    await page.goto(`/${slug}`);
+    await expect(page.locator(".celebration-heading")).toBeVisible();
+    await expect(page.locator(`[data-theme="${expectedTheme}"]`)).toBeVisible();
+    expect((await sql`select count(*)::int as count from design_purchases where wishlist_id = ${wishlistId}`)[0].count).toBe(1);
+    await page.goto(`/lists/${wishlistId}`);
+    await expect(page.locator(".celebration-heading h1")).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath("owner.png"), fullPage: true });
     await page.goto(`/lists/${wishlistId}/design`);
+    await expect(page.locator(".design-preview .celebration-heading")).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath("studio.png"), fullPage: true });
     await page.locator(`.design-studio input[value="${expectedTheme}"]`).check();
     await page.getByRole("button", { name: "Применить", exact: true }).click();
     await expect(page.getByText("Оформление сохранено", { exact: true })).toBeVisible();
@@ -48,7 +58,7 @@ test(`paid ${product} theme saves once with a full-page background`, async ({ pa
       await page.getByLabel("Дата праздника", { exact: true }).fill("2026-12-12");
       await page.getByLabel("Время", { exact: true }).fill("15:30");
       await page.getByLabel("Место (необязательно)").fill("Тестовый частный адрес");
-      await page.locator('.invitation-editor input[value="pink"]').check();
+      await page.locator(`.invitation-editor input[value="${expectedTheme === "children-pink" ? "pink" : "blue"}"]`).check();
       const downloadEvent = page.waitForEvent("download");
       await page.getByRole("button", { name: "Скачать PNG", exact: true }).click();
       const download = await downloadEvent;
@@ -57,6 +67,14 @@ test(`paid ${product} theme saves once with a full-page background`, async ({ pa
       const png = PNG.sync.read(await readFile(file));
       expect([png.width, png.height]).toEqual([1080, 1440]);
       expect(jsQR(new Uint8ClampedArray(png.data), png.width, png.height)?.data).toBe(new URL(`/${slug}`, baseURL!).toString());
+      if (testInfo.project.name === "desktop") {
+        const response = await context.request.post(`/api/lists/${wishlistId}/invitation`, { headers: { Origin: new URL(baseURL!).origin }, data: { color: "pink", name: "Ш".repeat(40), age: "99", date: "2028-12-31", time: "23:59", place: "Ш".repeat(120), message: "Ж".repeat(180) } });
+        expect(response.status()).toBe(200);
+        const bytes = await response.body();
+        await writeFile(testInfo.outputPath("invitation-long.png"), bytes);
+        const longPng = PNG.sync.read(bytes);
+        expect(jsQR(new Uint8ClampedArray(longPng.data), longPng.width, longPng.height)?.data).toBe(new URL(`/${slug}`, baseURL!).toString());
+      }
     } else {
       const response = await context.request.post(`/api/lists/${wishlistId}/invitation`, { headers: { Origin: new URL(baseURL!).origin }, data: { name: "Саша", date: "2026-12-12", time: "15:30" } });
       expect(response.status()).toBe(403);

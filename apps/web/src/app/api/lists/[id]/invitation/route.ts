@@ -1,6 +1,7 @@
 import { getDesignAccess, getOwnedWishlist } from "@wishlist/db";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
+import { freeDesignTelegramIds } from "@/server/free-designs";
 import { readViewer } from "@/server/viewer";
 import { createRateLimiter } from "@/server/rate-limit";
 import { invitationSchema } from "@/lib/invitation";
@@ -20,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { id } = await params;
   const list = await getOwnedWishlist(getDb(), user.id, id);
   if (!list) return new Response(null, { status: 404 });
-  if (!(await getDesignAccess(getDb(), id)).invitation) return new Response(null, { status: 403 });
+  if (!(await getDesignAccess(getDb(), id, freeDesignTelegramIds())).invitation) return new Response(null, { status: 403 });
   let body: unknown;
   try { body = await readLimitedJson(request, 8192); }
   catch (error) { return new Response(null, { status: error instanceof PayloadTooLarge ? 413 : 400 }); }
