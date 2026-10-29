@@ -8,6 +8,7 @@ import { InvitationEditor } from "@/components/InvitationEditor";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
 import { readPaymentConfig } from "@/server/design-payments";
+import { freeDesignTelegramIds } from "@/server/free-designs";
 import { requireUser } from "@/server/viewer";
 import { DesignStudio } from "./DesignStudio";
 import { checkDesignPaymentAction } from "./actions";
@@ -20,7 +21,7 @@ export default async function DesignPage({ params, searchParams }: { params: Pro
   const { id } = await params;
   const view = await getOwnerWishlistView(getDb(), user.id, id);
   if (!view) notFound();
-  const access = await getDesignAccess(getDb(), id);
+  const access = await getDesignAccess(getDb(), id, freeDesignTelegramIds());
   const pending = await getPendingDesignOrders(getDb(), user.id, id);
   const config = readPaymentConfig();
   const returned = (await searchParams).payment === "return";

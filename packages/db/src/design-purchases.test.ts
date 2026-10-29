@@ -2,6 +2,7 @@ import { beforeEach, expect, test } from "vitest";
 import { createTestDb, createUserFixture } from "./testing";
 import { createWishlist, deleteWishlist } from "./wishlists";
 import { attachDesignPayment, beginDesignPurchase, confirmDesignPayment, getDesignAccess, getDesignOrderByPayment, setWishlistTheme, rejectUnattachedDesignPurchase } from "./design-purchases";
+import { authIdentities } from "./schema";
 import type { Database } from "./types";
 
 let db: Database;
@@ -105,4 +106,32 @@ test("child bundle does not block a separate New Year purchase", async () => {
   await confirmDesignPayment(db, holiday.id, "newyear-payment");
   expect(await setWishlistTheme(db, owner, id, "children-pink")).toBe(true);
   expect(await setWishlistTheme(db, owner, id, "new-year")).toBe(true);
+});
+
+
+const everything = (theme: "journal" | "children" | "children-pink" | "new-year") => ({ theme, children: true, invitation: true, newYear: true });
+
+test("owner from the free list gets every design without payment; others stay locked", async () => {
+  await db.insert(authIdentities).values({ userId: owner, provider: "telegram", providerUserId: "777" });
+  await db.insert(authIdentities).values({ userId: stranger, provider: "telegram", providerUserId: "888" });
+  expect(await getDesignAccess(db, id, ["777"])).toEqual(everything("journal"));
+  expect(await getDesignAccess(db, id, ["888"])).toEqual({ theme: "journal", children: false, invitation: false, newYear: false });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false });
+  expect(await getDesignAccess(db, id, [])).toEqual({ theme: "journal", children: false, invitation: false, newYear: false });
+});
+
+test("a VK account with the same numeric id is not treated as free", async () => {
+  await db.insert(authIdentities).values({ userId: owner, provider: "vk", providerUserId: "777" });
+  expect((await getDesignAccess(db, id, ["777"])).children).toBe(false);
+});
+
+test("free owner can select and keep any theme, a stranger cannot", async () => {
+  await db.insert(authIdentities).values({ userId: owner, provider: "telegram", providerUserId: "777" });
+  expect(await setWishlistTheme(db, owner, id, "children-pink")).toBe(false);
+  expect(await setWishlistTheme(db, owner, id, "children-pink", ["777"])).toBe(true);
+  expect(await getDesignAccess(db, id, ["777"])).toEqual(everything("children-pink"));
+  expect(await setWishlistTheme(db, owner, id, "new-year", ["777"])).toBe(true);
+  expect((await getDesignAccess(db, id, ["777"])).theme).toBe("new-year");
+  expect(await setWishlistTheme(db, stranger, id, "journal", ["777"])).toBe(false);
+  expect((await getDesignAccess(db, id)).theme).toBe("journal");
 });
