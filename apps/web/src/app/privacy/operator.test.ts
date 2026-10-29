@@ -24,3 +24,10 @@ test("the policy names the third parties that receive data", () => {
   expect(THIRD_PARTIES.map((party) => party.name)).toEqual(expect.arrayContaining(["Яндекс Метрика", "RouterAI", "Партнёрские сети и магазины"]));
   expect(THIRD_PARTIES.every((party) => party.what.length > 10 && party.why.length > 10)).toBe(true);
 });
+
+test("the policy covers paid designs: order email, payment data and YooKassa", () => {
+  const listed = COLLECTED_DATA.map((row) => row.what).join(" | ");
+  for (const data of ["Email для связи по заказу", "Данные об оплате"]) expect(listed).toContain(data);
+  expect(THIRD_PARTIES.map((party) => party.name)).toContain("ЮKassa");
+  expect(COLLECTED_DATA.find((row) => row.what.startsWith("Данные об оплате"))?.why).toMatch(/сверк|возврат/i);
+});

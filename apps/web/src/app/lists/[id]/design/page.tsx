@@ -32,7 +32,7 @@ export default async function DesignPage({ params, searchParams }: { params: Pro
       <p>{pending.length ? "Ожидаем подтверждение оплаты" : access.children || access.newYear ? "Покупка подтверждена" : "Платные функции ещё не активированы"}</p>
       <form action={checkDesignPaymentAction.bind(null, id)}><button className="button button--ghost button--small">Проверить оплату</button></form>
     </div>}
-    <DesignStudio wishlistId={id} title={view.wishlist.title} access={access} salesEnabled={Boolean(config)} testMode={config?.YOOKASSA_TEST_MODE === "true"} offerUrl={config?.YOOKASSA_OFFER_URL ?? null} checkOnReturn={returned && pending.length > 0}
+    <DesignStudio wishlistId={id} title={view.wishlist.title} access={access} salesEnabled={Boolean(config)} testMode={config?.YOOKASSA_TEST_MODE === "true"} offerUrl={config?.YOOKASSA_OFFER_URL ?? null} receiptByProvider={Boolean(config?.YOOKASSA_VAT_CODE)} checkOnReturn={returned && pending.length > 0}
       defaultTheme={view.wishlist.occasion === "new_year" ? "new-year" : "children"}
       invitationEditor={<InvitationEditor wishlistId={id} title={view.wishlist.title} eventDate={view.wishlist.eventDate} shareUrl={shareUrl} enabled={access.invitation} />}
       preview={<div className="grid">{view.items.slice(0, 2).map(item => <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, getEnv().S3_PUBLIC_BASE_URL) }} />)}{view.items.length === 0 && <p className="muted">Пока без подарков</p>}</div>} />

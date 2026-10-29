@@ -7,14 +7,15 @@ const configSchema = z.object({
   YOOKASSA_SALES_ENABLED: z.literal("true"),
   YOOKASSA_SHOP_ID: z.string().regex(/^\d+$/),
   YOOKASSA_SECRET_KEY: z.string().min(1),
-  YOOKASSA_VAT_CODE: z.coerce.number().int().min(1).max(12),
+  // Без кода НДС платёж создаётся без чека: самозанятый оформляет чек в «Мой налог» сам.
+  YOOKASSA_VAT_CODE: z.coerce.number().int().min(1).max(12).optional(),
   YOOKASSA_TAX_SYSTEM_CODE: z.coerce.number().int().min(1).max(6).optional(),
   YOOKASSA_OFFER_URL: z.url().startsWith("https://"),
   YOOKASSA_TEST_MODE: z.enum(["true", "false"]),
 });
 
 export function readPaymentConfig(source: Record<string, string | undefined> = process.env, requireSales = true) {
-  const normalized = { ...source, YOOKASSA_TAX_SYSTEM_CODE: source.YOOKASSA_TAX_SYSTEM_CODE || undefined };
+  const normalized = { ...source, YOOKASSA_VAT_CODE: source.YOOKASSA_VAT_CODE || undefined, YOOKASSA_TAX_SYSTEM_CODE: source.YOOKASSA_TAX_SYSTEM_CODE || undefined };
   const result = configSchema.safeParse(requireSales ? normalized : { ...normalized, YOOKASSA_SALES_ENABLED: "true" });
   return result.success ? result.data : null;
 }
@@ -72,10 +73,10 @@ export async function createDesignCheckout(userId: string, wishlistId: string, p
     body: JSON.stringify({ amount, capture: true, description,
       confirmation: { type: "redirect", return_url: `${getEnv().APP_URL.replace(/\/$/, "")}/lists/${wishlistId}/design?payment=return` },
       metadata: { orderId: order.id, userId, wishlistId },
-      receipt: { customer: { email: order.email },
+      ...(config.YOOKASSA_VAT_CODE ? { receipt: { customer: { email: order.email },
         ...(config.YOOKASSA_TAX_SYSTEM_CODE ? { tax_system_code: config.YOOKASSA_TAX_SYSTEM_CODE } : {}),
         items: [{ description, quantity: "1.00", amount, vat_code: config.YOOKASSA_VAT_CODE, payment_mode: "full_payment", payment_subject: "service" }],
-      },
+      } } : {}),
     }),
   }); } catch (error) {
     // Only an explicit field-validation rejection is safe to close. Timeouts/5xx stay retryable with the same key.
