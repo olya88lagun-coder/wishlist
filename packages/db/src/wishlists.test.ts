@@ -24,6 +24,25 @@ async function created() {
   return result.wishlist;
 }
 
+describe("audience (for whom the list is)", () => {
+  test("is stored on create and defaults to unspecified", async () => {
+    expect((await created()).audience).toBeNull();
+    const child = await createWishlist(db, owner, { ...input, audience: "child" });
+    expect(child.ok && child.wishlist.audience).toBe("child");
+    expect((await listWishlistsForOwner(db, owner)).map((list) => list.audience).sort()).toEqual(["child", null]);
+  });
+
+  test("update changes it, keeps it when omitted and clears it with null", async () => {
+    const list = await created();
+    expect(await updateWishlist(db, owner, list.id, { ...input, audience: "adult" })).toBe(true);
+    expect((await getOwnedWishlist(db, owner, list.id))?.audience).toBe("adult");
+    expect(await updateWishlist(db, owner, list.id, { ...input, title: "Новое имя" })).toBe(true);
+    expect((await getOwnedWishlist(db, owner, list.id))?.audience).toBe("adult");
+    expect(await updateWishlist(db, owner, list.id, { ...input, audience: null })).toBe(true);
+    expect((await getOwnedWishlist(db, owner, list.id))?.audience).toBeNull();
+  });
+});
+
 describe("createWishlist", () => {
   test("creates a list with a valid random slug and zero items", async () => {
     const list = await created();

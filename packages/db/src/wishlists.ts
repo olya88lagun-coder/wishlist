@@ -2,15 +2,18 @@ import { generateSlug } from "@wishlist/core";
 import { and, count, desc, eq, isNull, sql } from "drizzle-orm";
 import { isUniqueViolation, isUuid } from "./errors";
 import { MAX_WISHLISTS_PER_USER } from "./limits";
-import { authIdentities, items, occasionEnum, reservations, wishlistDeletionNotices, wishlists } from "./schema";
+import { audienceEnum, authIdentities, items, occasionEnum, reservations, wishlistDeletionNotices, wishlists } from "./schema";
 import type { Database } from "./types";
 
 export type WishlistOccasion = (typeof occasionEnum.enumValues)[number];
-export type WishlistInput = { title: string; occasion: WishlistOccasion; eventDate: string | null };
+export type WishlistAudience = (typeof audienceEnum.enumValues)[number];
+// audience: undefined — не менять, null — «не указано»
+export type WishlistInput = { title: string; occasion: WishlistOccasion; eventDate: string | null; audience?: WishlistAudience | null };
 export type WishlistSummary = {
   id: string;
   title: string;
   occasion: WishlistOccasion;
+  audience: WishlistAudience | null;
   eventDate: string | null;
   slug: string;
   itemCount: number;
@@ -22,6 +25,7 @@ const summaryColumns = {
   id: wishlists.id,
   title: wishlists.title,
   occasion: wishlists.occasion,
+  audience: wishlists.audience,
   eventDate: wishlists.eventDate,
   slug: wishlists.slug,
   itemCount: sql<number>`count(${items.id})::int`,
@@ -47,8 +51,8 @@ export async function createWishlist(
     try {
       const [row] = await db
         .insert(wishlists)
-        .values({ ownerId, title: input.title, occasion: input.occasion, eventDate: input.eventDate, slug: generateSlug() })
-        .returning({ id: wishlists.id, title: wishlists.title, occasion: wishlists.occasion, eventDate: wishlists.eventDate, slug: wishlists.slug });
+        .values({ ownerId, title: input.title, occasion: input.occasion, audience: input.audience ?? null, eventDate: input.eventDate, slug: generateSlug() })
+        .returning({ id: wishlists.id, title: wishlists.title, occasion: wishlists.occasion, audience: wishlists.audience, eventDate: wishlists.eventDate, slug: wishlists.slug });
       return { ok: true, wishlist: { ...row!, itemCount: 0 } };
     } catch (error) {
       if (!isUniqueViolation(error) || attempt >= SLUG_ATTEMPTS) throw error;
@@ -70,7 +74,7 @@ export async function updateWishlist(db: Database, ownerId: string, wishlistId: 
   if (!isUuid(wishlistId)) return false;
   const updated = await db
     .update(wishlists)
-    .set({ title: input.title, occasion: input.occasion, eventDate: input.eventDate })
+    .set({ title: input.title, occasion: input.occasion, eventDate: input.eventDate, ...(input.audience === undefined ? {} : { audience: input.audience }) })
     .where(and(eq(wishlists.id, wishlistId), eq(wishlists.ownerId, ownerId)))
     .returning({ id: wishlists.id });
   return updated.length > 0;

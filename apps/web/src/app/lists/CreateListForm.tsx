@@ -36,6 +36,15 @@ export function CreateListForm({ defaultOpen, returnTo }: { defaultOpen: boolean
           {state.errors.occasion && <p id="create-occasion-error" className="error">{state.errors.occasion}</p>}
         </div>
         <div className="field">
+          <label htmlFor="audience">Для кого список</label>
+          <select key={state.values.audience ?? ""} id="audience" name="audience" className="select" defaultValue={state.values.audience ?? ""} aria-invalid={state.errors.audience ? true : undefined} aria-describedby={state.errors.audience ? "create-audience-error" : undefined}>
+            <option value="">Не указывать</option>
+            <option value="adult">Для взрослого</option>
+            <option value="child">Для ребёнка</option>
+          </select>
+          {state.errors.audience && <p id="create-audience-error" className="error">{state.errors.audience}</p>}
+        </div>
+        <div className="field">
           <label htmlFor="eventDate">Дата праздника</label>
           <input id="eventDate" name="eventDate" type="date" className="input" defaultValue={state.values.eventDate ?? ""} aria-invalid={state.errors.eventDate ? true : undefined} aria-describedby={state.errors.eventDate ? "create-date-error" : undefined} />
           {state.errors.eventDate && <p id="create-date-error" className="error">{state.errors.eventDate}</p>}

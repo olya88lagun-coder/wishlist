@@ -26,6 +26,11 @@ const wishlistSchema = z.object({
     .string()
     .refine((v) => v === "" || isRealDate(v), "Проверьте дату")
     .transform((v) => (v === "" ? null : v)),
+  // Нет поля в форме — не менять; пустое значение — «не указано»
+  audience: z
+    .enum(["adult", "child", ""], { error: "Выберите из списка" })
+    .optional()
+    .transform((v) => (v === undefined ? undefined : v === "" ? null : v)),
 });
 
 function collectErrors(error: z.ZodError): FieldErrors {
@@ -38,7 +43,7 @@ function collectErrors(error: z.ZodError): FieldErrors {
 }
 
 export function parseWishlistForm(form: FormData): FormResult<WishlistInput> {
-  const parsed = wishlistSchema.safeParse({ title: text(form, "title"), occasion: text(form, "occasion"), eventDate: text(form, "eventDate") });
+  const parsed = wishlistSchema.safeParse({ title: text(form, "title"), occasion: text(form, "occasion"), eventDate: text(form, "eventDate"), ...(form.has("audience") ? { audience: text(form, "audience") } : {}) });
   return parsed.success ? { ok: true, value: parsed.data } : { ok: false, errors: collectErrors(parsed.error) };
 }
 

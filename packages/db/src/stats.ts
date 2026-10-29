@@ -12,6 +12,8 @@ export type AdminStats = {
   // Переходы в поиск магазина из подборщика и со страниц подарков
   storeSearches: { new: number; byStore: { store: string; count: number }[]; topSources: { source: string; count: number }[] };
   ai: { requests: number; attempts: number; failedAttempts: number; costMicroRub: number };
+  // Дни рождения по тому, для кого список; «не указано» — списки без выбора
+  birthdayAudience: { child: number; adult: number; unspecified: number };
   themeInterest: number;
 };
 
@@ -41,6 +43,12 @@ export async function adminStats(db: Database, since: Date): Promise<AdminStats>
     .where(eq(reservations.status, "active"));
   const [itemsNew] = await db.select({ n: count() }).from(items).where(and(gte(items.createdAt, since), isNull(items.deletedAt)));
   const [reservationsNew] = await db.select({ n: count() }).from(reservations).where(gte(reservations.createdAt, since));
+  const birthdayRows = await db
+    .select({ audience: wishlists.audience, n: sql<number>`count(*)::int` })
+    .from(wishlists)
+    .where(eq(wishlists.occasion, "birthday"))
+    .groupBy(wishlists.audience);
+  const birthdayCount = (audience: "child" | "adult" | null) => birthdayRows.find((row) => row.audience === audience)?.n ?? 0;
   const byStore = await db
     .select({ store: sql<string>`coalesce(${affiliateClicks.store}, 'other')`, count: sql<number>`count(*)::int` })
     .from(affiliateClicks)
@@ -84,6 +92,7 @@ export async function adminStats(db: Database, since: Date): Promise<AdminStats>
       failedAttempts: Number(ai?.failedAttempts ?? 0),
       costMicroRub: Number(ai?.costMicroRub ?? 0),
     },
+    birthdayAudience: { child: birthdayCount("child"), adult: birthdayCount("adult"), unspecified: birthdayCount(null) },
     themeInterest: await countInterest(db, FEATURE_THEMES),
   };
 }

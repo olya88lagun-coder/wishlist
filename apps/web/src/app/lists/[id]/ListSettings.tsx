@@ -8,10 +8,10 @@ import { initialFormState } from "../form-state";
 import { deleteListAction, updateListAction } from "./actions";
 import { ConfirmButton } from "./ConfirmButton";
 
-export function ListSettings({ wishlist }: { wishlist: Pick<WishlistSummary, "id" | "title" | "occasion" | "eventDate"> }) {
+export function ListSettings({ wishlist }: { wishlist: Pick<WishlistSummary, "id" | "title" | "occasion" | "audience" | "eventDate"> }) {
   const [state, action] = useActionState(updateListAction.bind(null, wishlist.id), initialFormState);
   const formRef = useFormErrorFocus(state);
-  const values = state.status === "error" ? state.values : { title: wishlist.title, occasion: wishlist.occasion, eventDate: wishlist.eventDate ?? "" };
+  const values = state.status === "error" ? state.values : { title: wishlist.title, occasion: wishlist.occasion, audience: wishlist.audience ?? "", eventDate: wishlist.eventDate ?? "" };
   return (
     <details className="panel owner-settings-card">
       <summary>Настройки списка <span aria-hidden="true">→</span></summary>
@@ -29,6 +29,15 @@ export function ListSettings({ wishlist }: { wishlist: Pick<WishlistSummary, "id
             <option value="other">Другой праздник</option>
           </select>
           {state.errors.occasion && <p id="list-occasion-error" className="error">{state.errors.occasion}</p>}
+        </div>
+        <div className="field">
+          <label htmlFor="list-audience">Для кого список</label>
+          <select key={values.audience ?? ""} id="list-audience" name="audience" className="select" defaultValue={values.audience ?? ""} aria-invalid={state.errors.audience ? true : undefined} aria-describedby={state.errors.audience ? "list-audience-error" : undefined}>
+            <option value="">Не указывать</option>
+            <option value="adult">Для взрослого</option>
+            <option value="child">Для ребёнка</option>
+          </select>
+          {state.errors.audience && <p id="list-audience-error" className="error">{state.errors.audience}</p>}
         </div>
         <div className="field">
           <label htmlFor="list-date">Дата праздника</label>
