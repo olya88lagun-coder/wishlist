@@ -1,3 +1,4 @@
+import { EXTRA_DESIGNS } from "@wishlist/core";
 import { afterEach, expect, test, vi } from "vitest";
 import { isVerifiedDesignPayment, readPaymentConfig } from "./design-payments";
 import { beginDesignPurchase, attachDesignPayment, getDesignOrderByPayment, confirmDesignPayment, rejectUnattachedDesignPurchase } from "@wishlist/db";
@@ -98,7 +99,7 @@ test.each([400, 500])("only definitive field rejection closes the order, HTTP %s
   expect(attachDesignPayment).not.toHaveBeenCalled();
 });
 
-test.each([["new_year", "Новогоднее оформление вишлиста"], ["celebration", "Оформление вишлиста «Праздник»"]] as const)("%s checkout sends 149 rubles and the correct service description", async (product, description) => {
+test.each([["new_year", "Новогоднее оформление вишлиста"], ["celebration", "Оформление вишлиста «Праздник»"], ...EXTRA_DESIGNS.map((design) => [design.id, `Оформление вишлиста «${design.label}»`] as const)] as const)("%s checkout sends 149 rubles and the correct service description", async (product, description) => {
   for (const [key, value] of Object.entries(config)) vi.stubEnv(key, value);
   vi.mocked(beginDesignPurchase).mockResolvedValue({ ...order, amountKopecks: 14900, product, email: "saved@example.test", paymentId: null, confirmationUrl: null, createdAt: new Date(), status: "pending", testMode: true } as never);
   const fetcher = vi.fn().mockResolvedValue(Response.json({ ...payment, paid: false, status: "pending", amount: { value: "149.00", currency: "RUB" }, confirmation: { confirmation_url: "https://yoomoney.ru/checkout/test" } }));

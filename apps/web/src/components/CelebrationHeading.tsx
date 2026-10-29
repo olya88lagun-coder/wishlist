@@ -1,3 +1,4 @@
+import { EXTRA_DESIGNS } from "@wishlist/core";
 import type { ReactNode } from "react";
 
 export function CelebrationHeading({ title, ownerName, eventDate, preview = false, theme = "celebration", children }: {
@@ -9,7 +10,7 @@ export function CelebrationHeading({ title, ownerName, eventDate, preview = fals
     ? new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", timeZone: "UTC" }).format(date) : null;
   return <header className="celebration-heading">
     <div className="celebration-heading__content">
-      <p className="celebration-heading__kicker">{ownerName ? `список ${ownerName}` : theme === "new-year" ? "Время чудес" : theme.startsWith("children") ? "Маленькие мечты · большой праздник" : "Праздник"}</p>
+      <p className="celebration-heading__kicker">{ownerName ? `список ${ownerName}` : theme === "new-year" ? "Время чудес" : theme.startsWith("children") ? "Маленькие мечты · большой праздник" : EXTRA_DESIGNS.find((design) => design.id === theme)?.label ?? "Праздник"}</p>
       <Title className="display">{title}</Title>
       <div className="celebration-heading__rule" aria-hidden="true"><span />✦<span /></div>
       {(dateLabel || children) && <div className="celebration-heading__date">

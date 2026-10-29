@@ -8,3 +8,5 @@ export * from "./money";
 export * from "./store";
 export * from "./queues";
 export * from "./auth/reminder-link";
+
+export * from "./design-catalog";

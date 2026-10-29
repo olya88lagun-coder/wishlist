@@ -5,7 +5,7 @@ import OfertaPage, { metadata } from "./page";
 import { OFFER_PRODUCTS } from "./offer";
 
 test("offer lists every paid product with its price", () => {
-  expect(OFFER_PRODUCTS.map((product) => product.price)).toEqual(["149 ₽", "199 ₽", "50 ₽", "149 ₽", "149 ₽"]);
+  expect(OFFER_PRODUCTS.map((product) => product.price)).toEqual(["149 ₽", "199 ₽", "50 ₽", "149 ₽", "149 ₽", ...Array(6).fill("149 ₽")]);
   const html = renderToStaticMarkup(<OfertaPage />);
   for (const product of OFFER_PRODUCTS) expect(html).toContain(product.price);
 });

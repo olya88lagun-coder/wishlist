@@ -1,3 +1,4 @@
+import { EXTRA_THEME_IDS } from "@wishlist/core";
 import { beforeEach, expect, test } from "vitest";
 import { createTestDb, createUserFixture } from "./testing";
 import { createWishlist, deleteWishlist } from "./wishlists";
@@ -141,7 +142,7 @@ test("child bundle does not block or discount celebration", async () => {
   expect(await setWishlistTheme(db, owner, id, "celebration")).toBe(true);
 });
 
-const everything = (theme: "journal" | "children" | "children-pink" | "new-year" | "celebration") => ({ theme, children: true, invitation: true, newYear: true, celebration: true });
+const everything = (theme: "journal" | "children" | "children-pink" | "new-year" | "celebration") => ({ theme, children: true, invitation: true, newYear: true, celebration: true, additionalThemes: EXTRA_THEME_IDS });
 
 test("owner from the free list gets every design without payment; others stay locked", async () => {
   await db.insert(authIdentities).values({ userId: owner, provider: "telegram", providerUserId: "777" });
@@ -166,4 +167,32 @@ test("free owner can select and keep any theme, a stranger cannot", async () => 
   expect((await getDesignAccess(db, id, ["777"])).theme).toBe("new-year");
   expect(await setWishlistTheme(db, stranger, id, "journal", ["777"])).toBe(false);
   expect((await getDesignAccess(db, id)).theme).toBe("journal");
+  for (const theme of EXTRA_THEME_IDS) {
+    expect(await setWishlistTheme(db, owner, id, theme, ["777"])).toBe(true);
+    expect((await getDesignAccess(db, id, ["777"])).theme).toBe(theme);
+    expect(await setWishlistTheme(db, stranger, id, theme, ["777"])).toBe(false);
+  }
+});
+
+test.each(EXTRA_THEME_IDS)("%s has isolated rights, authoritative pricing and test-mode protection", async (theme) => {
+  expect(await setWishlistTheme(db, owner, id, theme)).toBe(false);
+  expect(await beginDesignPurchase(db, stranger, id, theme, "a@example.test")).toBeNull();
+  const trial = (await beginDesignPurchase(db, owner, id, theme, "a@example.test", true))!;
+  expect(trial.amountKopecks).toBe(14900);
+  await attachDesignPayment(db, trial.id, "trial-" + theme, null);
+  await confirmDesignPayment(db, trial.id, "trial-" + theme);
+  expect(await setWishlistTheme(db, owner, id, theme)).toBe(false);
+  const order = (await beginDesignPurchase(db, owner, id, theme, "a@example.test"))!;
+  expect(order.amountKopecks).toBe(14900);
+  expect((await beginDesignPurchase(db, owner, id, theme, "retry@example.test"))?.id).toBe(order.id);
+  expect(await setWishlistTheme(db, owner, id, theme)).toBe(false);
+  await attachDesignPayment(db, order.id, "paid-" + theme, null);
+  await confirmDesignPayment(db, order.id, "paid-" + theme);
+  expect(await getDesignAccess(db, id)).toMatchObject({ theme, invitation: false, children: false, additionalThemes: [theme] });
+  expect(await setWishlistTheme(db, stranger, id, theme)).toBe(false);
+  expect(await beginDesignPurchase(db, owner, id, theme, "again@example.test")).toBeNull();
+  const other = EXTRA_THEME_IDS.find((value) => value !== theme)!;
+  expect(await setWishlistTheme(db, owner, id, other)).toBe(false);
+  expect(await setWishlistTheme(db, owner, id, "journal")).toBe(true);
+  expect(await setWishlistTheme(db, owner, id, theme)).toBe(true);
 });

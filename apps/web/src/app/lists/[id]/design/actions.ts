@@ -1,5 +1,7 @@
 "use server";
 
+import { EXTRA_THEME_IDS } from "@wishlist/core";
+
 import { getOwnedWishlist, getPendingDesignOrders, setWishlistTheme } from "@wishlist/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -15,7 +17,7 @@ export type DesignState = { message: string };
 export async function checkoutDesignAction(wishlistId: string, _state: DesignState, form: FormData): Promise<DesignState> {
   const user = await requireUser();
   if (!editLimiter.allow(`design:${user.id}`)) return { message: "Слишком много запросов. Попробуйте через минуту." };
-  const parsed = z.object({ product: z.enum(["children", "children_invitation", "new_year", "celebration"]), email: z.email().max(254), consent: z.literal("on") })
+  const parsed = z.object({ product: z.enum(["children", "children_invitation", "new_year", "celebration", ...EXTRA_THEME_IDS]), email: z.email().max(254), consent: z.literal("on") })
     .safeParse(Object.fromEntries(form));
   if (!parsed.success) return { message: "Укажите email и подтвердите условия покупки." };
   let url: string | null;
@@ -28,7 +30,7 @@ export async function checkoutDesignAction(wishlistId: string, _state: DesignSta
 export async function selectThemeAction(wishlistId: string, _state: DesignState, form: FormData): Promise<DesignState> {
   const user = await requireUser();
   if (!editLimiter.allow(`design:${user.id}`)) return { message: "Попробуйте через минуту." };
-  const theme = z.enum(["journal", "children", "children-pink", "new-year", "celebration"]).safeParse(form.get("theme"));
+  const theme = z.enum(["journal", "children", "children-pink", "new-year", "celebration", ...EXTRA_THEME_IDS]).safeParse(form.get("theme"));
   if (!theme.success || !(await setWishlistTheme(getDb(), user.id, wishlistId, theme.data, freeDesignTelegramIds()))) return { message: "Оформление недоступно." };
   const list = await getOwnedWishlist(getDb(), user.id, wishlistId);
   revalidatePath(`/lists/${wishlistId}/design`);
