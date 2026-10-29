@@ -1,3 +1,4 @@
+import { EXTRA_DESIGNS } from "@wishlist/core";
 import { attachDesignPayment, beginDesignPurchase, cancelDesignPayment, confirmDesignPayment, getDesignOrderByPayment, rejectUnattachedDesignPurchase, type DesignOrder, type DesignProduct } from "@wishlist/db";
 import { z } from "zod";
 import { getDb } from "./db";
@@ -66,7 +67,8 @@ export async function createDesignCheckout(userId: string, wishlistId: string, p
   // The provider retains idempotency keys for 24 hours. Never recreate an ambiguous older charge.
   if (Date.now() - order.createdAt.getTime() > 23 * 60 * 60 * 1000) throw new Error("Нужна проверка предыдущего платежа");
   const amount = { value: (order.amountKopecks / 100).toFixed(2), currency: "RUB" };
-  const description = product === "celebration" ? "Оформление вишлиста «Праздник»" : product === "new_year" ? "Новогоднее оформление вишлиста" : product === "children" ? "Детское оформление вишлиста" : "Детское оформление и приглашение";
+  const extra = EXTRA_DESIGNS.find((design) => design.id === product);
+  const description = extra ? `Оформление вишлиста «${extra.label}»` : product === "celebration" ? "Оформление вишлиста «Праздник»" : product === "new_year" ? "Новогоднее оформление вишлиста" : product === "children" ? "Детское оформление вишлиста" : "Детское оформление и приглашение";
   let payment: Payment;
   try { payment = await api("payments", {
     method: "POST", headers: { "Idempotence-Key": order.id },

@@ -1,7 +1,10 @@
+import { EXTRA_DESIGNS } from "@wishlist/core";
 import Link from "next/link";
 import type { DesignAccess } from "@wishlist/db";
 
+const EXTRA_NAMES = Object.fromEntries(EXTRA_DESIGNS.map((design) => [design.id, `Оформление «${design.label}»`]));
 const THEME_NAMES: Partial<Record<DesignAccess["theme"], string>> = {
+  ...EXTRA_NAMES,
   celebration: "Оформление «Праздник»",
   children: "Голубое оформление",
   "children-pink": "Розовое оформление",
@@ -10,7 +13,7 @@ const THEME_NAMES: Partial<Record<DesignAccess["theme"], string>> = {
 
 // Заметная карточка над инструментами списка: оформление раньше пряталось внизу страницы, под настройками.
 export function DesignPromo({ wishlistId, access }: { wishlistId: string; access: DesignAccess }) {
-  const owned = access.children || access.newYear || access.celebration;
+  const owned = access.children || access.newYear || access.celebration || Boolean(access.additionalThemes?.length);
   const themeName = THEME_NAMES[access.theme];
   const href = `/lists/${wishlistId}/design`;
   return (

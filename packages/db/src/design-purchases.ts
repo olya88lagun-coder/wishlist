@@ -1,14 +1,15 @@
+import { EXTRA_THEME_IDS, isExtraTheme, type ExtraTheme } from "@wishlist/core";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { isUuid } from "./errors";
 import { authIdentities, designPurchases, wishlists } from "./schema";
 import type { Database } from "./types";
 
-export type DesignProduct = "children" | "children_invitation" | "new_year" | "celebration";
-export type WishlistTheme = "journal" | "children" | "children-pink" | "new-year" | "celebration";
+export type DesignProduct = "children" | "children_invitation" | "new_year" | "celebration" | ExtraTheme;
+export type WishlistTheme = "journal" | "children" | "children-pink" | "new-year" | "celebration" | ExtraTheme;
 export type DesignOrder = typeof designPurchases.$inferSelect;
-export type DesignAccess = { theme: WishlistTheme; children: boolean; invitation: boolean; newYear: boolean; celebration: boolean };
+export type DesignAccess = { theme: WishlistTheme; children: boolean; invitation: boolean; newYear: boolean; celebration: boolean; additionalThemes?: readonly ExtraTheme[] };
 
-const PAID_THEMES: readonly WishlistTheme[] = ["children", "children-pink", "new-year", "celebration"];
+const PAID_THEMES: readonly WishlistTheme[] = ["children", "children-pink", "new-year", "celebration", ...EXTRA_THEME_IDS];
 
 // Список Telegram ID, которым все оформления доступны без оплаты (задаётся владельцем сервиса в окружении).
 async function ownerIsFree(db: Database, ownerId: string, freeTelegramIds: readonly string[]): Promise<boolean> {
@@ -23,7 +24,7 @@ export async function getDesignAccess(db: Database, wishlistId: string, freeTele
   const [list] = await db.select({ theme: wishlists.themeId, ownerId: wishlists.ownerId }).from(wishlists).where(eq(wishlists.id, wishlistId));
   if (list && await ownerIsFree(db, list.ownerId, freeTelegramIds)) {
     const theme = PAID_THEMES.find((value) => value === list.theme) ?? "journal";
-    return { theme, children: true, invitation: true, newYear: true, celebration: true };
+    return { theme, children: true, invitation: true, newYear: true, celebration: true, additionalThemes: EXTRA_THEME_IDS };
   }
   const paid = await db.select({ product: designPurchases.product }).from(designPurchases)
     .where(and(eq(designPurchases.wishlistId, wishlistId), eq(designPurchases.status, "succeeded"), eq(designPurchases.testMode, false)));
@@ -31,12 +32,13 @@ export async function getDesignAccess(db: Database, wishlistId: string, freeTele
   const children = invitation || paid.some((p) => p.product === "children");
   const newYear = paid.some((p) => p.product === "new_year");
   const celebration = paid.some((p) => p.product === "celebration");
-  const theme = celebration && list?.theme === "celebration" ? "celebration" : newYear && list?.theme === "new-year" ? "new-year" : children && (list?.theme === "children" || list?.theme === "children-pink") ? list.theme : "journal";
-  return { theme, children, invitation, newYear, celebration };
+  const additionalThemes = EXTRA_THEME_IDS.filter((id) => paid.some((p) => p.product === id));
+  const theme = list && isExtraTheme(list.theme) && additionalThemes.includes(list.theme) ? list.theme : celebration && list?.theme === "celebration" ? "celebration" : newYear && list?.theme === "new-year" ? "new-year" : children && (list?.theme === "children" || list?.theme === "children-pink") ? list.theme : "journal";
+  return { theme, children, invitation, newYear, celebration, ...(additionalThemes.length ? { additionalThemes } : {}) };
 }
 
 export async function beginDesignPurchase(db: Database, userId: string, wishlistId: string, product: DesignProduct, email: string, testMode = false): Promise<DesignOrder | null> {
-  if (!isUuid(wishlistId) || !["children", "children_invitation", "new_year", "celebration"].includes(product)) return null;
+  if (!isUuid(wishlistId) || !["children", "children_invitation", "new_year", "celebration", ...EXTRA_THEME_IDS].includes(product)) return null;
   return db.transaction(async (tx) => {
     const [list] = await tx.select({ id: wishlists.id }).from(wishlists)
       .where(and(eq(wishlists.id, wishlistId), eq(wishlists.ownerId, userId))).for("update");
@@ -47,7 +49,7 @@ export async function beginDesignPurchase(db: Database, userId: string, wishlist
     const theme = bundle || paid.some((o) => o.product === "children");
     const newYear = paid.some((o) => o.product === "new_year");
     const celebration = paid.some((o) => o.product === "celebration");
-    if (product === "celebration" ? celebration : product === "new_year" ? newYear : bundle || (product === "children" && theme)) return null;
+    if (isExtraTheme(product) ? paid.some((o) => o.product === product) : product === "celebration" ? celebration : product === "new_year" ? newYear : bundle || (product === "children" && theme)) return null;
     const pending = orders.find((o) => o.status === "pending");
     if (pending) return pending.product === product ? pending : null;
     const amountKopecks = product === "children_invitation" ? theme ? 5000 : 19900 : 14900;
@@ -85,16 +87,16 @@ export async function confirmDesignPayment(db: Database, orderId: string, paymen
     if (!order || order.status === "canceled") return false;
     if (order.status === "succeeded") return true;
     await tx.update(designPurchases).set({ status: "succeeded" }).where(eq(designPurchases.id, order.id));
-    if (!order.testMode) await tx.update(wishlists).set({ themeId: order.product === "celebration" ? "celebration" : order.product === "new_year" ? "new-year" : "children" }).where(and(eq(wishlists.id, order.wishlistId), eq(wishlists.ownerId, order.userId)));
+    if (!order.testMode) await tx.update(wishlists).set({ themeId: isExtraTheme(order.product) ? order.product : order.product === "celebration" ? "celebration" : order.product === "new_year" ? "new-year" : "children" }).where(and(eq(wishlists.id, order.wishlistId), eq(wishlists.ownerId, order.userId)));
     return true;
   });
 }
 
 export async function setWishlistTheme(db: Database, userId: string, wishlistId: string, theme: WishlistTheme, freeTelegramIds: readonly string[] = []): Promise<boolean> {
-  if (!isUuid(wishlistId) || !["journal", "children", "children-pink", "new-year", "celebration"].includes(theme)) return false;
+  if (!isUuid(wishlistId) || !["journal", "children", "children-pink", "new-year", "celebration", ...EXTRA_THEME_IDS].includes(theme)) return false;
   if (theme !== "journal") {
     const access = await getDesignAccess(db, wishlistId, freeTelegramIds);
-    if (theme === "celebration" ? !access.celebration : theme === "new-year" ? !access.newYear : !access.children) return false;
+    if (isExtraTheme(theme) ? !access.additionalThemes?.includes(theme) : theme === "celebration" ? !access.celebration : theme === "new-year" ? !access.newYear : !access.children) return false;
   }
   const rows = await db.update(wishlists).set({ themeId: theme }).where(and(eq(wishlists.id, wishlistId), eq(wishlists.ownerId, userId))).returning({ id: wishlists.id });
   return rows.length > 0;
