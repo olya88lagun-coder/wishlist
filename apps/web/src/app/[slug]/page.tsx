@@ -1,4 +1,5 @@
 import { getDesignAccess, getPublicWishlist, type PublicItemView } from "@wishlist/db";
+import { CelebrationHeading } from "@/components/CelebrationHeading";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -71,11 +72,13 @@ export default async function PublicWishlistPage({ params }: Props) {
 
   return (
     <WishlistTheme theme={design.theme}><main className="page page--wide wishlist-page">
-      <div className="row row--between">
+      {design.theme === "celebration" ? <CelebrationHeading title={wishlist.title} ownerName={ownerName} eventDate={wishlist.eventDate}>
+        <CountdownSticker occasion={wishlist.occasion} eventDate={wishlist.eventDate} />
+      </CelebrationHeading> : <><div className="row row--between">
         <p className="eyebrow">список {ownerName}</p>
         <CountdownSticker occasion={wishlist.occasion} eventDate={wishlist.eventDate} />
       </div>
-      <h1 className="display">{wishlist.title}</h1>
+      <h1 className="display">{wishlist.title}</h1></>}
 
       {isOwner && (
         <p className="panel muted" style={{ marginBottom: 20 }}>

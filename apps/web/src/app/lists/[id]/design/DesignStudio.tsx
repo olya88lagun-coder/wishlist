@@ -4,35 +4,37 @@ import { useActionState, useEffect, useState, type ReactNode } from "react";
 import { Check, CreditCard, Palette } from "lucide-react";
 import type { DesignAccess, WishlistTheme as Theme } from "@wishlist/db";
 import { WishlistTheme } from "@/components/WishlistTheme";
+import { CelebrationHeading } from "@/components/CelebrationHeading";
 import { checkDesignPaymentAction, checkoutDesignAction, selectThemeAction } from "./actions";
 
-export function DesignStudio({ wishlistId, title, access, salesEnabled, testMode, offerUrl, receiptByProvider = false, preview, invitationEditor, defaultTheme = "children", checkOnReturn = false }: {
-  wishlistId: string; title: string; access: DesignAccess; salesEnabled: boolean; testMode: boolean; offerUrl: string | null; receiptByProvider?: boolean; preview: ReactNode; invitationEditor?: ReactNode; defaultTheme?: Theme; checkOnReturn?: boolean;
+export function DesignStudio({ wishlistId, title, eventDate, access, salesEnabled, testMode, offerUrl, receiptByProvider = false, preview, invitationEditor, defaultTheme = "children", checkOnReturn = false }: {
+  wishlistId: string; title: string; eventDate?: string | null; access: DesignAccess; salesEnabled: boolean; testMode: boolean; offerUrl: string | null; receiptByProvider?: boolean; preview: ReactNode; invitationEditor?: ReactNode; defaultTheme?: Theme; checkOnReturn?: boolean;
 }) {
-  const [theme, setTheme] = useState<Theme>(access.children || access.newYear ? access.theme : defaultTheme);
+  const [theme, setTheme] = useState<Theme>(access.children || access.newYear || access.celebration ? access.theme : defaultTheme);
   const [product, setProduct] = useState("children_invitation");
   const [checkout, buy, buying] = useActionState(checkoutDesignAction.bind(null, wishlistId), { message: "" });
   const [selection, select, saving] = useActionState(selectThemeAction.bind(null, wishlistId), { message: "" });
-  useEffect(() => { setTheme(access.children || access.newYear ? access.theme : defaultTheme); }, [wishlistId, access.children, access.newYear, access.theme, defaultTheme]);
+  useEffect(() => { setTheme(access.children || access.newYear || access.celebration ? access.theme : defaultTheme); }, [wishlistId, access.children, access.newYear, access.celebration, access.theme, defaultTheme]);
   useEffect(() => {
     if (checkOnReturn) void checkDesignPaymentAction(wishlistId).catch(() => {});
   }, [checkOnReturn, wishlistId]);
+  const celebration = theme === "celebration";
   const holiday = theme === "new-year";
   const child = theme === "children" || theme === "children-pink";
-  const purchased = holiday ? access.newYear : child ? access.children : true;
+  const purchased = celebration ? access.celebration : holiday ? access.newYear : child ? access.children : true;
   return <><section className="design-studio" aria-label="Оформление списка">
     <div>
       <form action={select}>
         <fieldset><legend>Тема и цвет</legend><div className="design-swatches">
-          {([["journal", "Журнал", "journal"], ["children", "Голубой", "blue"], ["children-pink", "Розовый", "pink"], ["new-year", "Новый год", "new-year"]] as const).map(([value, label, color]) =>
+          {([["journal", "Журнал", "journal"], ["celebration", "Праздник", "celebration"], ["children", "Голубой", "blue"], ["children-pink", "Розовый", "pink"], ["new-year", "Новый год", "new-year"]] as const).map(([value, label, color]) =>
             <label key={value}><input type="radio" name="theme" value={value} checked={theme === value} onChange={() => setTheme(value)} /><span className={`design-swatch design-swatch--${color}`} aria-hidden="true" />{label}</label>)}
         </div></fieldset>
         <button className="button button--ghost" disabled={saving || !purchased}><Palette aria-hidden="true" />{saving ? "Сохраняем…" : "Применить"}</button>
         {selection.message && <p role="status">{selection.message}</p>}
       </form>
-      {((holiday && !access.newYear) || (child && !access.invitation)) && <form action={buy} className="design-checkout">
-        <fieldset><legend>{holiday ? "Новогоднее оформление" : access.children ? "Приглашение" : "Детское оформление"}</legend>
-          {holiday ? <label className="design-plan"><input type="radio" name="product" value="new_year" checked readOnly /><span><strong>Новый год</strong></span><strong className="design-price">149 ₽</strong></label> : <>
+      {((celebration && !access.celebration) || (holiday && !access.newYear) || (child && !access.invitation)) && <form action={buy} className="design-checkout">
+        <fieldset><legend>{celebration ? "Праздник" : holiday ? "Новогоднее оформление" : access.children ? "Приглашение" : "Детское оформление"}</legend>
+          {celebration ? <label className="design-plan"><input type="radio" name="product" value="celebration" checked readOnly /><span><strong>Праздник</strong><small>Золотое конфетти и праздничный фон. Для любого возраста.</small></span><strong className="design-price">149 ₽</strong></label> : holiday ? <label className="design-plan"><input type="radio" name="product" value="new_year" checked readOnly /><span><strong>Новый год</strong></span><strong className="design-price">149 ₽</strong></label> : <>
             {!access.children && <label className="design-plan"><input type="radio" name="product" value="children" checked={product === "children"} onChange={() => setProduct("children")} /><span><strong>Оформление</strong><small>Голубая и розовая расцветки</small></span><strong className="design-price">149 ₽</strong></label>}
             <label className="design-plan"><input type="radio" name="product" value="children_invitation" checked={access.children || product === "children_invitation"} onChange={() => setProduct("children_invitation")} /><span><strong>{access.children ? "Добавить приглашение" : "Оформление + приглашение"}</strong><small>PNG для MAX, Telegram и ВК</small></span><strong className="design-price">{access.children ? "50 ₽" : "199 ₽"}</strong></label>
           </>}
@@ -47,9 +49,10 @@ export function DesignStudio({ wishlistId, title, access, salesEnabled, testMode
         </> : <button className="button" disabled>Оплата пока недоступна</button>}
         {checkout.message && <p className="error" role="alert">{checkout.message}</p>}
       </form>}
+      {celebration && access.celebration && <p className="row"><Check size={18} aria-hidden="true" />Оформление «Праздник» куплено</p>}
       {holiday && access.newYear && <p className="row"><Check size={18} aria-hidden="true" />Новогоднее оформление куплено</p>}
       {child && access.invitation && <p className="row"><Check size={18} aria-hidden="true" />Оформление и приглашение куплены</p>}
     </div>
-    <div className="design-preview"><p className="design-preview__label">Предпросмотр</p><WishlistTheme theme={theme}><h2>{title}</h2>{preview}</WishlistTheme></div>
+    <div className="design-preview"><p className="design-preview__label">Предпросмотр</p><WishlistTheme theme={theme}>{celebration ? <CelebrationHeading title={title} eventDate={eventDate} preview /> : <h2>{title}</h2>}{preview}</WishlistTheme></div>
   </section>{child && invitationEditor}</>;
 }

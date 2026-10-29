@@ -98,15 +98,15 @@ test.each([400, 500])("only definitive field rejection closes the order, HTTP %s
   expect(attachDesignPayment).not.toHaveBeenCalled();
 });
 
-test("New Year checkout sends 149 rubles and the correct service description", async () => {
+test.each([["new_year", "Новогоднее оформление вишлиста"], ["celebration", "Оформление вишлиста «Праздник»"]] as const)("%s checkout sends 149 rubles and the correct service description", async (product, description) => {
   for (const [key, value] of Object.entries(config)) vi.stubEnv(key, value);
-  vi.mocked(beginDesignPurchase).mockResolvedValue({ ...order, amountKopecks: 14900, product: "new_year", email: "saved@example.test", paymentId: null, confirmationUrl: null, createdAt: new Date(), status: "pending", testMode: true } as never);
+  vi.mocked(beginDesignPurchase).mockResolvedValue({ ...order, amountKopecks: 14900, product, email: "saved@example.test", paymentId: null, confirmationUrl: null, createdAt: new Date(), status: "pending", testMode: true } as never);
   const fetcher = vi.fn().mockResolvedValue(Response.json({ ...payment, paid: false, status: "pending", amount: { value: "149.00", currency: "RUB" }, confirmation: { confirmation_url: "https://yoomoney.ru/checkout/test" } }));
   vi.stubGlobal("fetch", fetcher);
-  await createDesignCheckout("owner-1", "list-1", "new_year", "saved@example.test");
+  await createDesignCheckout("owner-1", "list-1", product, "saved@example.test");
   const body = JSON.parse(fetcher.mock.calls[0]![1].body);
   expect(body.amount.value).toBe("149.00");
-  expect(body.description).toBe("Новогоднее оформление вишлиста");
+  expect(body.description).toBe(description);
   expect(body.receipt.items[0].description).toBe(body.description);
   expect(confirmDesignPayment).not.toHaveBeenCalled();
 });
