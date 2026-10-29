@@ -18,6 +18,7 @@ import { requireUser } from "@/server/viewer";
 import { deleteItemAction } from "./actions";
 import { AddItemForm } from "./AddItemForm";
 import { ConfirmButton } from "./ConfirmButton";
+import { DesignPromo } from "./DesignPromo";
 import { ItemEditor } from "./ItemEditor";
 import { ListSettings } from "./ListSettings";
 import { parseHint } from "./parse-hint";
@@ -65,6 +66,8 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
           </>
         )}
       />
+
+      <DesignPromo wishlistId={wishlist.id} access={design} />
 
       {surpriseMode && <p className="owner-surprise-note">Режим «Полный сюрприз»: брони скрыты от владельца</p>}
 
@@ -117,7 +120,6 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
       )}
 
       <section className="owner-settings" aria-label="Настройки оформления и списка">
-        <Link className="button button--ghost" href={`/lists/${wishlist.id}/design`}>Оформление и приглашение</Link>
         <ListSettings wishlist={wishlist} />
       </section>
       <div className="owner-footer"><SiteFooter /></div>
