@@ -63,8 +63,24 @@ test("counts totals and what happened since the given moment", async () => {
     },
     storeSearches: { new: 0, byStore: [], topSources: [] },
     ai: { requests: 0, attempts: 0, failedAttempts: 0, costMicroRub: 0 },
+    birthdayAudience: { child: 0, adult: 0, unspecified: 1 },
     themeInterest: 1,
   });
+});
+
+test("splits birthday lists by audience and ignores other occasions", async () => {
+  const owner = await createUserFixture(db, "Маша");
+  const make = async (occasion: "birthday" | "other" | "new_year", audience?: "child" | "adult") => {
+    const result = await createWishlist(db, owner, { title: "Список", occasion, eventDate: null, audience });
+    if (!result.ok) throw new Error("setup");
+  };
+  await make("birthday", "child");
+  await make("birthday", "child");
+  await make("birthday", "adult");
+  await make("birthday");
+  await make("other", "child");
+  await make("new_year", "adult");
+  expect((await adminStats(db, SINCE)).birthdayAudience).toEqual({ child: 2, adult: 1, unspecified: 1 });
 });
 
 test("cancelled reservations and deleted items do not make a list 'with reservations'", async () => {

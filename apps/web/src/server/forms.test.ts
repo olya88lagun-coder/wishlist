@@ -15,6 +15,19 @@ describe("parseWishlistForm", () => {
     });
   });
 
+  test("reads whom the list is for; unspecified clears it and a missing field leaves it alone", () => {
+    const base = { title: "Идеи", occasion: "birthday", eventDate: "" };
+    expect(parseWishlistForm(form({ ...base, audience: "child" }))).toMatchObject({ ok: true, value: { audience: "child" } });
+    expect(parseWishlistForm(form({ ...base, audience: "adult" }))).toMatchObject({ ok: true, value: { audience: "adult" } });
+    expect(parseWishlistForm(form({ ...base, audience: "" }))).toMatchObject({ ok: true, value: { audience: null } });
+    const missing = parseWishlistForm(form(base));
+    expect(missing.ok && "audience" in missing.value).toBe(false);
+  });
+
+  test("rejects an unknown audience", () => {
+    expect(parseWishlistForm(form({ title: "Идеи", occasion: "birthday", eventDate: "", audience: "pet" }))).toMatchObject({ ok: false, errors: { audience: expect.any(String) } });
+  });
+
   test("treats an empty date as no date", () => {
     expect(parseWishlistForm(form({ title: "Идеи", occasion: "other", eventDate: "" }))).toMatchObject({ ok: true, value: { eventDate: null } });
   });

@@ -3,6 +3,8 @@ import { bigint, boolean, date, index, integer, jsonb, pgEnum, pgTable, text, ti
 
 export const authProviderEnum = pgEnum("auth_provider", ["telegram", "vk"]);
 export const occasionEnum = pgEnum("occasion", ["birthday", "new_year", "other"]);
+// Для кого список: нужен для статистики и подбора оформления; пустое значение — «не указано»
+export const audienceEnum = pgEnum("wishlist_audience", ["adult", "child"]);
 export const parseStatusEnum = pgEnum("parse_status", ["pending", "ok", "partial", "failed"]);
 export const reservationStatusEnum = pgEnum("reservation_status", ["active", "cancelled"]);
 
@@ -41,6 +43,7 @@ export const wishlists = pgTable(
     ownerId: uuid("owner_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
     occasion: occasionEnum("occasion").notNull().default("birthday"),
+    audience: audienceEnum("audience"),
     eventDate: date("event_date", { mode: "string" }),
     slug: text("slug").notNull().unique(),
     themeId: text("theme_id").notNull().default("journal"),

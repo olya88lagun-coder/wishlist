@@ -9,6 +9,7 @@ const summary = (over: Partial<WishlistSummary>): WishlistSummary => ({
   id: "w1",
   title: "Маше 30",
   occasion: "birthday",
+  audience: null,
   eventDate: "2026-10-08",
   slug: "AbCdEfGhIj",
   itemCount: 3,

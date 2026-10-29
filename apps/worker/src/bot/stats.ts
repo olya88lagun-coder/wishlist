@@ -26,6 +26,7 @@ export function statsText(stats: AdminStats): string {
     `📊 За ${STATS_WINDOW_DAYS} дней (всего)`,
     `Пользователи: +${stats.users.new} (${stats.users.total})`,
     `Списки: +${stats.wishlists.new} (${stats.wishlists.total}), с 3+ подарками: ${stats.wishlists.withThreeItems} (${percent(stats.wishlists.withThreeItems, stats.wishlists.total)}), с бронями: ${stats.wishlists.withReservations} (${percent(stats.wishlists.withReservations, stats.wishlists.total)})`,
+    `Дни рождения: детские ${stats.birthdayAudience.child}, взрослые ${stats.birthdayAudience.adult}, не указано ${stats.birthdayAudience.unspecified}`,
     `Подарки: +${stats.items.new}`,
     `Брони: +${stats.reservations.new}`,
     `Переходы в магазин из списков: +${stats.storeVisits.new}${visits ? ` — ${visits}` : ""}`,

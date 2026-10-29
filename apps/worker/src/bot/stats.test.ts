@@ -14,6 +14,7 @@ const stats: AdminStats = {
     topSources: [{ source: "gifts/for-mom", count: 14 }, { source: "finder", count: 9 }],
   },
   ai: { requests: 60, attempts: 70, failedAttempts: 7, costMicroRub: 900_000 },
+  birthdayAudience: { child: 8, adult: 19, unspecified: 3 },
   themeInterest: 4,
 };
 
@@ -24,6 +25,7 @@ test("a compact report for the admin", () => {
       "📊 За 7 дней (всего)",
       "Пользователи: +12 (40)",
       "Списки: +9 (25), с 3+ подарками: 10 (40%), с бронями: 5 (20%)",
+      "Дни рождения: детские 8, взрослые 19, не указано 3",
       "Подарки: +130",
       "Брони: +17",
       "Переходы в магазин из списков: +21 — wildberries 15, ozon 6",
