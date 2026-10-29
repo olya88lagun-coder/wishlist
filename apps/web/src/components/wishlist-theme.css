@@ -30,7 +30,7 @@
 }
 body:has(> .wishlist-theme[data-theme^="children"]) { background: #fff; }
 .wishlist-theme[data-theme^="children"]:has(> .wishlist-page) { min-height: 100vh; }
-.wishlist-theme[data-theme^="children"] .wishlist-page { padding-top: 150px; background: url('/themes/children-decor.png') center top / 100% 145px no-repeat; }
+.wishlist-theme[data-theme^="children"] .wishlist-page { padding-top: 180px; }
 .wishlist-theme[data-theme^="children"] .display { font-family: var(--font-manrope), system-ui, sans-serif; font-size: 40px; font-weight: 750; line-height: 1.15; overflow-wrap: anywhere; }
 .wishlist-theme[data-theme^="children"] .card { padding: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: none; }
 .wishlist-theme[data-theme^="children"] .card__title { font-family: var(--font-manrope), system-ui, sans-serif; font-weight: 700; }
@@ -61,7 +61,6 @@ body:has(.design-page) { background: #fff; }
 .design-preview__label { margin: 0; padding: 10px 16px; font-size: 12px; border-bottom: 1px solid var(--line); }
 .design-preview .wishlist-theme { padding: 24px 16px; }
 .design-preview .wishlist-theme[data-theme^="children"] { padding-top: 100px; background: white url('/themes/children-decor.png') center top / 100% auto no-repeat; }
-.wishlist-theme[data-theme="children-pink"] .wishlist-page,
 .design-preview .wishlist-theme[data-theme="children-pink"] { background-image: url('/themes/children-decor-pink.png'); }
 .design-preview h2 { font-size: 24px; line-height: 1.25; margin-top: 0; overflow-wrap: anywhere; }
 .design-preview .grid { gap: 10px; }
@@ -82,15 +81,33 @@ body:has(.design-page) { background: #fff; }
 }
 body:has(> .wishlist-theme[data-theme="new-year"]) { background: #fff; }
 .wishlist-theme[data-theme="new-year"]:has(> .wishlist-page) { min-height: 100vh; }
-.wishlist-theme[data-theme="new-year"] .wishlist-page { padding-top: 155px; background: url('/themes/new-year-decor.webp') center top / 100% 145px no-repeat; }
+.wishlist-theme[data-theme="new-year"] .wishlist-page { padding-top: 180px; }
 .wishlist-theme[data-theme="new-year"] .display { font-size: 42px; line-height: 1.15; overflow-wrap: anywhere; }
 .wishlist-theme[data-theme="new-year"] .card { padding: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: none; }
 .wishlist-theme[data-theme="new-year"] .tile { background: var(--paper-deep); }
 .wishlist-theme[data-theme="new-year"] .tile__img { object-fit: contain; }
 .wishlist-theme[data-theme="new-year"] .button { border-radius: 8px; }
 .wishlist-theme[data-theme="new-year"] .sticker { transform: none; animation: none; }
-.design-preview .wishlist-theme[data-theme="new-year"] { padding-top: 105px; background: #fff url('/themes/new-year-decor.webp') center top / 100% 90px no-repeat; }
+.design-preview .wishlist-theme[data-theme="new-year"] { padding-top: 112px; background: #fff url('/themes/new-year-decor.webp') center top / 100% auto no-repeat; }
+.wishlist-theme[data-theme^="children"] { --decor-image: url('/themes/children-decor.png'); }
+.wishlist-theme[data-theme="new-year"] { --decor-image: url('/themes/new-year-decor.webp'); }
+.wishlist-theme[data-theme="children-pink"] { --decor-image: url('/themes/children-decor-pink.png'); }
 .wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) { position: relative; isolation: isolate; }
+/* Страница управления списком живёт в кремовой оболочке со своей палитрой: на купленной теме берём цвета темы. */
+.owner-shell .wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) {
+  --owner-ink: var(--ink); --owner-soft: var(--ink-soft); --owner-gold: var(--pink); --owner-gold-deep: var(--pink-text);
+  --owner-line: var(--line); --owner-card: var(--card); --owner-shadow: none;
+}
+/* Рамка нарисована полосой 3:1: колпаки и ветки по краям, середина пустая. Показываем левую и правую половины
+   в натуральных пропорциях у краёв страницы, а не растягиваем полосу на всю ширину экрана. */
+.wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) .wishlist-page { position: relative; }
+.wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) .wishlist-page::before,
+.wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) .wishlist-page::after {
+  content: ""; position: absolute; top: 0; z-index: -1; width: min(36%, 300px); aspect-ratio: 3 / 2;
+  background: var(--decor-image) no-repeat; background-size: 200% 100%; pointer-events: none;
+}
+.wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) .wishlist-page::before { left: 0; background-position: left top; }
+.wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) .wishlist-page::after { right: 0; background-position: right top; }
 .wishlist-theme:is([data-theme^="children"], [data-theme="new-year"])::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: url('/themes/children-pattern.webp') center top / 560px 560px repeat; opacity: .5;
@@ -101,8 +118,10 @@ body:has(> .wishlist-theme[data-theme="new-year"]) { background: #fff; }
   .design-studio { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .design-preview { grid-row: 1; }
   .design-preview .wishlist-theme { min-height: 0; }
-  .wishlist-theme[data-theme^="children"] .wishlist-page { padding-top: 105px; background-size: 100% 100px; }
+  .wishlist-theme[data-theme^="children"] .wishlist-page { padding-top: 100px; }
+  .wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) .wishlist-page::before,
+  .wishlist-theme:is([data-theme^="children"], [data-theme="new-year"]) .wishlist-page::after { width: 42%; }
   .wishlist-theme[data-theme^="children"] .display { font-size: 30px; }
-  .wishlist-theme[data-theme="new-year"] .wishlist-page { padding-top: 110px; background-size: 100% 100px; }
+  .wishlist-theme[data-theme="new-year"] .wishlist-page { padding-top: 100px; }
   .wishlist-theme[data-theme="new-year"] .display { font-size: 30px; }
 }
