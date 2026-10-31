@@ -1,11 +1,12 @@
 "use client";
 
 import { useActionState, useEffect, useState, type ReactNode } from "react";
-import { EXTRA_DESIGNS } from "@wishlist/core";
+import { EXTRA_DESIGNS, orderedThemes, type CatalogThemeId } from "@wishlist/core";
 import { Check, CreditCard, Palette } from "lucide-react";
 import type { DesignAccess, WishlistTheme as Theme } from "@wishlist/db";
 import { WishlistTheme } from "@/components/WishlistTheme";
 import { CelebrationHeading } from "@/components/CelebrationHeading";
+import { trackEvent } from "@/lib/analytics";
 import { checkDesignPaymentAction, checkoutDesignAction, selectThemeAction } from "./actions";
 import { isUnsavedSelection } from "./design-state";
 
@@ -26,21 +27,55 @@ export function DesignStudio({ wishlistId, title, eventDate, access, salesEnable
   const child = theme === "children" || theme === "children-pink";
   const purchased = extra ? Boolean(access.additionalThemes?.includes(extra.id)) : celebration ? access.celebration : holiday ? access.newYear : child ? access.children : true;
   const unsaved = isUnsavedSelection(theme, access.theme, purchased);
+
+  /** Куплена ли конкретная тема каталога (для карточек). */
+  const isPurchased = (id: CatalogThemeId): boolean => {
+    if (id === "journal") return true;
+    if (id === "children" || id === "children-pink") return access.children;
+    if (id === "celebration") return access.celebration;
+    if (id === "new-year") return access.newYear;
+    return Boolean(access.additionalThemes?.includes(id));
+  };
+
+  const choose = (id: Theme) => {
+    if (id === theme) return;
+    setTheme(id);
+    trackEvent("design_theme_select", { theme: id });
+  };
+
   return <><section className="design-studio" aria-label="Оформление списка">
     <div>
       <form action={select}>
-        <fieldset><legend>Тема и цвет</legend><div className="design-swatches">
-          {([["journal", "Журнал", "journal"], ["celebration", "Праздник", "celebration"], ["children", "Голубой", "blue"], ["children-pink", "Розовый", "pink"], ["new-year", "Новый год", "new-year"]] as const).map(([value, label, color]) =>
-            <label key={value}><input type="radio" name="theme" value={value} checked={theme === value} onChange={() => setTheme(value)} /><span className={`design-swatch design-swatch--${color}`} aria-hidden="true" />{label}</label>)}
-          {EXTRA_DESIGNS.map((design) => <label key={design.id}><input type="radio" name="theme" value={design.id} checked={theme === design.id} onChange={() => setTheme(design.id)} /><span className="design-swatch" style={{ background: design.color }} aria-hidden="true" />{design.label}</label>)}
-        </div></fieldset>
+        <fieldset><legend>Тема и цвет</legend>
+          <p className="muted">Нажмите на карточку — предпросмотр обновится сразу.</p>
+          <div className="design-theme-grid">
+            {orderedThemes().map(({ entry, badge }) => {
+              const active = theme === entry.id;
+              const owned = isPurchased(entry.id);
+              return <label key={entry.id} className={`design-theme-card${active ? " design-theme-card--active" : ""}`}>
+                <input type="radio" name="theme" value={entry.id} checked={active} onChange={() => choose(entry.id)} className="visually-hidden" aria-label={entry.label} />
+                {badge && <span className="design-theme-card__badge">{badge}</span>}
+                {active && <span className="design-theme-card__check" aria-hidden="true"><Check size={13} strokeWidth={3} /></span>}
+                <span className="design-theme-card__thumb" data-theme={entry.id} aria-hidden="true" />
+                <span className="design-theme-card__meta">
+                  <span className="design-theme-card__name">{entry.label}</span>
+                  {entry.price === 0
+                    ? <span className="design-theme-card__price design-theme-card__price--free">Бесплатно</span>
+                    : owned
+                      ? <span className="design-theme-card__price design-theme-card__price--owned">Куплено</span>
+                      : <span className="design-theme-card__price">{entry.price} ₽</span>}
+                </span>
+              </label>;
+            })}
+          </div>
+        </fieldset>
         {unsaved && <p className="design-status" role="status">Это пока только предпросмотр. Нажмите «Применить», чтобы список стал таким.</p>}
         <button className={unsaved ? "button" : "button button--ghost"} disabled={saving || !purchased}><Palette aria-hidden="true" />{saving ? "Сохраняем…" : "Применить"}</button>
         {selection.message && <p role="status">{selection.message}</p>}
         {publicHref && !unsaved && <p><a href={publicHref} target="_blank" rel="noopener noreferrer">Посмотреть, как список видят гости</a></p>}
       </form>
-      {((extra && !purchased) || (celebration && !access.celebration) || (holiday && !access.newYear) || (child && !access.invitation)) && <form action={buy} className="design-checkout">
-        <fieldset><legend>{extra ? extra.label : celebration ? "Праздник" : holiday ? "Новогоднее оформление" : access.children ? "Приглашение" : "Детское оформление"}</legend>
+      {((extra && !purchased) || (celebration && !access.celebration) || (holiday && !access.newYear) || (child && !access.invitation)) && <form action={buy} className="design-checkout" onSubmit={(event) => trackEvent("design_theme_pay_click", { theme, product: String(new FormData(event.currentTarget).get("product") ?? "") })}>
+        <fieldset><legend>{extra ? `${extra.label} — 149 ₽` : celebration ? "Праздник — 149 ₽" : holiday ? "Новогоднее оформление — 149 ₽" : access.children ? "Приглашение" : "Детское оформление"}</legend>
           {extra ? <label className="design-plan"><input type="radio" name="product" value={extra.id} checked readOnly /><span><strong>{extra.label}</strong><small>{extra.description}. Обложка и фон всей страницы. Без приглашения.</small></span><strong className="design-price">149 ₽</strong></label> : celebration ? <label className="design-plan"><input type="radio" name="product" value="celebration" checked readOnly /><span><strong>Праздник</strong><small>Золотое конфетти и праздничный фон. Для любого возраста.</small></span><strong className="design-price">149 ₽</strong></label> : holiday ? <label className="design-plan"><input type="radio" name="product" value="new_year" checked readOnly /><span><strong>Новый год</strong></span><strong className="design-price">149 ₽</strong></label> : <>
             {!access.children && <label className="design-plan"><input type="radio" name="product" value="children" checked={product === "children"} onChange={() => setProduct("children")} /><span><strong>Оформление</strong><small>Голубая и розовая расцветки</small></span><strong className="design-price">149 ₽</strong></label>}
             <label className="design-plan"><input type="radio" name="product" value="children_invitation" checked={access.children || product === "children_invitation"} onChange={() => setProduct("children_invitation")} /><span><strong>{access.children ? "Добавить приглашение" : "Оформление + приглашение"}</strong><small>PNG для MAX, Telegram и ВК</small></span><strong className="design-price">{access.children ? "50 ₽" : "199 ₽"}</strong></label>

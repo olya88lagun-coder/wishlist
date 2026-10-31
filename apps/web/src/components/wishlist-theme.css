@@ -235,3 +235,38 @@ body:has(> .wishlist-theme[data-theme="celebration"]) { background: #f7f0df; }
 @media (max-width: 700px) { .wishlist-theme:is([data-theme="wedding"], [data-theme="quiet-luxury"], [data-theme="space"], [data-theme="flower-garden"], [data-theme="valentines"], [data-theme="march-8"]) .wishlist-page { padding-top: 18px; } .wishlist-theme:is([data-theme="wedding"], [data-theme="quiet-luxury"], [data-theme="space"], [data-theme="flower-garden"], [data-theme="valentines"], [data-theme="march-8"]) .display { font-size: 32px; } .wishlist-theme:is([data-theme="wedding"], [data-theme="quiet-luxury"], [data-theme="space"], [data-theme="flower-garden"], [data-theme="valentines"], [data-theme="march-8"]) .card { padding: 9px; border-radius: 12px; } }
 /* Keep live titles clear of the wider floral and planetary artwork. */
 .wishlist-theme:is([data-theme="wedding"], [data-theme="quiet-luxury"], [data-theme="space"], [data-theme="flower-garden"], [data-theme="valentines"], [data-theme="march-8"]) .celebration-heading__content { position: relative; background: var(--theme-cover); border-radius: 16px; box-shadow: 0 0 28px 20px var(--theme-cover); }
+
+/* Карточки тем для экрана «Оформление списка». */
+
+.design-theme-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+@media (max-width: 640px) { .design-theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.design-theme-card { position: relative; display: block; margin: 0; border: 1.5px solid var(--line); border-radius: 14px; background: var(--card, #fff); overflow: hidden; cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+.design-theme-card:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgb(23 63 74 / .10); }
+.design-theme-card--active { border-color: var(--ink); box-shadow: 0 0 0 3px rgb(23 63 74 / .14); }
+.design-theme-card:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.design-theme-card__thumb { display: block; height: 84px; background-color: #f6f1e7; background-position: center 18%; background-repeat: no-repeat; background-size: 72% auto; }
+
+/* Миниатюры используют те же декор-ассеты, что и сами темы, — превью всегда совпадает с результатом. */
+.design-theme-card__thumb[data-theme="journal"] { background-color: #f6f1e7; background-image: none; position: relative; }
+.design-theme-card__thumb[data-theme="journal"]::after { content: "W"; position: absolute; inset: 0; display: grid; place-items: center; font: 500 34px var(--font-playfair, Georgia, serif); color: #b3a58d; }
+.design-theme-card__thumb[data-theme="children"] { background-color: #eaf5fb; background-image: url('/themes/children-balloons.webp'); }
+.design-theme-card__thumb[data-theme="children-pink"] { background-color: #fdeef4; background-image: url('/themes/children-balloons-pink.webp'); }
+.design-theme-card__thumb[data-theme="celebration"] { background-color: #f7f0df; background-image: url('/themes/celebration-balloons.webp'); }
+.design-theme-card__thumb[data-theme="new-year"] { background-color: #14533d; background-image: url('/themes/new-year-decor.webp'); }
+.design-theme-card__thumb[data-theme="wedding"] { background-color: #f7f7ef; background-image: url('/themes/wedding-decor.webp'); }
+.design-theme-card__thumb[data-theme="quiet-luxury"] { background-color: #f8f5ef; background-image: url('/themes/quiet-luxury-decor.webp'); }
+.design-theme-card__thumb[data-theme="space"] { background-color: #203d56; background-image: url('/themes/space-decor.webp'); }
+.design-theme-card__thumb[data-theme="flower-garden"] { background-color: #fff5f6; background-image: url('/themes/flower-garden-decor.webp'); }
+.design-theme-card__thumb[data-theme="valentines"] { background-color: #733347; background-image: url('/themes/valentines-decor.webp'); }
+.design-theme-card__thumb[data-theme="march-8"] { background-color: #fffbed; background-image: url('/themes/march-8-decor.webp'); }
+
+.design-theme-card__meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px 10px; }
+.design-theme-card__name { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
+.design-theme-card__price { font-size: 11.5px; font-weight: 600; white-space: nowrap; color: var(--ink); }
+.design-theme-card__price--free { color: #2e7d4f; }
+.design-theme-card__price--owned { color: #2e7d4f; }
+
+.design-theme-card__badge { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 3px 9px; border-radius: 999px; background: #14533d; color: #fff; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; }
+.design-theme-card__check { position: absolute; top: 8px; right: 8px; z-index: 2; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; }
