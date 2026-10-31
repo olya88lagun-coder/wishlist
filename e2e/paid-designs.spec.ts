@@ -45,7 +45,7 @@ test(`paid ${product} theme saves once with a full-page background`, async ({ pa
     await page.goto(`/lists/${wishlistId}/design`);
     await expect(page.locator(".design-preview .celebration-heading")).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("studio.png"), fullPage: true });
-    await page.locator(`.design-studio input[value="${expectedTheme}"]`).check();
+    await page.locator(`.design-theme-card:has(input[value="${expectedTheme}"])`).click();
     await page.getByRole("button", { name: "Применить", exact: true }).click();
     await expect(page.getByText("Оформление сохранено", { exact: true })).toBeVisible();
     await expect(page.locator(".design-studio")).toHaveCount(1);
@@ -78,7 +78,7 @@ test(`paid ${product} theme saves once with a full-page background`, async ({ pa
     } else {
       const response = await context.request.post(`/api/lists/${wishlistId}/invitation`, { headers: { Origin: new URL(baseURL!).origin }, data: { name: "Саша", date: "2026-12-12", time: "15:30" } });
       expect(response.status()).toBe(403);
-      await page.locator('.design-studio input[value="children"]').check();
+      await page.locator('.design-theme-card:has(input[value="children"])').click();
       await expect(page.getByRole("button", { name: "Применить", exact: true })).toBeDisabled();
       await expect(page.getByText("199 ₽", { exact: true })).toBeVisible();
     }

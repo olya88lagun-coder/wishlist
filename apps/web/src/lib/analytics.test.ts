@@ -16,6 +16,17 @@ function browser(storage = tabStorage) {
 beforeEach(() => { vi.resetModules(); tabStorage = new MemoryStorage(); browser(); });
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
+test("design goals keep the selected theme and submitted product in the delivery queue", async () => {
+  const { trackEvent } = await import("./analytics");
+  trackEvent("design_theme_select", { theme: "new-year" });
+  trackEvent("design_theme_pay_click", { theme: "new-year", product: "new_year" });
+  const queued = JSON.parse(tabStorage.getItem("wl_metrika_queue_112836417") ?? "[]");
+  expect(queued.map(({ event, params }: { event: string; params: unknown }) => ({ event, params }))).toEqual([
+    { event: "design_theme_select", params: { theme: "new-year" } },
+    { event: "design_theme_pay_click", params: { theme: "new-year", product: "new_year" } },
+  ]);
+});
+
 test("an early click waits for counter readiness and is sent exactly once", async () => {
   const { trackEvent } = await import("./analytics");
   trackEvent("guest_wishlist_cta_click", { destination: "site", placement: "after_reservation" });

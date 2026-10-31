@@ -23,15 +23,15 @@ for (const theme of themes) test(`${theme} preview, purchase rights, owner and p
     await context.addCookies([{ name: "wl_session", value: token, url: baseURL! }]);
     await blockMetrika(context);
     await page.goto(`/lists/${listId}/design`);
-    await page.locator(`.design-studio input[value="${theme}"]`).check();
+    await page.locator(`.design-theme-card:has(input[value="${theme}"])`).click();
     await expect(page.getByRole("button", { name: "Применить", exact: true })).toBeDisabled();
-    await expect(page.getByText("149 ₽", { exact: true })).toBeVisible();
+    await expect(page.locator(".design-checkout").getByText("149 ₽", { exact: true })).toBeVisible();
     await expect(page.locator(`.design-preview [data-theme="${theme}"]`)).toBeVisible();
     await expect(page.locator(".invitation-editor")).toHaveCount(0);
     // Simulate an already-verified purchase locally; no provider request or real charge.
     await sql`insert into design_purchases (user_id, wishlist_id, product, amount_kopecks, email, status, payment_id) values (${userId}, ${listId}, ${theme}, 14900, 'qa@example.test', 'succeeded', ${randomUUID()})`;
     await page.reload();
-    await page.locator(`.design-studio input[value="${theme}"]`).check();
+    await page.locator(`.design-theme-card:has(input[value="${theme}"])`).click();
     await page.getByRole("button", { name: "Применить", exact: true }).click();
     await expect(page.getByText("Оформление сохранено", { exact: true })).toBeVisible();
     await page.reload();
