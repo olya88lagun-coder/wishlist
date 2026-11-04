@@ -544,8 +544,15 @@ a { color: inherit; }
 
 .editorial-header nav {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 28px;
+}
+
+/* Пункт «Статьи» — summary, а не ссылка: выравниваем шрифт с соседними пунктами */
+.editorial-header nav .editorial-menu > summary {
+  color: #625c54;
+  font-size: 14px;
 }
 
 .editorial-header nav a {
@@ -770,6 +777,12 @@ a { color: inherit; }
     padding: 9px 12px;
     font-size: 13px;
     white-space: nowrap;
+  }
+
+  /* Ссылки футера на тач-экране: зона нажатия ≥ 44px */
+  .site-footer a {
+    display: inline-block;
+    padding: 12px 0;
   }
 
   .editorial-header nav {

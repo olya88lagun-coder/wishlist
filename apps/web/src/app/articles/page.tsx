@@ -33,7 +33,7 @@ export default function ArticlesPage() {
     <main className="editorial-main">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articlesHubJsonLd(PUBLIC_URL)) }} />
       <p className="editorial-kicker">Журнал MyWishList</p>
-      <h1>Идеи подарков<br /><em>без случайных покупок</em></h1>
+      <h1>Идеи подарков{" "}<br /><em>без случайных покупок</em></h1>
       <p className="editorial-lead">
         Практические ориентиры для тех, кто выбирает подарок, и для тех, кто хочет
         деликатно рассказать близким о своих желаниях.

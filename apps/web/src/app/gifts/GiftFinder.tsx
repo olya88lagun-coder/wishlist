@@ -245,7 +245,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
                       className="button button--ghost button--small"
                       href={storeSearchHref(store, result.searchQuery, "finder")}
                       target="_blank"
-                      rel="nofollow noopener noreferrer"
+                      rel="sponsored nofollow noopener noreferrer"
                       onClick={() => trackEvent("gift_finder_product_click", { store })}
                     >
                       {STORE_LABELS[store] ?? store}
