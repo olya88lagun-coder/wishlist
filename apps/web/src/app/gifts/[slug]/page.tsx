@@ -1008,7 +1008,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                     <p className="gift-idea__stores">
                       <span className={adLabel ? "gift-idea__ad" : undefined}>{adLabel ? "Реклама · найти:" : "Найти:"}</span>
                       {giftIdeaSearchLinks(idea.query, `gifts/${slug}`, extraStoresForIdea(idea, extraStores)).map((link) => (
-                        <a key={link.store} href={link.href} target="_blank" rel="nofollow noopener noreferrer">{link.store}</a>
+                        <a key={link.store} href={link.href} target="_blank" rel="sponsored nofollow noopener noreferrer">{link.store}</a>
                       ))}
                     </p>
                   </li>

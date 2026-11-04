@@ -220,8 +220,9 @@
 }
 
 @keyframes hero-rise {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  /* Без opacity: 0 — первый экран виден сразу, LCP не ждёт анимацию */
+  from { transform: translateY(18px); }
+  to { transform: translateY(0); }
 }
 
 @keyframes hero-scene-drift {

@@ -9,6 +9,21 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // pg-boss тянет драйвер pg с опциональными нативными модулями: не бандлим, standalone-трассировка скопирует пакет
   serverExternalPackages: ["pg-boss"],
+  // Базовые защитные заголовки. CSP не задаём: Метрика и партнёрские скрипты потребуют отдельного списка источников.
+  // X-Frame-Options не ставим: Telegram Mini App в web.telegram.org открывает сайт в iframe
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
