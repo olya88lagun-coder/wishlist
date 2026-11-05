@@ -135,7 +135,7 @@ jobs:
             fi
           }
 
-          assert_contains '<title>Список желаний онлайн — создать вишлист бесплатно | MyWishList</title>' "$tmp/home.html" "home title"
+          assert_contains '<title>Вишлист онлайн — создать список желаний бесплатно | MyWishList</title>' "$tmp/home.html" "home title"
           assert_contains 'rel="canonical" href="https://my-wish-list.online"' "$tmp/home.html" "home canonical"
           assert_contains 'name="yandex-verification"' "$tmp/home.html" "home yandex verification"
           assert_contains 'name="google-site-verification"' "$tmp/home.html" "home google verification"
