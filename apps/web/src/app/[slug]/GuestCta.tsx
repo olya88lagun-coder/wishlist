@@ -5,10 +5,12 @@ import { trackEvent } from "@/lib/analytics";
 
 type Props = { botUsername: string; signedIn: boolean; reservedSomething: boolean };
 
+export const GUEST_CTA_TITLE_ID = "guest-cta-title";
+
 export function GuestCta({ botUsername, signedIn, reservedSomething }: Props) {
   return (
     <section className="panel stack guest-cta" aria-label="Свой вишлист">
-      <h2 className="serif" style={{ margin: 0, fontSize: 24, fontWeight: 500 }}>
+      <h2 id={GUEST_CTA_TITLE_ID} tabIndex={-1} className="serif" style={{ margin: 0, fontSize: 24, fontWeight: 500, scrollMarginTop: 24 }}>
         {reservedSomething ? "Подарок выбран. А что хотите вы?" : "Соберите свой вишлист"}
       </h2>
       <p className="muted" style={{ margin: 0 }}>
