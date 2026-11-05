@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { ARTICLES } from "@/content/articles";
-import { GIFT_COLLECTION_CONTENT_UPDATED, GIFTS_HUB_CONTENT_UPDATED, HOME_CONTENT_UPDATED } from "@/content/content-dates";
+import { GIFT_COLLECTION_CONTENT_UPDATED, GIFTS_HUB_CONTENT_UPDATED, HOME_CONTENT_UPDATED, SANTA_LANDING_UPDATED } from "@/content/content-dates";
 import { CHILD_GIFT_COLLECTIONS, CHILDREN_HUB_SLUG, CHILDREN_CONTENT_UPDATED } from "@/content/children-gifts";
 
 const GIFT_SLUGS = [
@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: baseUrl, lastModified: new Date(HOME_CONTENT_UPDATED), changeFrequency: "weekly", priority: 1 },
+    { url: `${baseUrl}/santa`, lastModified: new Date(SANTA_LANDING_UPDATED), changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/gifts`, lastModified: new Date(GIFTS_HUB_CONTENT_UPDATED), changeFrequency: "weekly", priority: 0.9 },
     ...[CHILDREN_HUB_SLUG, ...CHILD_GIFT_COLLECTIONS.map(collection => collection.slug)].map(slug => ({
       url: `${baseUrl}/gifts/${slug}`,

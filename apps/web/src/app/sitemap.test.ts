@@ -58,3 +58,8 @@ test("sitemap content dates do not advance with the build or request date", () =
   vi.setSystemTime(new Date("2027-02-01T10:00:00Z"));
   expect(sitemap()).toEqual(first);
 });
+
+test("the sitemap lists the Secret Santa landing but no private game pages", () => {
+  const urls = sitemap().map((entry) => entry.url);
+  expect(urls.filter((url) => /\/santa(\/|$)/.test(url))).toEqual(["https://my-wish-list.online/santa"]);
+});
