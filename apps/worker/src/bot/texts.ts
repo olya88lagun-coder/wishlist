@@ -87,3 +87,15 @@ export function reminderText(reminders: readonly DueReminder[]): string {
   );
   return ["Напоминание о подарках 🎁", ...lines].join("\n");
 }
+
+export function santaGameUrl(appUrl: string, gameId: string): string {
+  return new URL(`/santa/${gameId}`, appUrl).toString();
+}
+
+export function santaDrawnText(notice: { gameTitle: string; recipientName: string }): string {
+  return `🎅 Жеребьёвка «${escapeHtml(notice.gameTitle)}» прошла. Вы дарите: <b>${escapeHtml(notice.recipientName)}</b>. Список желаний — по кнопке ниже.`;
+}
+
+export function santaReminderText(notice: { gameTitle: string; recipientName: string }): string {
+  return `🎁 Через 2 дня обмен подарками в «${escapeHtml(notice.gameTitle)}». Вы дарите: <b>${escapeHtml(notice.recipientName)}</b>.`;
+}

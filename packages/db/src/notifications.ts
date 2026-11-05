@@ -7,10 +7,11 @@ import type { WishlistOccasion } from "./wishlists";
 
 export const DAILY_NOTIFICATION_LIMIT = 2;
 
-export type NotificationKind = "owner_reserved" | "guest_reserved" | "item_deleted" | "reminder" | "owner_digest";
+export type NotificationKind = "owner_reserved" | "guest_reserved" | "item_deleted" | "reminder" | "owner_digest" | "santa_drawn" | "santa_reminder";
 
-// Сводка броней собирает то, что дневной лимит не пропустил, поэтому сама лимит не занимает и не проверяет
-const LIMIT_EXEMPT_KINDS: readonly NotificationKind[] = ["owner_digest"];
+// Сводка броней собирает то, что дневной лимит не пропустил, поэтому сама лимит не занимает и не проверяет.
+// Сообщения Тайного Санты редкие и без них игра теряет смысл — их лимит тоже не режет
+const LIMIT_EXEMPT_KINDS: readonly NotificationKind[] = ["owner_digest", "santa_drawn", "santa_reminder"];
 export type NotificationClaim = { userId: string; kind: NotificationKind; refId: string };
 
 // Место в дневном лимите занимается до отправки; если Telegram не принял сообщение — releaseNotification

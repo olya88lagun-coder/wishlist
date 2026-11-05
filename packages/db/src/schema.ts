@@ -7,6 +7,7 @@ export const occasionEnum = pgEnum("occasion", ["birthday", "new_year", "other"]
 export const audienceEnum = pgEnum("wishlist_audience", ["adult", "child"]);
 export const parseStatusEnum = pgEnum("parse_status", ["pending", "ok", "partial", "failed"]);
 export const reservationStatusEnum = pgEnum("reservation_status", ["active", "cancelled"]);
+export const santaGameStatusEnum = pgEnum("santa_game_status", ["open", "drawn"]);
 
 export type AuthProvider = (typeof authProviderEnum.enumValues)[number];
 export type ItemParseStatus = (typeof parseStatusEnum.enumValues)[number];
@@ -18,6 +19,10 @@ export const users = pgTable("users", {
   displayName: text("display_name").notNull(),
   avatarUrl: text("avatar_url"),
   surpriseMode: boolean("surprise_mode").notNull().default(false),
+  // Участник Тайного Санты без входа: профиль без auth_identities
+  isAnonymous: boolean("is_anonymous").notNull().default(false),
+  // Растёт при привязке входа к анонимному профилю: старые cookie перестают действовать
+  sessionVersion: integer("session_version").notNull().default(0),
   createdAt: createdAt(),
 });
 
@@ -237,3 +242,36 @@ export const designPurchases = pgTable("design_purchases", {
   status: text("status").notNull().default("pending"),
   createdAt: createdAt(),
 }, (t) => [index("design_purchases_list_idx").on(t.wishlistId)]);
+
+export const santaGames = pgTable(
+  "santa_games",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizerId: uuid("organizer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    budgetText: text("budget_text").notNull(),
+    exchangeDate: date("exchange_date", { mode: "string" }).notNull(),
+    joinCode: text("join_code").notNull().unique(),
+    status: santaGameStatusEnum("status").notNull().default("open"),
+    drawnAt: timestamp("drawn_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("santa_games_organizer_idx").on(t.organizerId)],
+);
+
+export const santaParticipants = pgTable(
+  "santa_participants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    gameId: uuid("game_id").notNull().references(() => santaGames.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    wishlistId: uuid("wishlist_id").references(() => wishlists.id, { onDelete: "set null" }),
+    displayName: text("display_name").notNull(),
+    recipientParticipantId: uuid("recipient_participant_id"),
+    // Токены храним только хэшем SHA-256
+    personalTokenHash: text("personal_token_hash").unique(),
+    recoveryTokenHash: text("recovery_token_hash").unique(),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("santa_participants_game_user_uq").on(t.gameId, t.userId), index("santa_participants_user_idx").on(t.userId)],
+);

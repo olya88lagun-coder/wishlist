@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test } from "vitest";
-import { authIdentities, items, reservations, users, wishlists } from "./schema";
+import { eq } from "drizzle-orm";
+import { authIdentities, items, reservations, santaGames, santaParticipants, users, wishlists } from "./schema";
 import { createTestDb } from "./testing";
 import type { Database } from "./types";
 
@@ -38,5 +39,31 @@ describe("auth identity constraints", () => {
     await expect(
       db.insert(authIdentities).values({ userId: u2!.id, provider: "vk", providerUserId: "777" }),
     ).rejects.toThrow();
+  });
+});
+
+describe("santa constraints", () => {
+  test("santa tables accept a game with participants and reject a duplicate participant", async () => {
+    const [organizer] = await db.insert(users).values({ displayName: "Оля" }).returning();
+    const [guest] = await db.insert(users).values({ displayName: "Гость", isAnonymous: true }).returning();
+    expect(guest!.isAnonymous).toBe(true);
+    expect(guest!.sessionVersion).toBe(0);
+    const [list] = await db.insert(wishlists).values({ ownerId: guest!.id, title: "Тайный Санта: Отдел", slug: "santa1", occasion: "new_year" }).returning();
+    const [game] = await db.insert(santaGames).values({
+      organizerId: organizer!.id, title: "Отдел", budgetText: "до 1 500 ₽", exchangeDate: "2026-12-25", joinCode: "code1",
+    }).returning();
+    expect(game!.status).toBe("open");
+    await db.insert(santaParticipants).values({ gameId: game!.id, userId: organizer!.id, displayName: "Оля" });
+    await db.insert(santaParticipants).values({ gameId: game!.id, userId: guest!.id, wishlistId: list!.id, displayName: "Гость" });
+    await expect(
+      db.insert(santaParticipants).values({ gameId: game!.id, userId: guest!.id, displayName: "Дубль" }),
+    ).rejects.toThrow();
+
+    await db.delete(wishlists).where(eq(wishlists.id, list!.id));
+    const [afterListDelete] = await db.select().from(santaParticipants).where(eq(santaParticipants.userId, guest!.id));
+    expect(afterListDelete!.wishlistId).toBeNull();
+
+    await db.delete(santaGames).where(eq(santaGames.id, game!.id));
+    expect(await db.select().from(santaParticipants)).toHaveLength(0);
   });
 });

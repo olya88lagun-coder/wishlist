@@ -16,7 +16,10 @@ export type BotMessageRef = { chatId: number; messageId: number };
 export type ParseItemJob = { itemId: string; botMessage?: BotMessageRef };
 
 // В задачу кладём только id: тексты воркер собирает из базы, чтобы в очереди не лежали имена
-export type NotifyJob = { kind: "reservation_created"; itemId: string } | { kind: "item_deleted"; itemId: string };
+export type NotifyJob =
+  | { kind: "reservation_created"; itemId: string }
+  | { kind: "item_deleted"; itemId: string }
+  | { kind: "santa_drawn"; gameId: string };
 
 // Одна повторная попытка: если воркер упал посреди задачи, pg-boss вернёт её через 2 минуты
 export const PARSE_JOB_OPTIONS = { retryLimit: 1, retryDelay: 30, expireInSeconds: 120 } as const;

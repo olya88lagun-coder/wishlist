@@ -10,7 +10,7 @@ import { MAINTENANCE_CRON, MAINTENANCE_TZ, runMaintenance } from "./maintenance"
 import { CANARY_CRON, checkHealth, createUptimeMonitor, runCanary, UPTIME_CRON } from "./monitoring";
 import { runNotify } from "./notify";
 import { runParseItem } from "./parse-item";
-import { REMINDERS_CRON, runReminders } from "./reminders";
+import { REMINDERS_CRON, runReminders, runSantaReminders } from "./reminders";
 import { runWishlistDeletionNotices, WISHLIST_DELETION_CRON } from "./wishlist-deletion";
 import type { ObjectStorage } from "./storage";
 import type { Messenger } from "./telegram/messenger";
@@ -70,7 +70,7 @@ export async function registerJobs(boss: PgBoss, deps: JobDeps): Promise<void> {
     try {
       await runNotify(job.data, { db: deps.db, messenger: deps.messenger, appUrl: deps.telegram.appUrl, now: () => new Date(), log: deps.log });
     } catch (error) {
-      deps.log("warn", "notify job failed", { kind: job.data.kind, itemId: job.data.itemId, error: String(error) });
+      deps.log("warn", "notify job failed", { kind: job.data.kind, ref: "itemId" in job.data ? job.data.itemId : job.data.gameId, error: String(error) });
       throw error;
     }
   });
@@ -89,7 +89,9 @@ export async function registerJobs(boss: PgBoss, deps: JobDeps): Promise<void> {
 
   await boss.work(QUEUES.reminders, async () => {
     if (!deps.messenger || !deps.telegram) return;
-    await runReminders({ db: deps.db, messenger: deps.messenger, appUrl: deps.telegram.appUrl, now: () => new Date(), log: deps.log });
+    const reminderDeps = { db: deps.db, messenger: deps.messenger, appUrl: deps.telegram.appUrl, now: () => new Date(), log: deps.log };
+    await runReminders(reminderDeps);
+    await runSantaReminders(reminderDeps);
   });
   await boss.schedule(QUEUES.reminders, REMINDERS_CRON, {}, { tz: MAINTENANCE_TZ });
 

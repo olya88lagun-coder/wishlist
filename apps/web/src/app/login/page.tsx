@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getEnv } from "@/server/env";
 import { LoginOptions } from "./LoginOptions";
-import { giftReturnPath } from "@/lib/gift-return-path";
+import { loginReturnPath } from "@/lib/gift-return-path";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ const ERROR_TEXT: Record<string, string> = {
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; returnTo?: string }> }) {
   const { error, returnTo: rawReturnTo } = await searchParams;
-  const returnTo = giftReturnPath(rawReturnTo);
+  const returnTo = loginReturnPath(rawReturnTo);
   const env = getEnv();
   return (
     <main className="page login-page">

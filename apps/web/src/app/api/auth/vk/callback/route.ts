@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   response.cookies.set(VK_STATE_COOKIE, "", { ...vkStateCookieOptions(), maxAge: 0 });
   if (result.ok) {
     response.cookies.set(SESSION_COOKIE, result.sessionToken, sessionCookieOptions());
-    response.cookies.set(completionCookie({ event: "auth_completed", params: { provider: "vk" } }));
+    response.cookies.set(completionCookie({ event: "auth_completed", params: { provider: "vk", ...(result.returnTo?.startsWith("/santa/") ? { source: "santa" as const } : {}) } }));
   }
   else console.warn("vk login failed", result.error);
   return response;

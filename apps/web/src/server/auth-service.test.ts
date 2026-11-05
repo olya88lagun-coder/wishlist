@@ -1,6 +1,6 @@
 import { createHash, createHmac } from "node:crypto";
 import { signOAuthState, signSession, verifySession } from "@wishlist/core";
-import { createWishlist, getUserWithIdentities } from "@wishlist/db";
+import { bumpSessionVersion, createAnonymousUser, createSantaGame, createWishlist, deleteWishlist, getSantaGameView, getUserWithIdentities, listWishlistsForOwner } from "@wishlist/db";
 import { createTestDb } from "@wishlist/db/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
@@ -210,5 +210,87 @@ describe("getCurrentUser", () => {
     expect(await getCurrentUser(deps, "garbage")).toBeNull();
     const orphan = await signSession("00000000-0000-0000-0000-000000000000", env.SESSION_SECRET);
     expect(await getCurrentUser(deps, orphan)).toBeNull();
+  });
+});
+
+describe("session versions", () => {
+  test("getCurrentUser rejects a token whose version is behind the user", async () => {
+    const login = await loginWithTelegramInitData(deps, initData({ id: 77, first_name: "Оля" }));
+    if (!login.ok) throw new Error("setup");
+    expect(await getCurrentUser(deps, login.sessionToken)).not.toBeNull();
+    const version = await bumpSessionVersion(deps.db, login.userId);
+    expect(version).toBe(1);
+    expect(await getCurrentUser(deps, login.sessionToken)).toBeNull();
+    expect(await getCurrentUser(deps, await signSession(login.userId, env.SESSION_SECRET, 1))).not.toBeNull();
+  });
+});
+
+describe("anonymous santa participants", () => {
+  async function anonymousSession(name: string) {
+    const { userId } = await createAnonymousUser(deps.db, name);
+    return { userId, token: await signSession(userId, env.SESSION_SECRET) };
+  }
+
+  test("anonymous user linking a new telegram identity keeps its data and old cookie stops working", async () => {
+    const anon = await anonymousSession("Петя");
+    await createWishlist(deps.db, anon.userId, { title: "Тайный Санта: Отдел", occasion: "new_year", eventDate: null });
+    const result = await widgetLogin({ id: "501", first_name: "Петя", auth_date: nowSec }, anon.token);
+    if (!result.ok) throw new Error(result.error);
+    expect(result.userId).toBe(anon.userId);
+    expect(await getCurrentUser(deps, anon.token)).toBeNull();
+    expect(await getCurrentUser(deps, result.sessionToken)).toMatchObject({ id: anon.userId, isAnonymous: false, providers: ["telegram"] });
+  });
+
+  test("anonymous user signing into an empty existing profile is merged into it", async () => {
+    const empty = await loginWithTelegramInitData(deps, initData({ id: 503, first_name: "Петя" }));
+    if (!empty.ok) throw new Error("setup");
+    const anon = await anonymousSession("Петя");
+    const result = await widgetLogin({ id: "503", first_name: "Петя", auth_date: nowSec }, anon.token);
+    if (!result.ok) throw new Error(result.error);
+    expect(result.userId).toBe(empty.userId);
+    expect(await getCurrentUser(deps, anon.token)).toBeNull();
+    expect(await getCurrentUser(deps, result.sessionToken)).toMatchObject({ id: empty.userId, isAnonymous: false });
+  });
+
+  test("anonymous user signing in with an existing account is merged into it", async () => {
+    const existing = await loginWithTelegramInitData(deps, initData({ id: 502, first_name: "Петя" }));
+    if (!existing.ok) throw new Error("setup");
+    await createWishlist(deps.db, existing.userId, { title: "Мой список", occasion: "birthday", eventDate: null });
+    const anon = await anonymousSession("Петя");
+    await createWishlist(deps.db, anon.userId, { title: "Тайный Санта: Отдел", occasion: "new_year", eventDate: null });
+
+    const result = await widgetLogin({ id: "502", first_name: "Петя", auth_date: nowSec }, anon.token);
+    if (!result.ok) throw new Error(result.error);
+    expect(result.userId).toBe(existing.userId);
+    expect(await getUserWithIdentities(deps.db, anon.userId)).toBeNull();
+    const lists = await listWishlistsForOwner(deps.db, existing.userId);
+    expect(lists.map((l) => l.title).sort()).toEqual(["Мой список", "Тайный Санта: Отдел"]);
+  });
+});
+
+describe("review fixes", () => {
+  test("a stale anonymous cookie cannot link a new VK account to the participant", async () => {
+    const { userId: anon } = await createAnonymousUser(deps.db, "Петя");
+    const staleToken = await signSession(anon, env.SESSION_SECRET);
+    const linked = await widgetLogin({ id: "601", first_name: "Петя", auth_date: nowSec }, staleToken);
+    if (!linked.ok) throw new Error(linked.error);
+
+    const attacker = await vkLogin("666", staleToken);
+    expect(attacker.userId).not.toBe(anon);
+    expect((await getUserWithIdentities(deps.db, anon))?.providers).toEqual(["telegram"]);
+  });
+
+  test("anonymous login into an account without lists keeps that account and its game", async () => {
+    const owner = await loginWithTelegramInitData(deps, initData({ id: 602, first_name: "Оля" }));
+    if (!owner.ok) throw new Error("setup");
+    const game = await createSantaGame(deps.db, owner.userId, { title: "Отдел", budgetText: "", exchangeDate: "2026-12-25", organizerName: "Оля" });
+    if (!game.ok) throw new Error("setup");
+    for (const list of await listWishlistsForOwner(deps.db, owner.userId)) await deleteWishlist(deps.db, owner.userId, list.id);
+
+    const { userId: anon } = await createAnonymousUser(deps.db, "Оля");
+    const result = await widgetLogin({ id: "602", first_name: "Оля", auth_date: nowSec }, await signSession(anon, env.SESSION_SECRET));
+    if (!result.ok) throw new Error(result.error);
+    expect(result.userId).toBe(owner.userId);
+    expect(await getSantaGameView(deps.db, game.gameId, owner.userId)).not.toBeNull();
   });
 });

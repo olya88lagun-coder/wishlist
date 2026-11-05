@@ -1,14 +1,17 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { authIdentities, type AuthProvider, reservations, users, wishlistDeletionNotices, wishlists } from "./schema";
 import type { Database } from "./types";
 
 export type IdentityInput = { provider: AuthProvider; providerUserId: string; displayName: string; avatarUrl: string | null };
-export type UserRecord = { id: string; displayName: string; avatarUrl: string | null; surpriseMode: boolean };
+export type UserRecord = { id: string; displayName: string; avatarUrl: string | null; surpriseMode: boolean; isAnonymous: boolean; sessionVersion: number };
 export type UserWithIdentities = UserRecord & { providers: AuthProvider[] };
 
-const userColumns = { id: users.id, displayName: users.displayName, avatarUrl: users.avatarUrl, surpriseMode: users.surpriseMode };
+const userColumns = {
+  id: users.id, displayName: users.displayName, avatarUrl: users.avatarUrl, surpriseMode: users.surpriseMode,
+  isAnonymous: users.isAnonymous, sessionVersion: users.sessionVersion,
+};
 
-async function findIdentityOwner(db: Database, provider: AuthProvider, providerUserId: string): Promise<string | null> {
+export async function findIdentityOwner(db: Database, provider: AuthProvider, providerUserId: string): Promise<string | null> {
   const rows = await db
     .select({ userId: authIdentities.userId })
     .from(authIdentities)
@@ -49,6 +52,13 @@ export async function isProfileEmpty(db: Database, userId: string): Promise<bool
   return !reservation;
 }
 
+// Анонимный участник Санты получил вход: личные ссылки и выданные по ним cookie больше не действуют
+async function leaveAnonymity(db: Database, userId: string): Promise<void> {
+  const [anonymous] = await db.update(users).set({ isAnonymous: false })
+    .where(and(eq(users.id, userId), eq(users.isAnonymous, true))).returning({ id: users.id });
+  if (anonymous) await bumpSessionVersion(db, userId);
+}
+
 export async function linkIdentity(
   db: Database,
   userId: string,
@@ -66,6 +76,7 @@ export async function linkIdentity(
 
   if (owner === null) {
     await db.insert(authIdentities).values({ userId, provider: input.provider, providerUserId: input.providerUserId });
+    await leaveAnonymity(db, userId);
     return { ok: true };
   }
 
@@ -86,6 +97,7 @@ export async function linkIdentity(
     }
     await tx.delete(users).where(eq(users.id, owner));
   });
+  await leaveAnonymity(db, userId);
   return { ok: true };
 }
 
@@ -101,4 +113,14 @@ export async function getUserWithIdentities(db: Database, userId: string): Promi
     .from(authIdentities)
     .where(eq(authIdentities.userId, userId));
   return { ...user, providers: identities.map((i) => i.provider) };
+}
+
+// Отзывает все выданные сессии пользователя: getCurrentUser сверяет версию из cookie с этой
+export async function bumpSessionVersion(db: Database, userId: string): Promise<number> {
+  const [row] = await db
+    .update(users)
+    .set({ sessionVersion: sql`${users.sessionVersion} + 1` })
+    .where(eq(users.id, userId))
+    .returning({ sessionVersion: users.sessionVersion });
+  return row!.sessionVersion;
 }
