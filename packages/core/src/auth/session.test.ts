@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { signOAuthState, signSession, verifyOAuthState, verifySession } from "./session";
+import { signOAuthState, signSession, verifyOAuthState, verifySession, verifySessionClaims } from "./session";
 
 const SECRET = "a".repeat(64);
 
@@ -38,5 +38,18 @@ describe("oauth state tokens", () => {
   test("does not accept a session token as oauth state", async () => {
     const token = await signSession("user-1", SECRET);
     expect(await verifyOAuthState(token, SECRET)).toBeNull();
+  });
+});
+
+describe("session versions", () => {
+  test("old tokens without v verify as version 0", async () => {
+    const token = await signSession("user-1", SECRET);
+    expect(await verifySessionClaims(token, SECRET)).toEqual({ userId: "user-1", version: 0 });
+  });
+
+  test("signed version round-trips", async () => {
+    const token = await signSession("user-1", SECRET, 3);
+    expect(await verifySessionClaims(token, SECRET)).toEqual({ userId: "user-1", version: 3 });
+    expect(await verifySession(token, SECRET)).toBe("user-1");
   });
 });

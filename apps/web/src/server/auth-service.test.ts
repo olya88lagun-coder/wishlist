@@ -1,6 +1,6 @@
 import { createHash, createHmac } from "node:crypto";
 import { signOAuthState, signSession, verifySession } from "@wishlist/core";
-import { createWishlist, getUserWithIdentities } from "@wishlist/db";
+import { bumpSessionVersion, createWishlist, getUserWithIdentities } from "@wishlist/db";
 import { createTestDb } from "@wishlist/db/testing";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import {
@@ -210,5 +210,17 @@ describe("getCurrentUser", () => {
     expect(await getCurrentUser(deps, "garbage")).toBeNull();
     const orphan = await signSession("00000000-0000-0000-0000-000000000000", env.SESSION_SECRET);
     expect(await getCurrentUser(deps, orphan)).toBeNull();
+  });
+});
+
+describe("session versions", () => {
+  test("getCurrentUser rejects a token whose version is behind the user", async () => {
+    const login = await loginWithTelegramInitData(deps, initData({ id: 77, first_name: "Оля" }));
+    if (!login.ok) throw new Error("setup");
+    expect(await getCurrentUser(deps, login.sessionToken)).not.toBeNull();
+    const version = await bumpSessionVersion(deps.db, login.userId);
+    expect(version).toBe(1);
+    expect(await getCurrentUser(deps, login.sessionToken)).toBeNull();
+    expect(await getCurrentUser(deps, await signSession(login.userId, env.SESSION_SECRET, 1))).not.toBeNull();
   });
 });

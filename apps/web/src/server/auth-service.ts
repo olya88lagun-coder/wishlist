@@ -10,6 +10,7 @@ import {
   type TelegramUser,
   verifyOAuthState,
   verifySession,
+  verifySessionClaims,
   verifyTelegramInitData,
   verifyTelegramLoginWidget,
 } from "@wishlist/core";
@@ -39,17 +40,19 @@ async function loginOrLink(deps: AuthDeps, identity: IdentityInput, currentSessi
   if (currentUserId && (await getUserWithIdentities(deps.db, currentUserId))) {
     const linked = await linkIdentity(deps.db, currentUserId, identity);
     if (!linked.ok) return { ok: false, error: `link_${linked.reason}` };
-    return { ok: true, userId: currentUserId, sessionToken: await signSession(currentUserId, deps.env.SESSION_SECRET) };
+    // Привязка может поднять версию сессии, поэтому читаем пользователя заново
+    const linkedUser = await getUserWithIdentities(deps.db, currentUserId);
+    return { ok: true, userId: currentUserId, sessionToken: await signSession(currentUserId, deps.env.SESSION_SECRET, linkedUser!.sessionVersion) };
   }
   const user = await upsertUserFromIdentity(deps.db, identity);
-  return { ok: true, userId: user.id, sessionToken: await signSession(user.id, deps.env.SESSION_SECRET) };
+  return { ok: true, userId: user.id, sessionToken: await signSession(user.id, deps.env.SESSION_SECRET, user.sessionVersion) };
 }
 
 export async function loginWithTelegramInitData(deps: AuthDeps, initData: string): Promise<AuthOutcome> {
   const verified = verifyTelegramInitData(initData, deps.env.TELEGRAM_BOT_TOKEN, deps.now());
   if (!verified.ok) return { ok: false, error: `telegram_${verified.reason}` };
   const user = await upsertUserFromIdentity(deps.db, telegramIdentity(verified.user));
-  return { ok: true, userId: user.id, sessionToken: await signSession(user.id, deps.env.SESSION_SECRET) };
+  return { ok: true, userId: user.id, sessionToken: await signSession(user.id, deps.env.SESSION_SECRET, user.sessionVersion) };
 }
 
 export async function startTelegramLogin(deps: AuthDeps, currentSessionToken: string | null, returnTo?: string | null) {
@@ -135,7 +138,9 @@ export async function getCurrentUser(
   sessionToken: string | null,
 ): Promise<UserWithIdentities | null> {
   if (!sessionToken) return null;
-  const userId = await verifySession(sessionToken, deps.env.SESSION_SECRET);
-  if (!userId) return null;
-  return getUserWithIdentities(deps.db, userId);
+  const claims = await verifySessionClaims(sessionToken, deps.env.SESSION_SECRET);
+  if (!claims) return null;
+  const user = await getUserWithIdentities(deps.db, claims.userId);
+  // Сессия выпущена до отзыва (например, по личной ссылке Санты до привязки Telegram)
+  return user && user.sessionVersion === claims.version ? user : null;
 }

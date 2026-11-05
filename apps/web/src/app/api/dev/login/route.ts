@@ -12,6 +12,6 @@ export async function GET(request: NextRequest) {
   const name = request.nextUrl.searchParams.get("name") ?? "Разработчик";
   const user = await upsertUserFromIdentity(getDb(), { provider: "telegram", providerUserId: `dev-${name}`, displayName: name, avatarUrl: null });
   const response = NextResponse.redirect(new URL("/lists", getEnv().APP_URL), 303);
-  response.cookies.set(SESSION_COOKIE, await signSession(user.id, getEnv().SESSION_SECRET), sessionCookieOptions());
+  response.cookies.set(SESSION_COOKIE, await signSession(user.id, getEnv().SESSION_SECRET, user.sessionVersion), sessionCookieOptions());
   return response;
 }

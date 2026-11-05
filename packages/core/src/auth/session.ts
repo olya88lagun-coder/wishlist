@@ -10,8 +10,8 @@ export type OAuthStatePayload = { state: string; codeVerifier: string; linkUserI
 
 const key = (secret: string) => new TextEncoder().encode(secret);
 
-export async function signSession(userId: string, secret: string): Promise<string> {
-  return new SignJWT({})
+export async function signSession(userId: string, secret: string, version = 0): Promise<string> {
+  return new SignJWT({ v: version })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(userId)
     .setAudience(SESSION_AUDIENCE)
@@ -21,9 +21,15 @@ export async function signSession(userId: string, secret: string): Promise<strin
 }
 
 export async function verifySession(token: string, secret: string): Promise<string | null> {
+  return (await verifySessionClaims(token, secret))?.userId ?? null;
+}
+
+// Токены, выпущенные до появления версии, считаются версией 0
+export async function verifySessionClaims(token: string, secret: string): Promise<{ userId: string; version: number } | null> {
   try {
     const { payload } = await jwtVerify(token, key(secret), { audience: SESSION_AUDIENCE, algorithms: ["HS256"] });
-    return typeof payload.sub === "string" ? payload.sub : null;
+    if (typeof payload.sub !== "string") return null;
+    return { userId: payload.sub, version: typeof payload.v === "number" ? payload.v : 0 };
   } catch {
     return null;
   }
