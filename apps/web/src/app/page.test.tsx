@@ -107,13 +107,48 @@ describe("Home", () => {
     expect(html).toMatch(/<h1[^>]*>Список желаний онлайн:/);
   });
 
-  test("offers the AI gift finder on the first screen and sends the typed interests to /gifts", async () => {
+  test("shows a guest wishlist preview next to the two creation links", async () => {
     const html = renderToStaticMarkup(await Home());
     const hero = html.slice(html.indexOf('class="hero"'), html.indexOf("home-trust"));
 
-    expect(hero).toMatch(/<form[^>]*action="\/gifts"[^>]*method="get"/);
-    expect(hero).toContain('name="interests"');
-    expect(hero).toContain("Подобрать с AI");
+    expect(hero).toContain("Собрать в Telegram");
+    expect(hero).toContain("Собрать на сайте");
+    expect(hero).toContain("День рождения Ани");
+    expect(hero).toContain("12 дней");
+    expect(hero).toContain("Я подарю");
+    expect(hero).toContain("Забронировано");
+    expect(hero).not.toContain("<form");
+  });
+
+  test("sends interests to /gifts from the dedicated AI finder section", async () => {
+    const html = renderToStaticMarkup(await Home());
+    const finder = html.slice(html.indexOf('class="home-section home-finder"'), html.indexOf('class="home-section home-collections"'));
+
+    expect(finder).toMatch(/<form[^>]*action="\/gifts"[^>]*method="get"/);
+    expect(finder).toContain('name="interests"');
+    expect(finder).toContain("Подобрать с AI");
+  });
+
+  test("prioritizes New Year and Secret Santa in season and keeps the other links in HTML", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      async function occasionsAt(date: string) {
+        vi.setSystemTime(new Date(date));
+        const html = renderToStaticMarkup(await Home());
+        return html.split('<div class="home-collections__group">')[1]!.split("</div>")[0]!;
+      }
+
+      const seasonal = await occasionsAt("2026-10-31T21:00:00Z");
+      const firstLinks = [...seasonal.matchAll(/href="([^"]+)"/g)].slice(0, 2).map((match) => match[1]);
+      expect(firstLinks).toEqual(["/gifts/new-year", "/gifts/secret-santa"]);
+      expect(seasonal).toMatch(/<details[^>]*><summary[^>]*>Показать все<\/summary>[\s\S]*href="\/gifts\/march-8"/);
+
+      const offSeason = await occasionsAt("2027-01-15T21:00:00Z");
+      expect(offSeason.match(/href="([^"]+)"/)?.[1]).toBe("/gifts/birthday");
+      expect(offSeason).toContain('href="/gifts/secret-santa"');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("shows the FAQ and publishes the same questions as FAQPage data", async () => {

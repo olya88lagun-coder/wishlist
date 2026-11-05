@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { OtherProjects } from "@/components/OtherProjects";
 import { SiteFooter } from "@/components/SiteFooter";
 import { EditorialMenu } from "@/components/EditorialMenu";
 import { HomeMobileMenu } from "@/components/HomeMobileMenu";
+import { HomeGiftCollections } from "@/components/HomeGiftCollections";
+import { HomeWishlistPreview } from "@/components/HomeWishlistPreview";
 import { SantaBanner } from "@/components/SantaBanner";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
 import { HOME_FAQ } from "@/content/home-faq";
-import { HOME_GIFT_LINK_GROUPS } from "@/content/home-gift-links";
 import { faqPageJsonLd } from "@/lib/structured-data";
 import { getEnv } from "@/server/env";
 import { readViewer } from "@/server/viewer";
@@ -227,35 +227,8 @@ export default async function Home() {
                 </>
               )}
             </div>
-            <form className="hero-finder" action="/gifts" method="get" aria-labelledby="hero-finder-title">
-              <p id="hero-finder-title" className="hero-finder__title">Не знаете, что подарить? Подберём идеи с AI</p>
-              <div className="hero-finder__row">
-                <input
-                  className="hero-finder__input"
-                  type="text"
-                  name="interests"
-                  maxLength={200}
-                  autoComplete="off"
-                  placeholder="Например: брат, походы, кофе"
-                  aria-label="Кому вы выбираете подарок и что этот человек любит"
-                />
-                <button className="hero-finder__submit" type="submit">Подобрать с AI</button>
-              </div>
-              <p className="hero-finder__hint">
-                Идеи по человеку, поводу и бюджету — понравившиеся сохраните в вишлист.
-              </p>
-            </form>
           </div>
-          <div className="hero__scene">
-            <Image
-              src="/landing/hero-scene.webp"
-              alt="Подарочная коробка с золотым бантом и карточки желаний: наушники, парфюм, часы"
-              width={946}
-              height={1024}
-              sizes="(max-width: 899px) 100vw, 55vw"
-              preload
-            />
-          </div>
+          <HomeWishlistPreview />
         </section>
 
         <section className="home-trust" aria-label="Почему удобно использовать MyWishList">
@@ -306,30 +279,24 @@ export default async function Home() {
             <h2 id="finder-title" className="home-section__title">Не знаете, что подарить?</h2>
             <p>Ответьте на несколько вопросов — AI подберёт идеи по человеку, поводу, интересам и бюджету.</p>
           </div>
-          <Link className="hero-button hero-button--light home-finder__button" href="/gifts">
-            <span>Подобрать подарок</span>
-            <Arrow />
-          </Link>
+          <form className="home-finder__form" action="/gifts" method="get" aria-labelledby="finder-title">
+            <label htmlFor="home-finder-interests">Кому вы выбираете подарок и что этот человек любит?</label>
+            <div className="home-finder__row">
+              <input
+                id="home-finder-interests"
+                className="home-finder__input"
+                type="text"
+                name="interests"
+                maxLength={200}
+                autoComplete="off"
+                placeholder="Например: брат, походы, кофе"
+              />
+              <button className="home-finder__submit" type="submit">Подобрать с AI</button>
+            </div>
+          </form>
         </section>
 
-        <section className="home-section home-collections" aria-labelledby="collections-title">
-          <p className="home-section__eyebrow">Каталог идей</p>
-          <h2 id="collections-title" className="home-section__title">Подборки подарков</h2>
-          <div className="home-collections__groups">
-            {HOME_GIFT_LINK_GROUPS.map((group) => (
-              <div className="home-collections__group" key={group.title}>
-                <h3>{group.title}</h3>
-                <ul>
-                  {group.links.map((link) => (
-                    <li key={link.href}>
-                      <Link href={link.href}>{link.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
+        <HomeGiftCollections />
 
         <section className="home-section" aria-labelledby="articles-title">
           <p className="home-section__eyebrow">Идеи и советы</p>
