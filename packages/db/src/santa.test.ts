@@ -6,6 +6,7 @@ import {
   assignSantaRecipients,
   createAnonymousUser,
   createSantaGame,
+  deleteExpiredSantaData,
   drawSantaGame,
   getSantaGameView,
   issueRecoveryToken,
@@ -14,7 +15,7 @@ import {
   redeemSantaToken,
   removeSantaParticipant,
 } from "./santa";
-import { authIdentities, santaParticipants, wishlists } from "./schema";
+import { authIdentities, santaGames, santaParticipants, users, wishlists } from "./schema";
 import { createTestDb } from "./testing";
 import type { Database } from "./types";
 
@@ -253,5 +254,27 @@ describe("removeSantaParticipant", () => {
     expect(await removeSantaParticipant(db, gameId, petya.userId, petya.participantId)).toBe(false);
     expect(await removeSantaParticipant(db, gameId, organizer, petya.participantId)).toBe(true);
     expect(await getSantaGameView(db, gameId, petya.userId)).toBeNull();
+  });
+});
+
+describe("deleteExpiredSantaData", () => {
+  test("cleanup removes old anonymous users and games but keeps users with an identity and recent games", async () => {
+    const old = await createSantaGame(db, organizer, { title: "Прошлый год", budgetText: "", exchangeDate: "2026-01-01", organizerName: "Оля" });
+    const recent = await createSantaGame(db, organizer, { title: "Этот год", budgetText: "", exchangeDate: "2026-12-25", organizerName: "Оля" });
+    if (!old.ok || !recent.ok) throw new Error("setup");
+    const onlyOld = await joinAnonymous(old.joinCode, "Петя");
+    const both = await joinAnonymous(old.joinCode, "Аня");
+    await joinSantaGame(db, recent.joinCode, both.userId, "Аня");
+    const signedIn = await identifiedUser("Вася", "400");
+    await joinSantaGame(db, old.joinCode, signedIn, "Вася");
+
+    // 2026-01-01 + 60 дней = 2026-03-02: накануне ничего не удаляем
+    expect(await deleteExpiredSantaData(db, "2026-03-02")).toEqual({ users: 0, games: 0 });
+    expect(await deleteExpiredSantaData(db, "2026-03-03")).toEqual({ users: 1, games: 1 });
+
+    const remainingUsers = (await db.select({ id: users.id }).from(users)).map((u) => u.id);
+    expect(remainingUsers).not.toContain(onlyOld.userId);
+    expect(remainingUsers).toEqual(expect.arrayContaining([both.userId, signedIn, organizer]));
+    expect((await db.select().from(santaGames)).map((g) => g.title)).toEqual(["Этот год"]);
   });
 });

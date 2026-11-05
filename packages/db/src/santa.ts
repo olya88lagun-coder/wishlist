@@ -276,3 +276,21 @@ export async function listDueSantaReminders(db: Database, today: string, daysBef
     .innerJoin(recipients, eq(recipients.id, santaParticipants.recipientParticipantId))
     .where(and(eq(santaGames.status, "drawn"), sql`(${santaGames.exchangeDate} - ${today}::date) = ${daysBefore}`));
 }
+
+export const SANTA_RETENTION_DAYS = 60;
+
+// Анонимный профиль удаляется, когда все его игры старше срока хранения; профиль с входом остаётся
+export async function deleteExpiredSantaData(db: Database, today: string): Promise<{ users: number; games: number }> {
+  const expired = sql`(${santaGames.exchangeDate} + ${SANTA_RETENTION_DAYS}::int) < ${today}::date`;
+  return db.transaction(async (tx) => {
+    const deletedUsers = await tx.delete(users).where(and(
+      eq(users.isAnonymous, true),
+      sql`not exists (select 1 from ${authIdentities} where ${authIdentities.userId} = ${users.id})`,
+      sql`exists (select 1 from ${santaParticipants} where ${santaParticipants.userId} = ${users.id})`,
+      sql`not exists (select 1 from ${santaParticipants} join ${santaGames} on ${santaGames.id} = ${santaParticipants.gameId}
+        where ${santaParticipants.userId} = ${users.id} and not ${expired})`,
+    )).returning({ id: users.id });
+    const deletedGames = await tx.delete(santaGames).where(expired).returning({ id: santaGames.id });
+    return { users: deletedUsers.length, games: deletedGames.length };
+  });
+}

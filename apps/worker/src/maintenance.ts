@@ -1,4 +1,5 @@
-import { type Database, pruneParseCache } from "@wishlist/db";
+import { todayInTimeZone } from "@wishlist/core";
+import { type Database, deleteExpiredSantaData, pruneParseCache } from "@wishlist/db";
 import { BACKUP_PREFIX, backupKey, dumpDatabase, expiredBackupKeys } from "./backup";
 import type { Logger } from "./log";
 import type { ObjectStorage } from "./storage";
@@ -19,6 +20,8 @@ export async function runMaintenance(deps: MaintenanceDeps): Promise<void> {
   const now = deps.now?.() ?? new Date();
   const pruned = await pruneParseCache(deps.db, now);
   deps.log("info", "parse cache pruned", { rows: pruned });
+  const santa = await deleteExpiredSantaData(deps.db, todayInTimeZone(now));
+  deps.log("info", "expired santa data deleted", santa);
 
   if (!deps.storage || !deps.backupsBucket) {
     deps.log("warn", "backup skipped: S3 is not configured");
