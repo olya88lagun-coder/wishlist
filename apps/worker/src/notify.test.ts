@@ -7,6 +7,11 @@ import {
   type Database,
   deleteItem,
   reservations,
+  createAnonymousUser,
+  createSantaGame,
+  drawSantaGame,
+  getSantaGameView,
+  joinSantaGame,
   users,
 } from "@wishlist/db/testing";
 import { eq } from "drizzle-orm";
@@ -113,4 +118,27 @@ test("nothing to do when the reservation is gone", async () => {
   await db.update(reservations).set({ status: "cancelled" }).where(eq(reservations.id, reservationId));
   await runNotify({ kind: "reservation_created", itemId }, deps());
   expect(sent).toEqual([]);
+});
+
+describe("santa_drawn", () => {
+  test("santa_drawn notifies only telegram participants with their own recipient", async () => {
+    const created = await createSantaGame(db, owner, { title: "Отдел", budgetText: "", exchangeDate: "2026-12-25", organizerName: "Маша" });
+    if (!created.ok) throw new Error("setup");
+    await joinSantaGame(db, created.joinCode, guest, "Оля");
+    const { userId: anon } = await createAnonymousUser(db, "Петя");
+    await joinSantaGame(db, created.joinCode, anon, "Петя");
+    await drawSantaGame(db, created.gameId, owner);
+
+    await runNotify({ kind: "santa_drawn", gameId: created.gameId }, deps());
+
+    expect(sent.map((m) => m.chatId).sort()).toEqual([OWNER_TG, GUEST_TG]);
+    for (const [chatId, userId] of [[OWNER_TG, owner], [GUEST_TG, guest]] as const) {
+      const view = await getSantaGameView(db, created.gameId, userId);
+      const message = sent.find((m) => m.chatId === chatId)!;
+      expect(message.text).toContain(view!.recipient!.displayName);
+      expect(JSON.stringify(message.extra)).toContain(`/santa/${created.gameId}`);
+    }
+    await runNotify({ kind: "santa_drawn", gameId: created.gameId }, deps());
+    expect(sent).toHaveLength(2);
+  });
 });

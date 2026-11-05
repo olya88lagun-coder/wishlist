@@ -1,6 +1,6 @@
 import type { NotifyJob } from "@wishlist/core";
-import { getActiveReservationNotice, type ReservationNotice } from "@wishlist/db";
-import { guestReservedText, itemDeletedText, ownerReservedText, publicListUrl } from "./bot/texts";
+import { getActiveReservationNotice, listSantaNotices, type ReservationNotice } from "@wishlist/db";
+import { guestReservedText, itemDeletedText, ownerReservedText, publicListUrl, santaDrawnText, santaGameUrl } from "./bot/texts";
 import { type DeliveryDeps, type DeliveryOutcome, deliverNotification } from "./delivery";
 import type { SendExtra } from "./telegram/messenger";
 
@@ -18,7 +18,19 @@ function assertDelivered(outcome: DeliveryOutcome, kind: string): void {
   if (outcome === "failed") throw new Error(`telegram send failed: ${kind}`);
 }
 
+async function runSantaDrawn(gameId: string, deps: NotifyDeps): Promise<void> {
+  let failed = false;
+  for (const notice of await listSantaNotices(deps.db, gameId)) {
+    const extra: SendExtra = { reply_markup: { inline_keyboard: [[{ text: "Открыть игру", url: santaGameUrl(deps.appUrl, gameId) }]] } };
+    const outcome = await deliverNotification(deps, { userId: notice.userId, kind: "santa_drawn", refId: gameId }, santaDrawnText(notice), extra);
+    failed ||= outcome === "failed";
+  }
+  // Повтор задачи дошлёт только неотправленным: отправленные уже записаны в журнал
+  if (failed) throw new Error("telegram send failed: santa_drawn");
+}
+
 export async function runNotify(job: NotifyJob, deps: NotifyDeps): Promise<void> {
+  if (job.kind === "santa_drawn") return runSantaDrawn(job.gameId, deps);
   const notice = await getActiveReservationNotice(deps.db, job.itemId);
   if (!notice) return;
   const openList: SendExtra = { reply_markup: { inline_keyboard: [[openListButton(deps.appUrl, notice)]] } };

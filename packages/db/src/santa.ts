@@ -1,5 +1,6 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { and, asc, count, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { isUuid } from "./errors";
 import {
   SANTA_BUDGET_MAX,
@@ -250,4 +251,28 @@ export async function discardAnonymousUser(db: Database, userId: string): Promis
   const [participant] = await db.select({ id: santaParticipants.id }).from(santaParticipants).where(eq(santaParticipants.userId, userId)).limit(1);
   if (participant) return;
   await db.delete(users).where(and(eq(users.id, userId), eq(users.isAnonymous, true)));
+}
+
+export type SantaNotice = { userId: string; gameId: string; gameTitle: string; exchangeDate: string; recipientName: string };
+
+const recipients = alias(santaParticipants, "recipient");
+const noticeColumns = {
+  userId: santaParticipants.userId, gameId: santaGames.id, gameTitle: santaGames.title,
+  exchangeDate: santaGames.exchangeDate, recipientName: recipients.displayName,
+};
+
+// Кому и кого дарить — только для уведомлений воркера, каждому участнику свой получатель
+export async function listSantaNotices(db: Database, gameId: string): Promise<SantaNotice[]> {
+  if (!isUuid(gameId)) return [];
+  return db.select(noticeColumns).from(santaParticipants)
+    .innerJoin(santaGames, eq(santaGames.id, santaParticipants.gameId))
+    .innerJoin(recipients, eq(recipients.id, santaParticipants.recipientParticipantId))
+    .where(and(eq(santaParticipants.gameId, gameId), eq(santaGames.status, "drawn")));
+}
+
+export async function listDueSantaReminders(db: Database, today: string, daysBefore: number): Promise<SantaNotice[]> {
+  return db.select(noticeColumns).from(santaParticipants)
+    .innerJoin(santaGames, eq(santaGames.id, santaParticipants.gameId))
+    .innerJoin(recipients, eq(recipients.id, santaParticipants.recipientParticipantId))
+    .where(and(eq(santaGames.status, "drawn"), sql`(${santaGames.exchangeDate} - ${today}::date) = ${daysBefore}`));
 }

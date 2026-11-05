@@ -1,6 +1,6 @@
 import { todayInTimeZone } from "@wishlist/core";
-import { type DueReminder, listDueReminders } from "@wishlist/db";
-import { publicListUrl, reminderText } from "./bot/texts";
+import { type DueReminder, listDueReminders, listDueSantaReminders } from "@wishlist/db";
+import { publicListUrl, reminderText, santaGameUrl, santaReminderText } from "./bot/texts";
 import { type DeliveryDeps, deliverNotification } from "./delivery";
 
 export const REMINDER_DAYS = [14, 7, 2] as const;
@@ -29,5 +29,22 @@ export async function runReminders(deps: ReminderDeps): Promise<ReminderStats> {
     else stats.skipped += 1;
   }
   deps.log("info", "reminders processed", { day: today, ...stats });
+  return stats;
+}
+
+export const SANTA_REMINDER_DAYS = 2;
+
+export async function runSantaReminders(deps: ReminderDeps): Promise<ReminderStats> {
+  const today = todayInTimeZone(deps.now());
+  const due = await listDueSantaReminders(deps.db, today, SANTA_REMINDER_DAYS);
+  const stats: ReminderStats = { guests: due.length, sent: 0, skipped: 0, failed: 0 };
+  for (const notice of due) {
+    const extra = { reply_markup: { inline_keyboard: [[{ text: "Открыть игру", url: santaGameUrl(deps.appUrl, notice.gameId) }]] } };
+    const outcome = await deliverNotification(deps, { userId: notice.userId, kind: "santa_reminder", refId: notice.gameId }, santaReminderText(notice), extra);
+    if (outcome === "sent") stats.sent += 1;
+    else if (outcome === "failed") stats.failed += 1;
+    else stats.skipped += 1;
+  }
+  deps.log("info", "santa reminders processed", { day: today, ...stats });
   return stats;
 }

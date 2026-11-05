@@ -1,6 +1,6 @@
-import { addItem, authIdentities, createTestDb, createUserFixture, createWishlist, type Database, reservations } from "@wishlist/db/testing";
+import { addItem, authIdentities, createAnonymousUser, createSantaGame, createTestDb, createUserFixture, createWishlist, type Database, drawSantaGame, joinSantaGame, reservations } from "@wishlist/db/testing";
 import { beforeEach, expect, test } from "vitest";
-import { REMINDER_DAYS, type ReminderDeps, runReminders } from "./reminders";
+import { REMINDER_DAYS, type ReminderDeps, runReminders, runSantaReminders } from "./reminders";
 import type { Messenger, SendExtra, SendOutcome } from "./telegram/messenger";
 
 const NOW = new Date("2026-10-01T09:00:00Z"); // 12:00 МСК
@@ -69,4 +69,23 @@ test("temporary failures are counted and can be sent by a rerun the same day", a
   expect(await runReminders(deps())).toEqual({ guests: 1, sent: 0, skipped: 0, failed: 1 });
   outcome = "sent";
   expect(await runReminders(deps())).toEqual({ guests: 1, sent: 1, skipped: 0, failed: 0 });
+});
+
+test("santa reminder is sent once two days before exchange", async () => {
+  const organizer = await createUserFixture(db, "Маша");
+  await db.insert(authIdentities).values({ userId: organizer, provider: "telegram", providerUserId: "900" });
+  const created = await createSantaGame(db, organizer, { title: "Отдел", budgetText: "", exchangeDate: "2026-10-03", organizerName: "Маша" });
+  const later = await createSantaGame(db, organizer, { title: "Друзья", budgetText: "", exchangeDate: "2026-10-04", organizerName: "Маша" });
+  if (!created.ok || !later.ok) throw new Error("setup");
+  for (const game of [created, later]) {
+    for (const name of ["Оля", "Петя"]) await joinSantaGame(db, game.joinCode, (await createAnonymousUser(db, name)).userId, name);
+    await drawSantaGame(db, game.gameId, organizer);
+  }
+
+  await runSantaReminders(deps());
+  await runSantaReminders(deps());
+
+  expect(sent).toHaveLength(1);
+  expect(sent[0]!.chatId).toBe(900);
+  expect(sent[0]!.text).toContain("Отдел");
 });
