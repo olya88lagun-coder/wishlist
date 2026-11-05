@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { GIFT_IDEAS, giftIdeaSearchLinks, giftIdeasCountLabel } from "@/content/gift-ideas";
 import { relatedGiftLinks } from "@/content/gift-related-links";
+import { giftDirectionPhotos } from "@/content/gift-direction-photos";
 import { faqPageJsonLd } from "@/lib/structured-data";
 import Image from "next/image";
 import { SantaBanner } from "@/components/SantaBanner";
@@ -860,22 +861,11 @@ const SELECTION_INTROS: Record<string, string> = {
   "for-grandpa": "Ориентируйтесь на занятия дедушки, а не только на возраст: что он читает, мастерит, выращивает или берёт на прогулку? Уточните, удобно ли ему пользоваться выбранной вещью и нет ли уже похожей. Для техники заранее проверьте управление и необходимость настройки.",
 };
 
-const SELECTION_DIRECTIONS: Record<string, readonly { title: string; text: string }[]> = {
-  "under-1000": [
-    { title: "Одна полезная вещь", text: "Небольшой аксессуар для знакомого хобби обычно проще подобрать, чем набор случайных мелочей. Сверьте размер, материал и совместимость." },
-    { title: "Небольшое угощение", text: "Чай, кофе или сладости — с учётом вкусов и пищевых ограничений. Сравнивайте итоговую стоимость с доставкой, а не только цену на карточке." },
-    { title: "Личное внимание", text: "Печатная фотография, открытка с конкретным воспоминанием или книга по интересам могут дополнить небольшой подарок без лишних покупок." },
-  ],
-};
-
 function getVisuals(slug: string) {
   if (slug in PHOTO_VISUALS) return PHOTO_VISUALS[slug as keyof typeof PHOTO_VISUALS];
 
-  const directions = SELECTION_DIRECTIONS[slug];
-  if (directions) return SEO_VISUALS.map((visual, index) => ({
-    ...visual,
-    ...directions[index],
-  }));
+  const photos = giftDirectionPhotos(slug);
+  if (photos) return photos;
 
   return SEO_VISUALS.map((visual) => ({
     ...visual,

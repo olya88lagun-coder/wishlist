@@ -197,6 +197,18 @@ function collectImageSources(node: ReactNode, sources: string[] = []): string[] 
 
 describe("gift recipient editorial images", () => {
   test.each([
+    "housewarming", "valentines-day", "march-8", "february-23",
+    "sport", "books", "for-colleague", "for-friend",
+    "for-sister", "for-brother", "for-grandma", "for-grandpa",
+    "for-daughter", "for-son", "for-teacher", "for-boss",
+    "under-1000", "under-15000", "under-20000",
+  ])("uses three collection-specific photos for %s", async (slug) => {
+    const page = await GiftRecipientPage({ params: Promise.resolve({ slug }) });
+
+    expect(collectImageSources(page)).toEqual([1, 2, 3].map((index) => `/gifts/seo/${slug}-${index}.webp`));
+  });
+
+  test.each([
     ["for-dad", ["/gifts/seo/dad-1.webp", "/gifts/seo/dad-2.webp", "/gifts/seo/dad-3.webp"]],
     ["for-girlfriend", ["/gifts/seo/girlfriend-1.webp", "/gifts/seo/girlfriend-2.webp", "/gifts/seo/girlfriend-3.webp"]],
     ["for-boyfriend", ["/gifts/seo/boyfriend-1.webp", "/gifts/seo/boyfriend-2.webp", "/gifts/seo/boyfriend-3.webp"]],
