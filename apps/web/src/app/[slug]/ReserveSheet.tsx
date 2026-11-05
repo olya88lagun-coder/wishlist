@@ -5,6 +5,7 @@ import { SubmitButton } from "@/components/SubmitButton";
 import { initialFormState } from "../lists/form-state";
 import { reserveAction } from "./actions";
 import { withActionAnalytics } from "@/lib/action-analytics";
+import { GUEST_CTA_TITLE_ID } from "./GuestCta";
 
 type Props = { slug: string; itemId: string; itemTitle: string; priceText: string | null; ownerName: string; defaultName: string };
 
@@ -48,6 +49,8 @@ export function ReserveSheet({ slug, itemId, itemTitle, priceText, ownerName, de
       // Revalidation can remove the sheet and clear its ref before this cleanup.
       dialog.close();
       if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+      // После брони кнопка исчезает; ведём гостя к приглашению собрать свой вишлист вверху страницы
+      else document.getElementById(GUEST_CTA_TITLE_ID)?.focus();
     };
   }, [open]);
 
