@@ -40,12 +40,29 @@ test("offers the game on the Secret Santa collection only", async () => {
   expect(offSeason).not.toContain('href="/santa"');
 });
 
-test("the New Year collection names the coming year and offers a New Year wishlist", async () => {
-  const metadata = await generateMetadata({ params: Promise.resolve({ slug: "new-year" }) });
-  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "new-year" }) }));
+test.each(["new-year", "secret-santa"])("the %s collection names the coming year", async (slug) => {
+  const metadata = await generateMetadata({ params: Promise.resolve({ slug }) });
+  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug }) }));
   expect(String(metadata.title)).toContain("Новый год 2027");
   expect(html).toMatch(/<h1[^>]*>[^<]*Новый год 2027/);
-  expect(html).toMatch(/<a[^>]*href="\/lists"[^>]*>Создать вишлист на Новый год/);
+  expect(html).toContain('"dateModified":"2026-11-05"');
+});
+
+test("a guest turns collection ideas into a wishlist through login and list creation", async () => {
+  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "new-year" }) }));
+  const create = "/login?returnTo=%2Flists%3FreturnTo%3D%252Fgifts%252Fnew-year";
+  expect(html).toContain(`href="${create}">Создать вишлист из этих идей</a>`);
+  expect(html.split(`href="${create}">В вишлист</a>`).length - 1).toBe(14);
+});
+
+test("a signed-in owner without lists goes straight to list creation", async () => {
+  const { readViewer } = await import("@/server/viewer");
+  const { listWishlistsForOwner } = await import("@wishlist/db");
+  vi.mocked(readViewer).mockResolvedValueOnce({ user: { id: "u1" } } as never);
+  vi.mocked(listWishlistsForOwner).mockResolvedValueOnce([]);
+  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "under-1000" }) }));
+  expect(html).toContain('href="/lists?returnTo=%2Fgifts%2Funder-1000">Создать вишлист из этих идей</a>');
+  expect(html).toContain('href="/lists?returnTo=%2Fgifts%2Funder-1000">В вишлист</a>');
 });
 
 test("starts gift selection within the 3000-ruble page budget", async () => {

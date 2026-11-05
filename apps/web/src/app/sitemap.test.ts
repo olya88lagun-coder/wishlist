@@ -33,6 +33,10 @@ test.each([
   ["/gifts/under-3000", "2026-10-22"],
   ["/gifts/books", "2026-10-22"],
   ["/gifts/sport", "2026-10-22"],
+  ["/gifts/new-year", "2026-11-05"],
+  ["/wishlist/birthday", "2026-11-05"],
+  ["/wishlist/new-year", "2026-11-05"],
+  ["/gifts/secret-santa", "2026-11-05"],
   ["/gifts/for-children", "2026-10-08"],
   ["/gifts/for-child-3-years", "2026-10-08"],
 ])("%s uses its last substantive content change (%s)", (path, expectedDate) => {
@@ -43,7 +47,7 @@ test.each([
 
 test("all ordinary collections include the shared related links and FAQ markup updated on October 22", () => {
   const collections = sitemap().filter((entry) => entry.url.includes("/gifts/")
-    && !entry.url.includes("/gifts/for-child"));
+    && !entry.url.includes("/gifts/for-child") && !/\/gifts\/(new-year|secret-santa)$/.test(entry.url));
   for (const entry of collections) {
     const slug = entry.url.split("/").at(-1)!;
     expect(GIFT_IDEAS[slug]).toBeDefined();
