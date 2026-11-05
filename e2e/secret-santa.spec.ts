@@ -64,3 +64,9 @@ test("an unknown personal link is not found", async ({ page }) => {
   const response = await page.goto("/santa/me/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
   expect(response?.status()).toBe(404);
 });
+
+test("a guest opening game creation is sent to login and comes back to it", async ({ page }) => {
+  await blockMetrika(page.context());
+  await page.goto("/santa/new");
+  await expect(page).toHaveURL(/\/login\?returnTo=%2Fsanta%2Fnew$/);
+});

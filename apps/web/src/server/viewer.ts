@@ -36,9 +36,10 @@ export async function ensureGuestViewer(): Promise<{ viewer: Viewer; user: UserW
   return { user: current.user, viewer: { ...current.viewer, guestToken } };
 }
 
-export async function requireUser(): Promise<UserWithIdentities> {
+// returnTo — куда вернуть после входа; допустимые адреса проверяет страница входа
+export async function requireUser(returnTo?: string): Promise<UserWithIdentities> {
   const user = await currentUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login");
   return user;
 }
 

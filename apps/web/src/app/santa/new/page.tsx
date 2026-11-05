@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Новая игра — Тайный Санта" };
 
 export default async function NewSantaGamePage() {
-  const user = await requireUser();
+  const user = await requireUser("/santa/new");
   // Организатор управляет игрой, его нельзя потерять: нужен вход через Telegram или VK
   if (user.providers.length === 0) redirect("/login?returnTo=/santa/new");
   return (
