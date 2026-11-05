@@ -56,6 +56,8 @@ describe("Home", () => {
     expect(html).toContain("Подарки не повторяются");
     expect(html).toContain("День рождения");
     expect(html).toContain('href="/gifts/birthday"');
+    expect(html).toContain('href="/wishlist/birthday"');
+    expect(html).toContain('href="/wishlist/new-year"');
     expect(html).toContain('href="/articles/kak-sostavit-vishlist"');
   });
 
