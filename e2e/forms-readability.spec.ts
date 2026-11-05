@@ -160,6 +160,34 @@ function contrast(foreground: string, background: string) {
 }
 
 for (const theme of ["light", "dark"] as const) {
+  test(`Santa landing text and primary action remain readable in ${theme} mode`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.goto("/santa");
+
+    const hero = page.locator("main header");
+    const targets = [
+      hero.getByRole("heading", { level: 1 }),
+      hero.getByRole("link", { name: "Создать игру" }),
+      page.getByRole("link", { name: "MyWishList — на главную" }),
+      page.getByRole("heading", { name: "Как проходит игра" }),
+    ];
+    for (const target of targets) {
+      await expect(target).toBeVisible();
+      const { foreground, background, label } = await target.evaluate((element) => {
+        let surface = element;
+        while (surface.parentElement && getComputedStyle(surface).backgroundColor === "rgba(0, 0, 0, 0)") {
+          surface = surface.parentElement;
+        }
+        return {
+          foreground: getComputedStyle(element).color,
+          background: getComputedStyle(surface).backgroundColor,
+          label: element.textContent,
+        };
+      });
+      expect.soft(contrast(foreground, background), `${theme}: ${label}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   test(`small owner labels, public notes and reservation badges remain readable in ${theme} mode`, async ({ page, browser }, testInfo) => {
     await page.emulateMedia({ colorScheme: theme });
     await createList(page);
