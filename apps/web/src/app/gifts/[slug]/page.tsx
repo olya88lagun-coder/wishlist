@@ -87,9 +87,9 @@ const PAGES = {
   },
   "new-year": {
     person: "other",
-    title: "Что подарить на Новый год — идеи подарков",
-    description: "Идеи подарков на Новый год для семьи, друзей, коллег и любимых. Подбор по интересам и бюджету с помощью AI.",
-    heading: "Что подарить на Новый год?",
+    title: "Что подарить на Новый год 2027 — идеи подарков",
+    description: "Идеи подарков на Новый год 2027 для семьи, друзей, коллег и любимых. Подбор по интересам и бюджету с помощью AI.",
+    heading: "Что подарить на Новый год 2027?",
     intro: "Новогодний подарок может быть уютным, полезным, забавным или связанным с общими планами. Выберите направление и уточните бюджет.",
     tips: ["Для коллег и больших компаний заранее определите комфортный бюджет.", "Для семьи хорошо работают подарки, которые вписываются в общие домашние привычки.", "Для близких можно добавить к полезной вещи небольшую персональную деталь."],
   },
@@ -953,7 +953,10 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
       <p className="eyebrow">my wish list · идеи подарков</p>
       <h1 className="display">{page.heading}</h1>
       <p className="gifts-page__lead">{page.intro}</p>
-      <p className="gifts-page__finder-link"><a className="button button--ghost" href="#gift-finder">Подобрать по интересам</a></p>
+      <p className="gifts-page__finder-link">
+        <a className="button button--ghost" href="#gift-finder">Подобрать по интересам</a>
+        {slug === "new-year" && <> <a className="button button--ghost" href="/lists">Создать вишлист на Новый год</a></>}
+      </p>
       {slug === "secret-santa" && <SantaBanner eager />}
 
       <section className="gifts-page__visuals" aria-labelledby="gift-visuals-title">

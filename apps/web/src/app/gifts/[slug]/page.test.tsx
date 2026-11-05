@@ -30,8 +30,16 @@ test("offers the game on the Secret Santa collection only", async () => {
   const santa = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "secret-santa" }) }));
   const newYear = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "new-year" }) }));
 
-  expect(santa).toMatch(/<a[^>]*href="\/santa\/new"[^>]*>Тайный Санта/);
-  expect(newYear).not.toContain('href="/santa/new"');
+  expect(santa).toMatch(/<a[^>]*href="\/santa"[^>]*>Тайный Санта/);
+  expect(newYear).not.toContain('href="/santa"');
+});
+
+test("the New Year collection names the coming year and offers a New Year wishlist", async () => {
+  const metadata = await generateMetadata({ params: Promise.resolve({ slug: "new-year" }) });
+  const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "new-year" }) }));
+  expect(String(metadata.title)).toContain("Новый год 2027");
+  expect(html).toMatch(/<h1[^>]*>[^<]*Новый год 2027/);
+  expect(html).toMatch(/<a[^>]*href="\/lists"[^>]*>Создать вишлист на Новый год/);
 });
 
 test("starts gift selection within the 3000-ruble page budget", async () => {

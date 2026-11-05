@@ -72,7 +72,7 @@ describe("Home", () => {
 
   test("links to the Secret Santa game from the home page", async () => {
     const html = renderToStaticMarkup(await Home());
-    expect(html).toMatch(/<a[^>]*href="\/santa\/new"[^>]*>Тайный Санта/);
+    expect(html).toMatch(/<a[^>]*href="\/santa"[^>]*>Тайный Санта/);
   });
 
   test("shows a visible block of gift collections grouped by occasion, person, age, budget and interest", async () => {
@@ -93,8 +93,8 @@ describe("Home", () => {
     const metadata = generateMetadata();
     const html = renderToStaticMarkup(await Home());
 
-    expect(metadata.title).toEqual({ absolute: expect.stringContaining("Список желаний онлайн") });
-    expect(metadata.description).toContain("Список желаний онлайн");
+    expect(metadata.title).toEqual({ absolute: expect.stringMatching(/^Вишлист онлайн — .*список желаний/) });
+    expect(metadata.description).toMatch(/^Вишлист онлайн/);
     expect(html).toMatch(/<h1[^>]*>Список желаний онлайн:/);
   });
 

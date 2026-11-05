@@ -14,3 +14,6 @@ export const GIFTS_HUB_CONTENT_UPDATED = "2026-10-22";
 // Детские страницы используют отдельный шаблон и CHILDREN_CONTENT_UPDATED.
 // 2026-10-22: общий шаблон получил ссылки на соседние подборки и разметку FAQPage.
 export const GIFT_COLLECTION_CONTENT_UPDATED = "2026-10-22";
+
+// 2026-11-05: открытая для поиска страница игры «Тайный Санта онлайн».
+export const SANTA_LANDING_UPDATED = "2026-11-05";

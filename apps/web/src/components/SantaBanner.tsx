@@ -9,7 +9,7 @@ export function SantaBanner({ eager = false }: { eager?: boolean }) {
         <p className={styles.kicker}>Новогодняя игра</p>
         <h2>У каждого подарка <em>есть секрет</em></h2>
         <p>Пригласите друзей одной ссылкой, обменяйтесь вишлистами и узнайте, кому готовить подарок.</p>
-        <Link className={styles.link} href="/santa/new">Тайный Санта <span aria-hidden="true">→</span></Link>
+        <Link className={styles.link} href="/santa">Тайный Санта <span aria-hidden="true">→</span></Link>
       </div>
       <div className={styles.photo}>
         <Image src="/santa/gifts.webp" alt="" fill sizes="(max-width: 640px) 100vw, 612px" loading={eager ? "eager" : "lazy"} />
