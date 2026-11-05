@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./SantaBanner.module.css";
+import { isSantaSeason } from "./santa-season";
 
 export function SantaBanner({ eager = false }: { eager?: boolean }) {
+  if (!isSantaSeason()) return null;
   return (
     <section className={styles.banner} aria-label="Игра «Тайный Санта»">
       <div className={styles.copy}>

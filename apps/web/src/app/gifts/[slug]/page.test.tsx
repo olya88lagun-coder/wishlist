@@ -27,11 +27,17 @@ test.each(["birthday", "new-year", "wedding", "anniversary", "housewarming", "se
 });
 
 test("offers the game on the Secret Santa collection only", async () => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-12-01T12:00:00Z"));
   const santa = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "secret-santa" }) }));
   const newYear = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "new-year" }) }));
 
   expect(santa).toMatch(/<a[^>]*href="\/santa"[^>]*>Тайный Санта/);
   expect(newYear).not.toContain('href="/santa"');
+  vi.setSystemTime(new Date("2027-02-01T12:00:00Z"));
+  const offSeason = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "secret-santa" }) }));
+  vi.useRealTimers();
+  expect(offSeason).not.toContain('href="/santa"');
 });
 
 test("the New Year collection names the coming year and offers a New Year wishlist", async () => {
