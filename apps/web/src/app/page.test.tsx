@@ -70,9 +70,16 @@ describe("Home", () => {
     expect(missing).toEqual([]);
   });
 
-  test("links to the Secret Santa game from the home page", async () => {
-    const html = renderToStaticMarkup(await Home());
-    expect(html).toMatch(/<a[^>]*href="\/santa"[^>]*>Тайный Санта/);
+  test("links to the Secret Santa game from the home page during the season only", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-12-01T12:00:00Z"));
+      expect(renderToStaticMarkup(await Home())).toMatch(/<a[^>]*href="\/santa"[^>]*>Тайный Санта/);
+      vi.setSystemTime(new Date("2027-02-01T12:00:00Z"));
+      expect(renderToStaticMarkup(await Home())).not.toContain('href="/santa"');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("shows a visible block of gift collections grouped by occasion, person, age, budget and interest", async () => {
