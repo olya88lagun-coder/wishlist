@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { faqPageJsonLd } from "@/lib/structured-data";
-import { SantaCover, SantaFrame } from "./SantaPresentation";
+import { SantaFrame } from "./SantaPresentation";
+import styles from "./landing.module.css";
 
 const TITLE = "Тайный Санта онлайн — жеребьёвка бесплатно | MyWishList";
 const DESCRIPTION =
@@ -41,26 +43,88 @@ export const metadata: Metadata = {
 
 export default function SantaLandingPage() {
   return (
-    <SantaFrame>
-      <SantaCover eyebrow="Новогодняя игра" title={<>Тайный Санта <em>онлайн</em></>} artwork="gifts">
-        <p className="santa-cover__lead">Бесплатная жеребьёвка для друзей и коллег. Одна ссылка в общий чат, у каждого свой вишлист, участникам без регистрации.</p>
-        <Link className="button" href="/santa/new">Создать игру</Link>
-      </SantaCover>
-      <ol className="santa-steps" aria-label="Как проходит игра">
-        <li><span aria-hidden="true">01</span><div><strong>Создайте игру</strong><p>Укажите название, бюджет и дату обмена подарками.</p></div></li>
-        <li><span aria-hidden="true">02</span><div><strong>Отправьте ссылку в чат</strong><p>Участники вступают по имени и добавляют желания.</p></div></li>
-        <li><span aria-hidden="true">03</span><div><strong>Проведите жеребьёвку</strong><p>Каждый узнает, кому дарит, и откроет его список желаний.</p></div></li>
-      </ol>
-      <section className="santa-paper" aria-labelledby="santa-faq-title">
-        <h2 id="santa-faq-title">Вопросы и ответы</h2>
-        {FAQ.map((item) => (
-          <div key={item.question}>
-            <h3>{item.question}</h3>
-            <p>{item.answer}</p>
+    <div className={styles.landing}>
+      <SantaFrame>
+        <header className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <p className={styles.kicker}>Обмен подарками</p>
+            <h1>Тайный Санта <em>онлайн</em></h1>
+            <p className={styles.lead}>
+              Бесплатная жеребьёвка для друзей и коллег. Пригласите всех одной ссылкой и выбирайте подарки по вишлистам.
+            </p>
+            <Link className={`button ${styles.heroButton}`} href="/santa/new">
+              Создать игру <span aria-hidden="true">→</span>
+            </Link>
+            <p className={styles.heroNote}>Участие без регистрации</p>
           </div>
-        ))}
-      </section>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(FAQ)) }} />
-    </SantaFrame>
+          <div className={styles.heroPhoto}>
+            <Image
+              src="/santa/gifts.webp"
+              alt=""
+              fill
+              sizes="(max-width: 767px) 96vw, (max-width: 1232px) 50vw, 600px"
+              fetchPriority="high"
+              loading="eager"
+            />
+          </div>
+        </header>
+
+        <section className={styles.guide} aria-labelledby="santa-guide-title">
+          <p className={styles.kicker}>От приглашения до подарка</p>
+          <h2 id="santa-guide-title">Как проходит игра</h2>
+          <ol className={styles.steps} role="list">
+            <li>
+              <span aria-hidden="true">01</span>
+              <div>
+                <h3>Создайте игру</h3>
+                <p>Укажите название, бюджет и дату обмена подарками.</p>
+              </div>
+            </li>
+            <li>
+              <span aria-hidden="true">02</span>
+              <div>
+                <h3>Отправьте ссылку в чат</h3>
+                <p>Участники вступают по имени и добавляют желания.</p>
+              </div>
+            </li>
+            <li>
+              <span aria-hidden="true">03</span>
+              <div>
+                <h3>Проведите жеребьёвку</h3>
+                <p>Каждый узнает, кому дарит, и откроет его список желаний.</p>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <section className={styles.faq} aria-labelledby="santa-faq-title">
+          <div>
+            <p className={styles.kicker}>Правила обмена</p>
+            <h2 id="santa-faq-title">Вопросы и ответы</h2>
+          </div>
+          <div className={styles.questions}>
+            {FAQ.map((item) => (
+              <details key={item.question}>
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.invitation} aria-labelledby="santa-invitation-title">
+          <div className={styles.invitationPhoto}>
+            <Image src="/santa/envelope.webp" alt="" fill sizes="(max-width: 767px) 96vw, 400px" />
+          </div>
+          <div className={styles.invitationCopy}>
+            <h2 id="santa-invitation-title">Кого позовёте играть?</h2>
+            <Link className="button" href="/santa/new">
+              Создать игру <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+        </section>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(FAQ)) }} />
+      </SantaFrame>
+    </div>
   );
 }

@@ -1,0 +1,273 @@
+.landing {
+  background: #f8f0e4;
+}
+
+.landing :global(.santa-page) {
+  gap: 24px;
+}
+
+.hero {
+  --hero-gold: #f2cc97;
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  overflow: hidden;
+  background: #351019;
+  color: var(--santa-cream);
+  border-radius: 20px;
+}
+
+.heroCopy {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  position: relative;
+  padding: clamp(32px, 4.6vw, 68px);
+}
+
+.heroCopy::before {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid #886151;
+  border-radius: 10px 0 0 10px;
+  pointer-events: none;
+  content: "";
+}
+
+.kicker {
+  margin: 0;
+  color: var(--santa-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero .kicker {
+  color: var(--hero-gold);
+}
+
+.hero h1 {
+  margin: 12px 0 18px;
+  font: 500 clamp(2.7rem, 4.1vw, 3.75rem) / 1.02 var(--santa-serif);
+  letter-spacing: -0.055em;
+  overflow-wrap: normal;
+}
+
+.hero h1 em {
+  display: block;
+  color: var(--hero-gold);
+}
+
+.lead {
+  max-width: 36ch;
+  margin: 0 0 24px;
+  color: #f6e2d3;
+  font-size: clamp(0.94rem, 1.5vw, 1.0625rem);
+  line-height: 1.65;
+}
+
+.hero :global(.button).heroButton {
+  min-height: 52px;
+  gap: 16px;
+  border-color: var(--santa-cream);
+  background: var(--santa-cream);
+  color: #351019;
+}
+
+.hero :global(.button).heroButton:hover {
+  background: var(--hero-gold);
+  border-color: var(--hero-gold);
+}
+
+.hero :global(.button).heroButton:focus-visible {
+  outline-color: var(--hero-gold);
+}
+
+.heroNote {
+  margin: 12px 0 0;
+  color: #efd0be;
+  font-size: 0.81rem;
+}
+
+.heroPhoto,
+.invitationPhoto {
+  position: relative;
+  background: #591d27;
+}
+
+.heroPhoto {
+  min-height: clamp(390px, 39vw, 530px);
+}
+
+.heroPhoto img,
+.invitationPhoto img {
+  object-fit: cover;
+}
+
+.guide,
+.faq {
+  padding: clamp(26px, 4.3vw, 60px);
+}
+
+.landing h2 {
+  margin: 6px 0 0;
+  font: 500 clamp(2rem, 4vw, 3.5rem) / 1.07 var(--santa-serif);
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 3vw, 36px);
+  padding: 0;
+  margin: 24px 0 0;
+  list-style: none;
+}
+
+.steps li {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--santa-line);
+}
+
+.steps li > span {
+  color: var(--santa-accent);
+  font: italic 2rem / 1.1 var(--santa-serif);
+}
+
+.steps h3 {
+  margin: 0;
+  font: 600 1.28rem / 1.2 var(--santa-serif);
+}
+
+.steps p,
+.questions p {
+  margin: 6px 0 0;
+  color: var(--santa-muted);
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.faq {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 24px 40px;
+  background: var(--santa-paper);
+  border: 1px solid var(--santa-line);
+  border-radius: 20px;
+}
+
+.questions {
+  border-top: 1px solid var(--santa-line);
+}
+
+.questions details {
+  border-bottom: 1px solid var(--santa-line);
+}
+
+.questions summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 54px;
+  gap: 16px;
+  padding: 12px 0;
+  font-weight: 750;
+  cursor: pointer;
+  list-style: none;
+}
+
+.questions summary::-webkit-details-marker {
+  display: none;
+}
+
+.questions summary::after {
+  flex: 0 0 26px;
+  display: grid;
+  place-items: center;
+  height: 26px;
+  background: var(--santa-note-bg);
+  color: var(--santa-accent);
+  border-radius: 50%;
+  font-size: 1.05rem;
+  line-height: 1;
+  content: "+" / "";
+}
+
+.questions details[open] summary::after {
+  content: "−" / "";
+}
+
+.questions summary:hover {
+  color: var(--santa-accent);
+}
+
+.questions summary:focus-visible {
+  outline: 2px solid var(--santa-focus);
+  outline-offset: 2px;
+}
+
+.questions p {
+  max-width: 60ch;
+  margin: 0 32px 16px 0;
+}
+
+.invitation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  overflow: hidden;
+  background: var(--santa-note-bg);
+  border: 1px solid var(--santa-line);
+  border-radius: 20px;
+}
+
+.invitationCopy {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 18px;
+  min-height: 220px;
+  padding: clamp(24px, 4vw, 56px);
+}
+
+.invitationCopy h2 {
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .hero,
+  .steps,
+  .faq,
+  .invitation {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroCopy::before {
+    border-radius: 10px 10px 0 0;
+  }
+
+  .heroPhoto {
+    min-height: 0;
+    aspect-ratio: 1.65;
+  }
+
+  .guide {
+    padding-inline: 12px;
+  }
+
+  .steps li {
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: baseline;
+  }
+
+  .invitationPhoto {
+    aspect-ratio: 2.2;
+  }
+
+  .invitationCopy {
+    min-height: 0;
+  }
+}
