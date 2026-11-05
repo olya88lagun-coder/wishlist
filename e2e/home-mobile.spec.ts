@@ -3,29 +3,23 @@ import { blockMetrika } from "./analytics-counter";
 
 test.beforeEach(async ({ context }) => blockMetrika(context));
 
-test.use({ viewport: { width: 390, height: 844 } });
+test.use({ viewport: { width: 375, height: 667 }, reducedMotion: "reduce" });
 
-test("mobile home keeps the gift scene visible between the CTA and the next section", async ({ page }) => {
+test("mobile home fits two creation links and two wishlist preview cards above the fold", async ({ page }) => {
   await page.goto("/");
 
-  const actions = page.locator(".hero__actions");
-  const scene = page.locator(".hero__scene");
-  const image = scene.getByRole("img");
-  const nextSection = page.locator("#how");
+  const actions = page.locator(".hero__actions a");
+  const preview = page.locator(".home-preview");
+  const cards = preview.locator(".card:visible");
 
-  await expect(scene).toBeVisible();
-  await expect(image).toBeVisible();
-  await expect.poll(() => image.evaluate((node) => (node as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
-
-  const actionsBox = await actions.boundingBox();
-  const sceneBox = await scene.boundingBox();
-  const nextSectionBox = await nextSection.boundingBox();
-
-  expect(actionsBox).not.toBeNull();
-  expect(sceneBox).not.toBeNull();
-  expect(nextSectionBox).not.toBeNull();
-  expect(sceneBox!.height).toBeGreaterThanOrEqual(320);
-  expect(sceneBox!.height).toBeLessThanOrEqual(400);
-  expect(sceneBox!.y).toBeGreaterThanOrEqual(actionsBox!.y + actionsBox!.height);
-  expect(nextSectionBox!.y).toBeGreaterThanOrEqual(sceneBox!.y + sceneBox!.height);
+  await expect(actions).toHaveCount(2);
+  await expect(cards).toHaveCount(2);
+  await expect(preview.getByText("Я подарю", { exact: true })).toBeVisible();
+  await expect(preview.getByText("Забронировано", { exact: true })).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  for (const item of [...await actions.all(), ...await cards.all()]) {
+    const box = await item.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.y + box!.height).toBeLessThanOrEqual(667);
+  }
 });

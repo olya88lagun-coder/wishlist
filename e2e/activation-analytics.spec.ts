@@ -5,6 +5,23 @@ import { captureGoals, type GoalCall } from "./analytics-counter";
 const idea = { title: "Набор акварельных карандашей", reason: "Для рисования в поездках.", type: "хобби", searchQuery: "акварельные карандаши набор" };
 const count = (calls: GoalCall[], event: string) => calls.filter((call) => call.event === event).length;
 
+test("the home finder preserves interests and sends the AI submit and result goals", async ({ page, context }) => {
+  const goals = await captureGoals(context);
+  await page.route("**/api/gifts/recommend", (route) => route.fulfill({ json: { ideas: [idea] } }));
+  await page.goto("/");
+
+  const interests = "Акварель и путешествия";
+  const finder = page.getByRole("region", { name: "Не знаете, что подарить?" });
+  await finder.getByRole("textbox").fill(interests);
+  await finder.getByRole("button", { name: "Подобрать с AI" }).click();
+  await expect(page.getByLabel("Что человек любит и чем занимается?")).toHaveValue(interests);
+  expect(new URL(page.url()).pathname).toBe("/gifts");
+  await page.getByRole("button", { name: "Подобрать подарок", exact: true }).click();
+
+  await expect.poll(() => goals.map(({ event }) => event)).toEqual(["gift_finder_submit", "gift_finder_result"]);
+  expect(JSON.stringify(goals)).not.toContain(interests);
+});
+
 async function telegramLogin(context: BrowserContext, origin: string, returnTo = "/lists") {
   const started = await context.request.post("/api/auth/telegram/start", { headers: { origin }, data: { returnTo } });
   expect(started.ok()).toBe(true);
