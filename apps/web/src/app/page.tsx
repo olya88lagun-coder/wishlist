@@ -101,7 +101,7 @@ const OCCASIONS = [
   {
     title: "День рождения",
     text: "Соберите желания разного бюджета и отправьте близким один аккуратный ориентир.",
-    href: "/gifts/birthday",
+    href: "/wishlist/birthday",
   },
   {
     title: "Свадьба",
@@ -111,7 +111,7 @@ const OCCASIONS = [
   {
     title: "Новый год",
     text: "Подготовьте семейный список заранее и сохраните интригу до праздника.",
-    href: "/gifts/new-year",
+    href: "/wishlist/new-year",
   },
   {
     title: "Подарок маме",
