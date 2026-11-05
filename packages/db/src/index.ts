@@ -20,3 +20,4 @@ export * from "./design-purchases";
 export * from "./ai-usage";
 export * from "./ai-quota";
 export * from "./santa";
+export * from "./anonymous-merge";

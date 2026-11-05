@@ -19,6 +19,7 @@ import {
   getUserWithIdentities,
   type IdentityInput,
   linkIdentity,
+  mergeAnonymousUser,
   upsertUserFromIdentity,
   type UserWithIdentities,
 } from "@wishlist/db";
@@ -37,8 +38,15 @@ function telegramIdentity(user: TelegramUser): IdentityInput {
 
 async function loginOrLink(deps: AuthDeps, identity: IdentityInput, currentSessionToken: string | null): Promise<AuthOutcome> {
   const currentUserId = currentSessionToken ? await verifySession(currentSessionToken, deps.env.SESSION_SECRET) : null;
-  if (currentUserId && (await getUserWithIdentities(deps.db, currentUserId))) {
+  const currentUser = currentUserId ? await getUserWithIdentities(deps.db, currentUserId) : null;
+  if (currentUserId && currentUser) {
     const linked = await linkIdentity(deps.db, currentUserId, identity);
+    if (!linked.ok && linked.reason === "IDENTITY_TAKEN" && currentUser.isAnonymous) {
+      // Анонимный участник Санты вошёл в уже существующий аккаунт: переносим его данные туда
+      const owner = await upsertUserFromIdentity(deps.db, identity);
+      await mergeAnonymousUser(deps.db, currentUserId, owner.id);
+      return { ok: true, userId: owner.id, sessionToken: await signSession(owner.id, deps.env.SESSION_SECRET, owner.sessionVersion) };
+    }
     if (!linked.ok) return { ok: false, error: `link_${linked.reason}` };
     // Привязка может поднять версию сессии, поэтому читаем пользователя заново
     const linkedUser = await getUserWithIdentities(deps.db, currentUserId);

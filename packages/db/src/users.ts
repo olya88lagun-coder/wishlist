@@ -52,6 +52,13 @@ export async function isProfileEmpty(db: Database, userId: string): Promise<bool
   return !reservation;
 }
 
+// Анонимный участник Санты получил вход: личные ссылки и выданные по ним cookie больше не действуют
+async function leaveAnonymity(db: Database, userId: string): Promise<void> {
+  const [anonymous] = await db.update(users).set({ isAnonymous: false })
+    .where(and(eq(users.id, userId), eq(users.isAnonymous, true))).returning({ id: users.id });
+  if (anonymous) await bumpSessionVersion(db, userId);
+}
+
 export async function linkIdentity(
   db: Database,
   userId: string,
@@ -69,6 +76,7 @@ export async function linkIdentity(
 
   if (owner === null) {
     await db.insert(authIdentities).values({ userId, provider: input.provider, providerUserId: input.providerUserId });
+    await leaveAnonymity(db, userId);
     return { ok: true };
   }
 
@@ -89,6 +97,7 @@ export async function linkIdentity(
     }
     await tx.delete(users).where(eq(users.id, owner));
   });
+  await leaveAnonymity(db, userId);
   return { ok: true };
 }
 
