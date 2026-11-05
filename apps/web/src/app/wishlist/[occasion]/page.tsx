@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { WISHLIST_LANDINGS, type WishlistLandingSlug } from "@/content/wishlist-landings";
 import { SiteFooter } from "@/components/SiteFooter";
 import { faqPageJsonLd } from "@/lib/structured-data";
+import styles from "./landing.module.css";
 
 export const dynamicParams = false;
 
@@ -39,37 +41,67 @@ export default async function WishlistLandingPage({ params }: { params: Promise<
     faqPageJsonLd(page.faq),
   ];
   return (
-    <main className="page page--wide gifts-page">
+    <main className={styles.landing} data-occasion={occasion}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <p className="eyebrow">my wish list · {page.eyebrow}</p>
-      <h1 className="display">{page.heading}</h1>
-      <p className="gifts-page__lead">{page.lead}</p>
-      <p className="gifts-page__finder-link">
-        <Link className="button" href="/lists">Создать вишлист бесплатно</Link>{" "}
-        <Link className="button button--ghost" href={page.ideas.href}>{page.ideas.label}</Link>
-      </p>
-
-      <section className="gifts-page__seo">
-        <h2>Как это работает</h2>
-        {page.steps.map((step) => (
-          <div key={step.title}>
-            <h3>{step.title}</h3>
-            <p>{step.text}</p>
+      <div className={styles.content}>
+        <div className={styles.masthead}>
+          <Link href="/" aria-label="MyWishList — на главную">MyWishList</Link>
+          <span>Списки желаний</span>
+        </div>
+        <header className={styles.hero}>
+          <div className={styles.copy}>
+            <p className={styles.kicker}>Подарки, которые хочется получить</p>
+            <h1>{page.heading}</h1>
+            <p className={styles.lead}>{page.lead}</p>
+            <div className={styles.actions}>
+              <Link className={`button ${styles.create}`} href="/lists">Создать вишлист бесплатно</Link>
+              <Link className={styles.ideas} href={page.ideas.href}>{page.ideas.label}</Link>
+            </div>
           </div>
-        ))}
-        {occasion === "new-year" && <p><Link href="/santa">Тайный Санта онлайн</Link> — бесплатная жеребьёвка для друзей и коллег.</p>}
-      </section>
-
-      <section className="gifts-page__seo">
-        <h2>Частые вопросы</h2>
-        {page.faq.map((item) => (
-          <div key={item.question}>
-            <h3>{item.question}</h3>
-            <p>{item.answer}</p>
+          <div className={styles.photo}>
+            <Image
+              src={`/landing/wishlist-${occasion}.webp`}
+              alt=""
+              fill
+              sizes="(max-width: 767px) 94vw, (max-width: 1200px) 48vw, 570px"
+              loading="eager"
+              fetchPriority="high"
+            />
           </div>
-        ))}
-      </section>
-      <SiteFooter />
+        </header>
+
+        <section className={styles.guide} aria-labelledby="wishlist-guide">
+          <p className={styles.kicker}>От идеи до подарка</p>
+          <h2 id="wishlist-guide">Как это работает</h2>
+          <ol className={styles.steps} role="list">
+            {page.steps.map((step, index) => (
+              <li key={step.title}>
+                <span aria-hidden="true">0{index + 1}</span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          {occasion === "new-year" && (
+            <p className={styles.santa}><Link href="/santa">Тайный Санта онлайн</Link> — бесплатная жеребьёвка для друзей и коллег.</p>
+          )}
+        </section>
+
+        <section className={styles.faq} aria-labelledby="wishlist-faq">
+          <h2 id="wishlist-faq">Частые вопросы</h2>
+          <div className={styles.questions}>
+            {page.faq.map((item) => (
+              <details key={item.question}>
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+        <SiteFooter />
+      </div>
     </main>
   );
 }

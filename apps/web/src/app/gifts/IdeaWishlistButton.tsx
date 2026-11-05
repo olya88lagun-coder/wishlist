@@ -15,12 +15,12 @@ export function IdeaWishlistButton({ idea, wishlists, isAuthenticated, returnPat
   const [added, setAdded] = useState(false);
   const [error, setError] = useState("");
 
-  if (added) return <span className="button button--ghost button--small" role="status">✓ В вишлисте</span>;
+  if (added) return <span className="gift-idea__saved" role="status">✓ В вишлисте</span>;
 
   if (wishlists.length === 0) {
     const create = listCreationPath(returnPath);
     const href = isAuthenticated ? create : `/login?returnTo=${encodeURIComponent(create)}`;
-    return <a className="button button--ghost button--small" href={href}>В вишлист</a>;
+    return <a className="button gift-idea__save" href={href}>В вишлист</a>;
   }
 
   async function add(wishlistId: string) {
@@ -39,14 +39,14 @@ export function IdeaWishlistButton({ idea, wishlists, isAuthenticated, returnPat
   return (
     <>
       {wishlists.length === 1
-        ? <button className="button button--ghost button--small" type="button" disabled={adding} onClick={() => add(wishlists[0]!.id)}>В вишлист</button>
-        : <button className="button button--ghost button--small" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>В вишлист</button>}
+        ? <button className="button gift-idea__save" type="button" disabled={adding} aria-busy={adding} onClick={() => add(wishlists[0]!.id)}>В вишлист</button>
+        : <button className="button gift-idea__save" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>В вишлист</button>}
       {open && wishlists.length > 1 && (
-        <span role="group" aria-label={`Выберите вишлист для «${idea.name}»`}>
+        <div className="gift-idea__picker" role="group" aria-label={`Выберите вишлист для «${idea.name}»`} aria-busy={adding}>
           {wishlists.map((wishlist) => (
-            <button key={wishlist.id} className="button button--ghost button--small" type="button" disabled={adding} onClick={() => add(wishlist.id)}>{wishlist.title}</button>
+            <button key={wishlist.id} className="button button--ghost gift-idea__choice" type="button" disabled={adding} onClick={() => add(wishlist.id)}>{wishlist.title}</button>
           ))}
-        </span>
+        </div>
       )}
       {error && <span className="error" role="status">{error}</span>}
     </>
