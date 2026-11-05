@@ -2,17 +2,25 @@
   background: #f8f0e4;
 }
 
+@media (prefers-color-scheme: dark) {
+  .landing {
+    background: #24171b;
+  }
+}
+
 .landing :global(.santa-page) {
   gap: 24px;
 }
 
 .hero {
+  --hero-ink: #351019;
+  --hero-cream: #fff1dc;
   --hero-gold: #f2cc97;
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   overflow: hidden;
-  background: #351019;
-  color: var(--santa-cream);
+  background: var(--hero-ink);
+  color: var(--hero-cream);
   border-radius: 20px;
 }
 
@@ -69,9 +77,9 @@
 .hero :global(.button).heroButton {
   min-height: 52px;
   gap: 16px;
-  border-color: var(--santa-cream);
-  background: var(--santa-cream);
-  color: #351019;
+  border-color: var(--hero-cream);
+  background: var(--hero-cream);
+  color: var(--hero-ink);
 }
 
 .hero :global(.button).heroButton:hover {
