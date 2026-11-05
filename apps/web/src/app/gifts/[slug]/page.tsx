@@ -8,6 +8,10 @@ import { SantaBanner } from "@/components/SantaBanner";
 import { notFound } from "next/navigation";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "../GiftFinder";
+import { IdeaWishlistButton } from "../IdeaWishlistButton";
+import { listCreationPath } from "@/lib/gift-return-path";
+import { giftCollectionUpdated } from "@/content/content-dates";
+import { WISHLIST_LANDINGS, type WishlistLandingSlug } from "@/content/wishlist-landings";
 import { PartnerGiftCard } from "../PartnerGiftCard";
 import { ChildrenGiftPage, childrenMetadata } from "../ChildrenGiftPage";
 import { getDb } from "@/server/db";
@@ -247,9 +251,9 @@ const PAGES = {
   },
   "secret-santa": {
     person: "other",
-    title: "Что подарить на Тайного Санту — идеи подарков",
-    description: "Идеи подарков для Тайного Санты: универсальные, необычные и полезные варианты по бюджету.",
-    heading: "Что подарить на Тайного Санту?",
+    title: "Что подарить на Тайного Санту на Новый год 2027 — идеи подарков",
+    description: "Идеи подарков для Тайного Санты на Новый год 2027: универсальные, необычные и полезные варианты по бюджету.",
+    heading: "Что подарить на Тайного Санту на Новый год 2027?",
     intro: "Для Тайного Санты обычно нужен подарок, который подходит человеку с неизвестными или ограниченными вводными.",
     tips: ["Заранее определите лимит, чтобы подарок был сопоставим с вариантами других участников.", "Выбирайте универсальные категории, но добавляйте небольшую необычную деталь.", "Если организатор собрал пожелания участников, используйте их вместо случайного выбора."],
   },
@@ -930,6 +934,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
       name: pageTitle(slug, page),
       description: page.description,
       url: `${base}/gifts/${slug}`,
+      dateModified: giftCollectionUpdated(slug),
       isPartOf: { "@type": "WebSite", name: "MyWishList", url: base },
     },
     {
@@ -955,7 +960,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
       <p className="gifts-page__lead">{page.intro}</p>
       <p className="gifts-page__finder-link">
         <a className="button button--ghost" href="#gift-finder">Подобрать по интересам</a>
-        {slug === "new-year" && <> <a className="button button--ghost" href="/lists">Создать вишлист на Новый год</a></>}
+        {ideas && <> <a className="button button--ghost" href={user ? listCreationPath(`/gifts/${slug}`) : `/login?returnTo=${encodeURIComponent(listCreationPath(`/gifts/${slug}`))}`}>Создать вишлист из этих идей</a></>}
       </p>
       {slug === "secret-santa" && <SantaBanner eager />}
 
@@ -1016,6 +1021,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                         <a key={link.store} href={link.href} target="_blank" rel="sponsored nofollow noopener noreferrer">{link.store}</a>
                       ))}
                     </p>
+                    <IdeaWishlistButton idea={idea} wishlists={wishlists} isAuthenticated={Boolean(user)} returnPath={`/gifts/${slug}`} />
                   </li>
                 ))}
               </ul>
@@ -1069,6 +1075,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
             <a key={link.href} className="button button--ghost button--small" href={link.href}>{link.label}</a>
           ))}
           <a className="button button--ghost button--small" href="/gifts">Открыть AI-подбор</a>
+          {Object.hasOwn(WISHLIST_LANDINGS, slug) && <a className="button button--ghost button--small" href={`/wishlist/${slug}`}>{WISHLIST_LANDINGS[slug as WishlistLandingSlug].heading}</a>}
         </div>
       </section>
 

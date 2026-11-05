@@ -15,5 +15,15 @@ export const GIFTS_HUB_CONTENT_UPDATED = "2026-10-22";
 // 2026-10-22: общий шаблон получил ссылки на соседние подборки и разметку FAQPage.
 export const GIFT_COLLECTION_CONTENT_UPDATED = "2026-10-22";
 
+// 2026-11-05: новогодняя подборка и подборка для Тайного Санты обновлены под 2027 год.
+const GIFT_COLLECTION_UPDATES: Partial<Record<string, string>> = {
+  "new-year": "2026-11-05",
+  "secret-santa": "2026-11-05",
+};
+
+export function giftCollectionUpdated(slug: string): string {
+  return GIFT_COLLECTION_UPDATES[slug] ?? GIFT_COLLECTION_CONTENT_UPDATED;
+}
+
 // 2026-11-05: открытая для поиска страница игры «Тайный Санта онлайн».
 export const SANTA_LANDING_UPDATED = "2026-11-05";
