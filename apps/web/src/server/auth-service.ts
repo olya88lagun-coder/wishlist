@@ -24,7 +24,7 @@ import {
   type UserWithIdentities,
 } from "@wishlist/db";
 import type { AppEnv } from "./env";
-import { giftReturnPath } from "@/lib/gift-return-path";
+import { loginReturnPath } from "@/lib/gift-return-path";
 
 export type AuthDeps = { db: Database; env: AppEnv; now: () => Date; fetchFn: FetchFn };
 export type AuthOutcome = { ok: true; sessionToken: string; userId: string; returnTo?: string } | { ok: false; error: string };
@@ -66,7 +66,7 @@ export async function loginWithTelegramInitData(deps: AuthDeps, initData: string
 export async function startTelegramLogin(deps: AuthDeps, currentSessionToken: string | null, returnTo?: string | null) {
   const state = randomBytes(24).toString("base64url");
   const linkUserId = currentSessionToken ? await verifySession(currentSessionToken, deps.env.SESSION_SECRET) : null;
-  const target = giftReturnPath(returnTo);
+  const target = loginReturnPath(returnTo);
   const stateCookie = await signOAuthState({ state, codeVerifier: "telegram-widget", linkUserId, ...(target ? { returnTo: target } : {}) }, deps.env.SESSION_SECRET);
   const authUrl = new URL("/api/auth/telegram/widget", deps.env.APP_URL);
   authUrl.searchParams.set("state", state);
@@ -89,7 +89,7 @@ export async function loginWithTelegramWidget(
   const verified = verifyTelegramLoginWidget(telegramParams, deps.env.TELEGRAM_BOT_TOKEN, deps.now());
   if (!verified.ok) return { ok: false, error: `telegram_${verified.reason}` };
   const result = await loginOrLink(deps, telegramIdentity(verified.user), currentSessionToken);
-  const target = giftReturnPath(saved.returnTo);
+  const target = loginReturnPath(saved.returnTo);
   return result.ok && target ? { ...result, returnTo: target } : result;
 }
 
@@ -101,7 +101,7 @@ export async function startVkLogin(
   const { codeVerifier, codeChallenge } = createPkcePair();
   const state = randomBytes(24).toString("base64url");
   const linkUserId = currentSessionToken ? await verifySession(currentSessionToken, deps.env.SESSION_SECRET) : null;
-  const target = giftReturnPath(returnTo);
+  const target = loginReturnPath(returnTo);
   const stateCookie = await signOAuthState({ state, codeVerifier, linkUserId, ...(target ? { returnTo: target } : {}) }, deps.env.SESSION_SECRET);
   const redirectUrl = buildVkAuthorizeUrl({ clientId: deps.env.VK_CLIENT_ID, redirectUri: vkRedirectUri(deps.env), state, codeChallenge });
   return { redirectUrl, stateCookie };
@@ -137,7 +137,7 @@ export async function finishVkLogin(
     avatarUrl: profile.user.avatarUrl,
   };
   const result = await loginOrLink(deps, identity, p.currentSessionToken);
-  const target = giftReturnPath(saved.returnTo);
+  const target = loginReturnPath(saved.returnTo);
   return result.ok && target ? { ...result, returnTo: target } : result;
 }
 

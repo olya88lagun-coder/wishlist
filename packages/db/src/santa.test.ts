@@ -14,7 +14,7 @@ import {
   redeemSantaToken,
   removeSantaParticipant,
 } from "./santa";
-import { authIdentities, santaParticipants } from "./schema";
+import { authIdentities, santaParticipants, wishlists } from "./schema";
 import { createTestDb } from "./testing";
 import type { Database } from "./types";
 
@@ -193,6 +193,22 @@ describe("getSantaGameView", () => {
     const { userId } = await createAnonymousUser(db, "Чужой");
     expect(await getSantaGameView(db, gameId, userId)).toBeNull();
     expect(await listSantaGamesForUser(db, organizer)).toEqual([{ id: gameId, title: "Отдел", status: "open" }]);
+  });
+});
+
+describe("deleted recipient list", () => {
+  test("a recipient who deleted the list shows up without a slug instead of breaking the view", async () => {
+    const { gameId, joinCode } = await newGame();
+    const petya = await joinAnonymous(joinCode, "Петя");
+    const anya = await joinAnonymous(joinCode, "Аня");
+    await drawSantaGame(db, gameId, organizer);
+    for (const userId of [organizer, petya.userId, anya.userId]) {
+      const own = await getSantaGameView(db, gameId, userId);
+      await db.delete(wishlists).where(eq(wishlists.id, own!.me.wishlistId!));
+    }
+    const view = await getSantaGameView(db, gameId, petya.userId);
+    expect(view?.recipient).toMatchObject({ wishlistSlug: null });
+    expect(view?.me.wishlistId).toBeNull();
   });
 });
 

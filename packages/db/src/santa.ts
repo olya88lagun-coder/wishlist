@@ -231,3 +231,23 @@ export async function listSantaGamesForUser(db: Database, userId: string): Promi
     .from(santaParticipants).innerJoin(santaGames, eq(santaGames.id, santaParticipants.gameId))
     .where(eq(santaParticipants.userId, userId)).orderBy(asc(santaGames.createdAt));
 }
+
+export async function getSantaJoinInfo(db: Database, joinCode: string): Promise<{
+  gameId: string; title: string; budgetText: string; exchangeDate: string; status: SantaGameStatus; participantCount: number;
+} | null> {
+  const [row] = await db
+    .select({
+      gameId: santaGames.id, title: santaGames.title, budgetText: santaGames.budgetText, exchangeDate: santaGames.exchangeDate,
+      status: santaGames.status, participantCount: sql<number>`count(${santaParticipants.id})::int`,
+    })
+    .from(santaGames).leftJoin(santaParticipants, eq(santaParticipants.gameId, santaGames.id))
+    .where(eq(santaGames.joinCode, joinCode)).groupBy(santaGames.id);
+  return row ?? null;
+}
+
+// Анонимный профиль, созданный под неудачное вступление, не должен оставаться в базе
+export async function discardAnonymousUser(db: Database, userId: string): Promise<void> {
+  const [participant] = await db.select({ id: santaParticipants.id }).from(santaParticipants).where(eq(santaParticipants.userId, userId)).limit(1);
+  if (participant) return;
+  await db.delete(users).where(and(eq(users.id, userId), eq(users.isAnonymous, true)));
+}

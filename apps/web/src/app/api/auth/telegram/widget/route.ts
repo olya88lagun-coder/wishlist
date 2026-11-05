@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   response.cookies.set(TELEGRAM_STATE_COOKIE, "", { ...telegramStateCookieOptions(), maxAge: 0 });
   if (result.ok) {
     response.cookies.set(SESSION_COOKIE, result.sessionToken, sessionCookieOptions());
-    response.cookies.set(completionCookie({ event: "auth_completed", params: { provider: "telegram" } }));
+    response.cookies.set(completionCookie({ event: "auth_completed", params: { provider: "telegram", ...(result.returnTo?.startsWith("/santa/") ? { source: "santa" as const } : {}) } }));
   }
   return response;
 }

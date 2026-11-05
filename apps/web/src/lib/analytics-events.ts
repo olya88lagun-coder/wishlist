@@ -3,6 +3,7 @@ export const ANALYTICS_EVENTS = [
   "gift_finder_save", "gift_finder_dismiss", "landing_gift_finder_click", "guest_wishlist_cta_click",
   "auth_completed", "wishlist_created", "wishlist_item_added", "wishlist_link_copied", "wishlist_reserved",
   "design_theme_select", "design_theme_pay_click",
+  "santa_created", "santa_joined", "santa_drawn", "santa_recipient_opened",
 ] as const;
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[number];
 export type AnalyticsParams = Record<string, string | number | boolean>;

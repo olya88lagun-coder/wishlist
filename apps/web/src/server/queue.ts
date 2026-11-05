@@ -35,6 +35,6 @@ export async function enqueueNotify(job: NotifyJob): Promise<void> {
     await boss.send(QUEUES.notify, job, NOTIFY_JOB_OPTIONS);
   } catch (error) {
     // Бронь или удаление уже сохранены; потерянное уведомление не должно ломать действие пользователя
-    console.error("enqueue notify failed", { kind: job.kind, itemId: job.itemId, error: String(error) });
+    console.error("enqueue notify failed", { kind: job.kind, ref: "itemId" in job ? job.itemId : job.gameId, error: String(error) });
   }
 }

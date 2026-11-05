@@ -1,4 +1,4 @@
-import { listWishlistsForOwner } from "@wishlist/db";
+import { listSantaGamesForUser, listWishlistsForOwner } from "@wishlist/db";
 import Link from "next/link";
 import { CountdownSticker } from "@/components/CountdownSticker";
 import { getDb } from "@/server/db";
@@ -14,6 +14,7 @@ export default async function ListsPage({ searchParams }: { searchParams: Promis
   const returnTo = giftReturnPath((await searchParams).returnTo);
   const user = await requireUser();
   const lists = await listWishlistsForOwner(getDb(), user.id);
+  const games = await listSantaGamesForUser(getDb(), user.id);
   return (
     <main className="page owner-page">
       <OwnerPageHeader
@@ -39,6 +40,16 @@ export default async function ListsPage({ searchParams }: { searchParams: Promis
               <span className="owner-list-card__open">Открыть список <span aria-hidden="true">→</span></span>
             </Link>
           ))}
+        </nav>
+      )}
+      {games.length > 0 && (
+        <nav aria-label="Мои игры Тайный Санта">
+          <h2>Тайный Санта</h2>
+          <ul>
+            {games.map((game) => (
+              <li key={game.id}><Link href={`/santa/${game.id}`}>{game.title}</Link>{game.status === "drawn" ? " — жеребьёвка прошла" : ""}</li>
+            ))}
+          </ul>
         </nav>
       )}
       {returnTo && <p className="muted">После создания списка вы вернётесь к выбранной идее подарка.</p>}
