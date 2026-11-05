@@ -278,3 +278,14 @@ describe("deleteExpiredSantaData", () => {
     expect((await db.select().from(santaGames)).map((g) => g.title)).toEqual(["Этот год"]);
   });
 });
+
+test("cleanup removes an anonymous participant removed from the game once the retention period passes", async () => {
+  const { gameId, joinCode } = await newGame();
+  const petya = await joinAnonymous(joinCode, "Петя");
+  await removeSantaParticipant(db, gameId, organizer, petya.participantId);
+  await db.update(users).set({ createdAt: new Date("2026-01-01T00:00:00Z") }).where(eq(users.id, petya.userId));
+
+  expect(await deleteExpiredSantaData(db, "2026-03-02")).toEqual({ users: 0, games: 0 });
+  expect(await deleteExpiredSantaData(db, "2026-03-03")).toEqual({ users: 1, games: 0 });
+  expect(await db.select().from(users).where(eq(users.id, petya.userId))).toHaveLength(0);
+});

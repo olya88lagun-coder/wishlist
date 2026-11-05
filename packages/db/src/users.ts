@@ -11,7 +11,7 @@ const userColumns = {
   isAnonymous: users.isAnonymous, sessionVersion: users.sessionVersion,
 };
 
-async function findIdentityOwner(db: Database, provider: AuthProvider, providerUserId: string): Promise<string | null> {
+export async function findIdentityOwner(db: Database, provider: AuthProvider, providerUserId: string): Promise<string | null> {
   const rows = await db
     .select({ userId: authIdentities.userId })
     .from(authIdentities)

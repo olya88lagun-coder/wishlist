@@ -290,7 +290,14 @@ export async function deleteExpiredSantaData(db: Database, today: string): Promi
       sql`not exists (select 1 from ${santaParticipants} join ${santaGames} on ${santaGames.id} = ${santaParticipants.gameId}
         where ${santaParticipants.userId} = ${users.id} and not ${expired})`,
     )).returning({ id: users.id });
+    // Анонимный участник, которого организатор удалил из игры: игр нет, отсчитываем срок от создания профиля
+    const orphans = await tx.delete(users).where(and(
+      eq(users.isAnonymous, true),
+      sql`not exists (select 1 from ${authIdentities} where ${authIdentities.userId} = ${users.id})`,
+      sql`not exists (select 1 from ${santaParticipants} where ${santaParticipants.userId} = ${users.id})`,
+      sql`(${users.createdAt}::date + ${SANTA_RETENTION_DAYS}::int) < ${today}::date`,
+    )).returning({ id: users.id });
     const deletedGames = await tx.delete(santaGames).where(expired).returning({ id: santaGames.id });
-    return { users: deletedUsers.length, games: deletedGames.length };
+    return { users: deletedUsers.length + orphans.length, games: deletedGames.length };
   });
 }

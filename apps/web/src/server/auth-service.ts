@@ -9,7 +9,6 @@ import {
   signSession,
   type TelegramUser,
   verifyOAuthState,
-  verifySession,
   verifySessionClaims,
   verifyTelegramInitData,
   verifyTelegramLoginWidget,
@@ -18,6 +17,7 @@ import {
   type Database,
   getUserWithIdentities,
   type IdentityInput,
+  findIdentityOwner,
   linkIdentity,
   mergeAnonymousUser,
   upsertUserFromIdentity,
@@ -36,17 +36,23 @@ function telegramIdentity(user: TelegramUser): IdentityInput {
   return { provider: "telegram", providerUserId: String(user.id), displayName, avatarUrl: user.photoUrl };
 }
 
+// id пользователя из cookie, только если её версия не отозвана: устаревшая cookie не должна привязывать вход к профилю
+async function sessionUserId(deps: Pick<AuthDeps, "db" | "env">, sessionToken: string | null): Promise<string | null> {
+  return (await getCurrentUser(deps, sessionToken))?.id ?? null;
+}
+
 async function loginOrLink(deps: AuthDeps, identity: IdentityInput, currentSessionToken: string | null): Promise<AuthOutcome> {
-  const currentUserId = currentSessionToken ? await verifySession(currentSessionToken, deps.env.SESSION_SECRET) : null;
+  const currentUserId = await sessionUserId(deps, currentSessionToken);
   const currentUser = currentUserId ? await getUserWithIdentities(deps.db, currentUserId) : null;
   if (currentUserId && currentUser) {
-    const linked = await linkIdentity(deps.db, currentUserId, identity);
-    if (!linked.ok && linked.reason === "IDENTITY_TAKEN" && currentUser.isAnonymous) {
-      // Анонимный участник Санты вошёл в уже существующий аккаунт: переносим его данные туда
+    // Анонимный участник Санты вошёл в уже существующий аккаунт: переносим его данные туда, а не забираем аккаунт себе
+    const existingOwner = currentUser.isAnonymous ? await findIdentityOwner(deps.db, identity.provider, identity.providerUserId) : null;
+    if (existingOwner && existingOwner !== currentUserId) {
+      await mergeAnonymousUser(deps.db, currentUserId, existingOwner);
       const owner = await upsertUserFromIdentity(deps.db, identity);
-      await mergeAnonymousUser(deps.db, currentUserId, owner.id);
       return { ok: true, userId: owner.id, sessionToken: await signSession(owner.id, deps.env.SESSION_SECRET, owner.sessionVersion) };
     }
+    const linked = await linkIdentity(deps.db, currentUserId, identity);
     if (!linked.ok) return { ok: false, error: `link_${linked.reason}` };
     // Привязка может поднять версию сессии, поэтому читаем пользователя заново
     const linkedUser = await getUserWithIdentities(deps.db, currentUserId);
@@ -65,7 +71,7 @@ export async function loginWithTelegramInitData(deps: AuthDeps, initData: string
 
 export async function startTelegramLogin(deps: AuthDeps, currentSessionToken: string | null, returnTo?: string | null) {
   const state = randomBytes(24).toString("base64url");
-  const linkUserId = currentSessionToken ? await verifySession(currentSessionToken, deps.env.SESSION_SECRET) : null;
+  const linkUserId = await sessionUserId(deps, currentSessionToken);
   const target = loginReturnPath(returnTo);
   const stateCookie = await signOAuthState({ state, codeVerifier: "telegram-widget", linkUserId, ...(target ? { returnTo: target } : {}) }, deps.env.SESSION_SECRET);
   const authUrl = new URL("/api/auth/telegram/widget", deps.env.APP_URL);
@@ -80,7 +86,7 @@ export async function loginWithTelegramWidget(
   stateCookie: string | null = null,
 ): Promise<AuthOutcome> {
   const saved = stateCookie ? await verifyOAuthState(stateCookie, deps.env.SESSION_SECRET) : null;
-  const currentUserId = currentSessionToken ? await verifySession(currentSessionToken, deps.env.SESSION_SECRET) : null;
+  const currentUserId = await sessionUserId(deps, currentSessionToken);
   if (!saved || saved.codeVerifier !== "telegram-widget" || saved.state !== params.get("state") || saved.linkUserId !== currentUserId) {
     return { ok: false, error: "telegram_state_mismatch" };
   }
@@ -100,7 +106,7 @@ export async function startVkLogin(
 ): Promise<{ redirectUrl: string; stateCookie: string }> {
   const { codeVerifier, codeChallenge } = createPkcePair();
   const state = randomBytes(24).toString("base64url");
-  const linkUserId = currentSessionToken ? await verifySession(currentSessionToken, deps.env.SESSION_SECRET) : null;
+  const linkUserId = await sessionUserId(deps, currentSessionToken);
   const target = loginReturnPath(returnTo);
   const stateCookie = await signOAuthState({ state, codeVerifier, linkUserId, ...(target ? { returnTo: target } : {}) }, deps.env.SESSION_SECRET);
   const redirectUrl = buildVkAuthorizeUrl({ clientId: deps.env.VK_CLIENT_ID, redirectUri: vkRedirectUri(deps.env), state, codeChallenge });
@@ -113,7 +119,7 @@ export async function finishVkLogin(
 ): Promise<AuthOutcome> {
   if (!p.code || !p.deviceId || !p.state || !p.stateCookie) return { ok: false, error: "vk_missing_params" };
   const saved = await verifyOAuthState(p.stateCookie, deps.env.SESSION_SECRET);
-  const currentUserId = p.currentSessionToken ? await verifySession(p.currentSessionToken, deps.env.SESSION_SECRET) : null;
+  const currentUserId = await sessionUserId(deps, p.currentSessionToken);
   if (!saved || saved.codeVerifier === "telegram-widget" || saved.state !== p.state || saved.linkUserId !== currentUserId) return { ok: false, error: "vk_state_mismatch" };
 
   const token = await exchangeVkCode({
