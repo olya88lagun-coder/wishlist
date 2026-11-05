@@ -227,6 +227,7 @@ export default async function Home() {
                 </>
               )}
             </div>
+            <p className="hero__finder-link">Не знаете, что подарить? <a href="#finder">Подобрать с AI →</a></p>
           </div>
           <HomeWishlistPreview />
         </section>
@@ -238,6 +239,29 @@ export default async function Home() {
               <span>{item.label}</span>
             </div>
           ))}
+        </section>
+
+        <section id="finder" className="home-section home-finder" aria-labelledby="finder-title">
+          <div>
+            <p className="home-section__eyebrow">Нужен подарок?</p>
+            <h2 id="finder-title" className="home-section__title">Не знаете, что подарить?</h2>
+            <p>Ответьте на несколько вопросов — AI подберёт идеи по человеку, поводу, интересам и бюджету.</p>
+          </div>
+          <form className="home-finder__form" action="/gifts" method="get" aria-labelledby="finder-title">
+            <label htmlFor="home-finder-interests">Кому вы выбираете подарок и что этот человек любит?</label>
+            <div className="home-finder__row">
+              <input
+                id="home-finder-interests"
+                className="home-finder__input"
+                type="text"
+                name="interests"
+                maxLength={200}
+                autoComplete="off"
+                placeholder="Например: брат, походы, кофе"
+              />
+              <button className="home-finder__submit" type="submit">Подобрать с AI</button>
+            </div>
+          </form>
         </section>
 
         <div className="home-section">
@@ -271,29 +295,6 @@ export default async function Home() {
               </li>
             ))}
           </ol>
-        </section>
-
-        <section className="home-section home-finder" aria-labelledby="finder-title">
-          <div>
-            <p className="home-section__eyebrow">Нужен подарок?</p>
-            <h2 id="finder-title" className="home-section__title">Не знаете, что подарить?</h2>
-            <p>Ответьте на несколько вопросов — AI подберёт идеи по человеку, поводу, интересам и бюджету.</p>
-          </div>
-          <form className="home-finder__form" action="/gifts" method="get" aria-labelledby="finder-title">
-            <label htmlFor="home-finder-interests">Кому вы выбираете подарок и что этот человек любит?</label>
-            <div className="home-finder__row">
-              <input
-                id="home-finder-interests"
-                className="home-finder__input"
-                type="text"
-                name="interests"
-                maxLength={200}
-                autoComplete="off"
-                placeholder="Например: брат, походы, кофе"
-              />
-              <button className="home-finder__submit" type="submit">Подобрать с AI</button>
-            </div>
-          </form>
         </section>
 
         <HomeGiftCollections />

@@ -118,11 +118,16 @@ describe("Home", () => {
     expect(hero).toContain("Я подарю");
     expect(hero).toContain("Забронировано");
     expect(hero).not.toContain("<form");
+    expect(hero).toContain('href="#finder"');
   });
 
   test("sends interests to /gifts from the dedicated AI finder section", async () => {
     const html = renderToStaticMarkup(await Home());
-    const finder = html.slice(html.indexOf('class="home-section home-finder"'), html.indexOf('class="home-section home-collections"'));
+    const start = html.indexOf('id="finder"');
+    const finder = html.slice(start, html.indexOf("</section>", start));
+
+    expect(start).toBeGreaterThan(html.indexOf("home-trust"));
+    expect(start).toBeLessThan(html.indexOf("occasions-title"));
 
     expect(finder).toMatch(/<form[^>]*action="\/gifts"[^>]*method="get"/);
     expect(finder).toContain('name="interests"');
