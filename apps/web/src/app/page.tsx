@@ -5,6 +5,7 @@ import { OtherProjects } from "@/components/OtherProjects";
 import { SiteFooter } from "@/components/SiteFooter";
 import { EditorialMenu } from "@/components/EditorialMenu";
 import { HomeMobileMenu } from "@/components/HomeMobileMenu";
+import { SantaBanner } from "@/components/SantaBanner";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
 import { HOME_FAQ } from "@/content/home-faq";
@@ -264,6 +265,10 @@ export default async function Home() {
             </div>
           ))}
         </section>
+
+        <div className="home-section">
+          <SantaBanner />
+        </div>
 
         <section className="home-section home-occasions" aria-labelledby="occasions-title">
           <div className="home-section__intro">
