@@ -70,6 +70,11 @@ describe("Home", () => {
     expect(missing).toEqual([]);
   });
 
+  test("links to the Secret Santa game from the home page", async () => {
+    const html = renderToStaticMarkup(await Home());
+    expect(html).toMatch(/<a[^>]*href="\/santa\/new"[^>]*>Тайный Санта/);
+  });
+
   test("shows a visible block of gift collections grouped by occasion, person, age, budget and interest", async () => {
     const html = renderToStaticMarkup(await Home());
     const block = html.slice(html.indexOf("Подборки подарков"));

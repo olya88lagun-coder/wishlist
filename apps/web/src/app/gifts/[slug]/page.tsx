@@ -4,6 +4,7 @@ import { GIFT_IDEAS, giftIdeaSearchLinks, giftIdeasCountLabel } from "@/content/
 import { relatedGiftLinks } from "@/content/gift-related-links";
 import { faqPageJsonLd } from "@/lib/structured-data";
 import Image from "next/image";
+import { SantaBanner } from "@/components/SantaBanner";
 import { notFound } from "next/navigation";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "../GiftFinder";
@@ -953,6 +954,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
       <h1 className="display">{page.heading}</h1>
       <p className="gifts-page__lead">{page.intro}</p>
       <p className="gifts-page__finder-link"><a className="button button--ghost" href="#gift-finder">Подобрать по интересам</a></p>
+      {slug === "secret-santa" && <SantaBanner eager />}
 
       <section className="gifts-page__visuals" aria-labelledby="gift-visuals-title">
         <div className="gifts-page__visuals-intro">

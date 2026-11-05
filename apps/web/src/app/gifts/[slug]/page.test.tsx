@@ -26,6 +26,14 @@ test.each(["birthday", "new-year", "wedding", "anniversary", "housewarming", "se
   expect(html).toContain(`<option value="${occasion}" selected="">`);
 });
 
+test("offers the game on the Secret Santa collection only", async () => {
+  const santa = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "secret-santa" }) }));
+  const newYear = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "new-year" }) }));
+
+  expect(santa).toMatch(/<a[^>]*href="\/santa\/new"[^>]*>Тайный Санта/);
+  expect(newYear).not.toContain('href="/santa/new"');
+});
+
 test("starts gift selection within the 3000-ruble page budget", async () => {
   const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "under-3000" }) }));
   expect(html).toContain('<option value="3000" selected="">');

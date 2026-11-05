@@ -7,6 +7,7 @@ import { OwnerPageHeader } from "@/components/OwnerPageHeader";
 import { requireUser } from "@/server/viewer";
 import { CreateListForm } from "./CreateListForm";
 import { giftReturnPath } from "@/lib/gift-return-path";
+import "../santa/santa.css";
 
 export const dynamic = "force-dynamic";
 
@@ -43,11 +44,17 @@ export default async function ListsPage({ searchParams }: { searchParams: Promis
         </nav>
       )}
       {games.length > 0 && (
-        <nav aria-label="Мои игры Тайный Санта">
-          <h2>Тайный Санта</h2>
+        <nav className="santa-list" aria-labelledby="santa-list-title">
+          <p className="santa-kicker">Мои игры</p>
+          <h2 id="santa-list-title">Тайный Санта</h2>
           <ul>
             {games.map((game) => (
-              <li key={game.id}><Link href={`/santa/${game.id}`}>{game.title}</Link>{game.status === "drawn" ? " — жеребьёвка прошла" : ""}</li>
+              <li key={game.id}>
+                <Link href={`/santa/${game.id}`}>
+                  <strong>{game.title}</strong>
+                  <span className="santa-list__status">{game.status === "drawn" ? "Жеребьёвка прошла" : "Идёт набор"} <span aria-hidden="true">→</span></span>
+                </Link>
+              </li>
             ))}
           </ul>
         </nav>
