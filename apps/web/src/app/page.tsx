@@ -163,6 +163,33 @@ export default async function Home() {
   const [telegram, site] = signedIn ? [null, null] : start;
   const listLink = signedIn ? start[0] : null;
   const articles = ARTICLES.slice(0, 3);
+  const createActions = signedIn ? (
+    <>
+      <Link className="hero-button hero-button--dark" href={listLink!.href}>
+        <GlobeIcon />
+        <span>{listLink!.label}</span>
+        <Arrow />
+      </Link>
+      <Link className="hero-button hero-button--light" href="/me">
+        <GlobeIcon />
+        <span>Профиль</span>
+        <Arrow />
+      </Link>
+    </>
+  ) : (
+    <>
+      <a className="hero-button hero-button--dark" href={telegram!.href} target="_blank" rel="noopener noreferrer">
+        <TelegramIcon />
+        <span>{telegram!.label}</span>
+        <Arrow />
+      </a>
+      <Link className="hero-button hero-button--light" href={site!.href}>
+        <GlobeIcon />
+        <span>{site!.label}</span>
+        <Arrow />
+      </Link>
+    </>
+  );
 
   return (
     <div className="home">
@@ -199,33 +226,7 @@ export default async function Home() {
               Создайте вишлист на сайте или в Telegram за минуту и отправьте друзьям одну ссылку. Они выберут подарок без регистрации, и никто не подарит второй такой же.
             </p>
             <div className="hero__actions">
-              {signedIn ? (
-                <>
-                  <Link className="hero-button hero-button--dark" href={listLink!.href}>
-                    <GlobeIcon />
-                    <span>{listLink!.label}</span>
-                    <Arrow />
-                  </Link>
-                  <Link className="hero-button hero-button--light" href="/me">
-                    <GlobeIcon />
-                    <span>Профиль</span>
-                    <Arrow />
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <a className="hero-button hero-button--dark" href={telegram!.href} target="_blank" rel="noopener noreferrer">
-                    <TelegramIcon />
-                    <span>{telegram!.label}</span>
-                    <Arrow />
-                  </a>
-                  <Link className="hero-button hero-button--light" href={site!.href}>
-                    <GlobeIcon />
-                    <span>{site!.label}</span>
-                    <Arrow />
-                  </Link>
-                </>
-              )}
+              {createActions}
             </div>
             <p className="hero__finder-link">Не знаете, что подарить? <a href="#finder">Подобрать с AI →</a></p>
           </div>
@@ -327,6 +328,19 @@ export default async function Home() {
             ))}
           </dl>
         </section>
+
+        {!signedIn && (
+        <section className="home-section home-finder home-final" aria-labelledby="final-title">
+          <div>
+            <p className="home-section__eyebrow">Начните сейчас</p>
+            <h2 id="final-title" className="home-section__title">Соберите свой вишлист за минуту</h2>
+            <p>Бесплатно, без установки приложений. Гостям не нужна регистрация.</p>
+          </div>
+          <div className="hero__actions">
+            {createActions}
+          </div>
+        </section>
+        )}
 
         <section id="about" className="home-section home-about" aria-labelledby="about-title">
           <p className="home-section__eyebrow">О нас</p>

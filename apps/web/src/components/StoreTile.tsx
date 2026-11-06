@@ -1,15 +1,16 @@
-export function StoreTile({ monogram, storeLabel, isMustHave, imageUrl, pending }: {
+export function StoreTile({ monogram, storeLabel, isMustHave, imageUrl, pending, eager = false }: {
   monogram: string;
   storeLabel: string | null;
   isMustHave?: boolean;
   imageUrl?: string | null;
   pending?: boolean;
+  eager?: boolean;
 }) {
   return (
     <div className={pending ? "tile tile--loading" : "tile"} aria-hidden="true">
       {imageUrl ? (
         // Фото уже сжаты воркером в WebP 800px; next/image не нужен и не тратит память web-контейнера
-        <img className="tile__img" src={imageUrl} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
+        <img className="tile__img" src={imageUrl} alt="" loading={eager ? "eager" : "lazy"} decoding="async" referrerPolicy="no-referrer" />
       ) : (
         <span className="tile__monogram">{monogram}</span>
       )}

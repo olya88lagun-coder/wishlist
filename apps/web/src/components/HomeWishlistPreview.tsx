@@ -28,6 +28,7 @@ export function HomeWishlistPreview() {
               key={example.title}
               item={item}
               dimmed={reserved}
+              eager
               sticker={reserved ? <ReservedSticker label="Забронировано" /> : undefined}
             >
               {index === 0 && <span className="home-preview__action">Я подарю</span>}

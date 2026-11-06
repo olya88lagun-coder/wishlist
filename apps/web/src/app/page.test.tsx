@@ -40,6 +40,7 @@ describe("Home", () => {
     expect(html).toContain("Открыть мои списки");
     expect(html).toContain('href="/lists"');
     expect(html).toContain('href="/articles"');
+    expect(html).not.toContain("final-title");
   });
 
   test("renders premium trust signals, gift scenarios, and public structured data", async () => {
@@ -119,6 +120,16 @@ describe("Home", () => {
     expect(hero).toContain("Забронировано");
     expect(hero).not.toContain("<form");
     expect(hero).toContain('href="#finder"');
+    expect(hero.match(/<img[^>]*>/g)!.every((img) => img.includes('loading="eager"'))).toBe(true);
+  });
+
+  test("repeats both creation links for guests after the FAQ", async () => {
+    const html = renderToStaticMarkup(await Home());
+    const final = html.slice(html.indexOf('id="final-title"'), html.indexOf('id="about"'));
+
+    expect(html.indexOf('id="final-title"')).toBeGreaterThan(html.indexOf('id="faq"'));
+    expect(final).toContain("Собрать в Telegram");
+    expect(final).toContain("Собрать на сайте");
   });
 
   test("sends interests to /gifts from the dedicated AI finder section", async () => {
