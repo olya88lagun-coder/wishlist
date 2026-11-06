@@ -69,6 +69,10 @@ test("starts gift selection within the 3000-ruble page budget", async () => {
   const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "under-3000" }) }));
   expect(html).toContain('<option value="3000" selected="">');
   expect(html).not.toContain('<option value="5000" selected="">');
+  // Запросы из Search Console: «что можно купить на 3000 рублей подростку», «подарок девушке до 3000»
+  expect(html).toMatch(/<h1[^>]*>Подарки до 3000 рублей/);
+  expect(html).toContain("Что можно купить на 3000 рублей подростку?");
+  expect(html).toContain("Что подарить девушке до 3000 рублей?");
 });
 
 test("offers the disclosed Ozon partner product only on the budget collection", async () => {

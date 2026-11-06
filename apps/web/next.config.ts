@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(process.cwd(), "../.."),
   transpilePackages: ["@wishlist/core", "@wishlist/db"],
   poweredByHeader: false,
+  // Статья дублировала подборку /gifts/under-3000, и в Google они делили один запрос
+  async redirects() {
+    return [{ source: "/articles/podarki-do-3000-rubley", destination: "/gifts/under-3000", permanent: true }];
+  },
   // pg-boss тянет драйвер pg с опциональными нативными модулями: не бандлим, standalone-трассировка скопирует пакет
   serverExternalPackages: ["pg-boss"],
   // Базовые защитные заголовки. CSP не задаём: Метрика и партнёрские скрипты потребуют отдельного списка источников.

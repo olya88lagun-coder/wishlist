@@ -51,7 +51,8 @@ function homeJsonLd(baseUrl: string) {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: "MyWishList",
-      alternateName: "Мой вишлист",
+      // Варианты, которыми сайт ищут в Google (Search Console, октябрь 2026): помогают узнать бренд в выдаче
+      alternateName: ["Мой вишлист", "My Wish List", "Майвишлист", "Май вишлист", "my-wish-list.online"],
       url: baseUrl,
       inLanguage: "ru-RU",
       description: HOME_DESCRIPTION,
@@ -60,8 +61,10 @@ function homeJsonLd(baseUrl: string) {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: "MyWishList",
+      alternateName: "Мой вишлист",
       url: baseUrl,
       logo: `${baseUrl}/apple-icon.png`,
+      sameAs: [`https://t.me/${process.env.TELEGRAM_BOT_USERNAME ?? "my_wish_list1_bot"}`],
     },
     {
       "@context": "https://schema.org",

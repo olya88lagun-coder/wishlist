@@ -7,7 +7,6 @@ const EXPECTED_LINKS = [
   "/articles/kak-sostavit-vishlist",
   "/articles/chto-podarit-mame-na-den-rozhdeniya",
   "/articles/idei-podarkov-na-den-rozhdeniya",
-  "/articles/podarki-do-3000-rubley",
   "/gifts/for-mom", "/gifts/for-dad", "/gifts/for-girlfriend", "/gifts/for-boyfriend",
   "/gifts/for-wife", "/gifts/for-husband", "/gifts/for-friend", "/gifts/for-sister",
   "/gifts/for-brother", "/gifts/for-grandma", "/gifts/for-grandpa", "/gifts/for-daughter",
