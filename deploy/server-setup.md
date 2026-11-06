@@ -82,6 +82,8 @@ docker exec food-tracker-bot-caddy-1 caddy validate --config /tmp/Caddyfile --ad
 ```
 При следующем перезапуске контейнера Caddy перечитает актуальный файл с хоста, где блок уже есть.
 
+**HTTP/3 (2026-11-06):** Caddy объявляет `Alt-Svc: h3=":443"`, поэтому UDP 443 должен быть открыт, иначе Safari может зависать с «сервер перестал отвечать». В `/opt/food-tracker-bot/docker-compose.yml` у `caddy` добавлен порт `"443:443/udp"` (бэкап `docker-compose.yml.bak-*`), контейнер пересоздан `docker compose up -d --no-deps caddy`, в ufw — `ufw allow 443/udp`. При переносе сервера повторить.
+
 ## Обновление приложения
 
 После мержа в `master` GitHub Actions публикует новые образы. На сервере:
