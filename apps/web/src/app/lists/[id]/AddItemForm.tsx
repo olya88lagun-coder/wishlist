@@ -20,7 +20,7 @@ export function AddItemForm({ wishlistId, defaultOpen }: { wishlistId: string; d
   }, [state]);
 
   return (
-    <details className="panel owner-manual-add" open={defaultOpen || state.status === "error"}>
+    <details className="owner-manual-add" open={defaultOpen || state.status === "error"}>
       <summary>Добавить вручную или заполнить все поля <span aria-hidden="true">→</span></summary>
       <form ref={formRef} action={action} className="stack owner-manual-add__form" noValidate>
         <ItemFields idPrefix="new" defaults={itemDefaultsFor(state, EMPTY)} errors={state.errors} />

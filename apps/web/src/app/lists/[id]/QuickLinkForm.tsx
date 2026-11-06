@@ -36,7 +36,7 @@ export function QuickLinkForm({ wishlistId }: { wishlistId: string }) {
   const error = fieldError ?? (state.status === "error" ? state.message : null);
 
   return (
-    <form ref={formRef} action={action} className="panel stack quick-link owner-quick-link" noValidate>
+    <form ref={formRef} action={action} className="stack quick-link owner-quick-link" noValidate>
       <label htmlFor="quick-url" className="serif">Вставьте ссылку на подарок</label>
       <div className="quick-link__row">
         <input
