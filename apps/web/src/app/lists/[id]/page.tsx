@@ -118,10 +118,12 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
                   sticker={item.reserved ? <ReservedSticker label="забронировано" /> : undefined}
                 >
                   {hint && <p className="card__hint">{hint}</p>}
-                  <ItemEditor wishlistId={wishlist.id} itemId={item.id} defaults={editorDefaults(item)} />
-                  <ConfirmButton action={deleteItemAction.bind(null, wishlist.id, item.id)} question={`Удалить «${item.title || "подарок"}»?`}>
-                    Удалить
-                  </ConfirmButton>
+                  <div className="owner-item-actions">
+                    <ItemEditor wishlistId={wishlist.id} itemId={item.id} defaults={editorDefaults(item)} />
+                    <ConfirmButton action={deleteItemAction.bind(null, wishlist.id, item.id)} question={`Удалить «${item.title || "подарок"}»?`}>
+                      Удалить
+                    </ConfirmButton>
+                  </div>
                 </ItemCard>
               );
             })}
