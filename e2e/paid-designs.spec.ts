@@ -49,7 +49,10 @@ test(`paid ${product} theme saves once with a full-page background`, async ({ pa
     await page.getByRole("button", { name: "Применить", exact: true }).click();
     await expect(page.getByText("Оформление сохранено", { exact: true })).toBeVisible();
     await expect(page.locator(".design-studio")).toHaveCount(1);
-    await expect(page.locator(".invitation-editor")).toHaveCount(standalone ? 0 : 1);
+    await expect(page.locator(".invitation-editor:not(.letter-editor)")).toHaveCount(standalone ? 0 : 1);
+    // Новогодняя тема без пакета с письмом: текст письма виден, скачивание закрыто
+    await expect(page.locator(".letter-editor")).toHaveCount(holiday ? 1 : 0);
+    if (holiday) await expect(page.getByRole("button", { name: "Скачать письмо A4" })).toBeDisabled();
     expect((await sql`select theme_id from wishlists where id = ${wishlistId}`)[0].theme_id).toBe(expectedTheme);
     await page.reload();
     await expect(page.locator(`.design-studio input[value="${expectedTheme}"]`)).toBeChecked();

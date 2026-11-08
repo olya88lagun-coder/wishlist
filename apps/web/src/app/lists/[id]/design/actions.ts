@@ -19,7 +19,7 @@ export async function checkoutDesignAction(wishlistId: string, _state: DesignSta
   // Данные участника Санты без входа удаляются после игры — вместе с ними пропала бы и запись об оплате
   if (user.providers.length === 0) return { message: "Войдите через Telegram или VK, чтобы купить оформление." };
   if (!editLimiter.allow(`design:${user.id}`)) return { message: "Слишком много запросов. Попробуйте через минуту." };
-  const parsed = z.object({ product: z.enum(["children", "children_invitation", "new_year", "celebration", ...EXTRA_THEME_IDS]), email: z.email().max(254), consent: z.literal("on") })
+  const parsed = z.object({ product: z.enum(["children", "children_invitation", "new_year", "new_year_letter", "celebration", ...EXTRA_THEME_IDS]), email: z.email().max(254), consent: z.literal("on") })
     .safeParse(Object.fromEntries(form));
   if (!parsed.success) return { message: "Укажите email и подтвердите условия покупки." };
   let url: string | null;

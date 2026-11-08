@@ -54,8 +54,11 @@ export default async function WishlistLandingPage({ params }: { params: Promise<
             <h1>{page.heading}</h1>
             <p className={styles.lead}>{page.lead}</p>
             <div className={styles.actions}>
-              <Link className={`button ${styles.create}`} href="/lists">Создать вишлист бесплатно</Link>
+              <Link className={`button ${styles.create}`} href="/lists">{"cta" in page ? page.cta : "Создать вишлист бесплатно"}</Link>
               <Link className={styles.ideas} href={page.ideas.href}>{page.ideas.label}</Link>
+              {occasion === "pismo-dedu-morozu" && (
+                <a className={styles.ideas} href="/blank-pismo-dedu-morozu.pdf" download>Скачать бланк</a>
+              )}
             </div>
           </div>
           <div className={styles.photo}>
@@ -84,7 +87,7 @@ export default async function WishlistLandingPage({ params }: { params: Promise<
               </li>
             ))}
           </ol>
-          {occasion === "new-year" && (
+          {(occasion === "new-year" || occasion === "pismo-dedu-morozu") && (
             <p className={styles.santa}><Link href="/santa">Тайный Санта онлайн</Link> — бесплатная жеребьёвка для друзей и коллег.</p>
           )}
         </section>

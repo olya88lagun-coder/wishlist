@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const singleLine = (max: number) => z.string().trim().max(max, `Не больше ${max} символов`);
-const isSingleLine = (value: string) => !/[\r\n\u0000-\u001f\u007f-\u009f\u2028\u2029]/u.test(value);
+export const isSingleLine = (value: string) => !/[\r\n\u0000-\u001f\u007f-\u009f\u2028\u2029]/u.test(value);
 
 export const invitationSchema = z.strictObject({
   color: z.enum(["blue", "pink"]).default("blue"),
@@ -22,7 +22,14 @@ export type InvitationInput = z.infer<typeof invitationSchema>;
 
 // Keep preview and PNG identical without next/og fetching missing fonts or emoji.
 export function invitationDisplayText(text: string): string {
-  return text.replace(/\s+/gu, " ").replace(/[^\u0020-\u007e\u00a0-\u024f\u0400-\u052f\u2010-\u2027\u2030-\u203a\u20ac\u2116]/gu, "?");
+  return text.replace(/\s+/gu, " ").replace(UNSUPPORTED_GLYPHS, "?");
+}
+
+const UNSUPPORTED_GLYPHS = /[^\u0020-\u007e\u00a0-\u024f\u0400-\u052f\u2010-\u2027\u2030-\u203a\u20ac\u2116]/gu;
+
+// Для письма Деда Мороза: эмодзи и иероглифы выбрасываем, а не печатаем «?»
+export function printableText(text: string): string {
+  return text.replace(/\s+/gu, " ").replace(UNSUPPORTED_GLYPHS, "").replace(/ {2,}/gu, " ").trim();
 }
 
 export function formatInvitationDate(date: string): string {

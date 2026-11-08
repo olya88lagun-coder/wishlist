@@ -10,11 +10,12 @@ import { trackEvent } from "@/lib/analytics";
 import { checkDesignPaymentAction, checkoutDesignAction, selectThemeAction } from "./actions";
 import { isUnsavedSelection } from "./design-state";
 
-export function DesignStudio({ wishlistId, title, eventDate, access, salesEnabled, testMode, offerUrl, receiptByProvider = false, publicHref, preview, invitationEditor, defaultTheme = "children", checkOnReturn = false }: {
-  wishlistId: string; title: string; eventDate?: string | null; access: DesignAccess; salesEnabled: boolean; testMode: boolean; offerUrl: string | null; receiptByProvider?: boolean; publicHref?: string; preview: ReactNode; invitationEditor?: ReactNode; defaultTheme?: Theme; checkOnReturn?: boolean;
+export function DesignStudio({ wishlistId, title, eventDate, access, salesEnabled, testMode, offerUrl, receiptByProvider = false, publicHref, preview, invitationEditor, letterEditor, defaultTheme = "children", checkOnReturn = false }: {
+  wishlistId: string; title: string; eventDate?: string | null; access: DesignAccess; salesEnabled: boolean; testMode: boolean; offerUrl: string | null; receiptByProvider?: boolean; publicHref?: string; preview: ReactNode; invitationEditor?: ReactNode; letterEditor?: ReactNode; defaultTheme?: Theme; checkOnReturn?: boolean;
 }) {
   const [theme, setTheme] = useState<Theme>(access.children || access.newYear || access.celebration || access.additionalThemes?.length ? access.theme : defaultTheme);
   const [product, setProduct] = useState("children_invitation");
+  const [holidayProduct, setHolidayProduct] = useState("new_year_letter");
   const [checkout, buy, buying] = useActionState(checkoutDesignAction.bind(null, wishlistId), { message: "" });
   const [selection, select, saving] = useActionState(selectThemeAction.bind(null, wishlistId), { message: "" });
   useEffect(() => { setTheme(access.children || access.newYear || access.celebration || access.additionalThemes?.length ? access.theme : defaultTheme); }, [wishlistId, access.children, access.newYear, access.celebration, access.additionalThemes?.length, access.theme, defaultTheme]);
@@ -74,9 +75,12 @@ export function DesignStudio({ wishlistId, title, eventDate, access, salesEnable
         {selection.message && <p role="status">{selection.message}</p>}
         {publicHref && !unsaved && <p><a href={publicHref} target="_blank" rel="noopener noreferrer">Посмотреть, как список видят гости</a></p>}
       </form>
-      {((extra && !purchased) || (celebration && !access.celebration) || (holiday && !access.newYear) || (child && !access.invitation)) && <form action={buy} className="design-checkout" onSubmit={(event) => trackEvent("design_theme_pay_click", { theme, product: String(new FormData(event.currentTarget).get("product") ?? "") })}>
-        <fieldset><legend>{extra ? `${extra.label} — 149 ₽` : celebration ? "Праздник — 149 ₽" : holiday ? "Новогоднее оформление — 149 ₽" : access.children ? "Приглашение" : "Детское оформление"}</legend>
-          {extra ? <label className="design-plan"><input type="radio" name="product" value={extra.id} checked readOnly /><span><strong>{extra.label}</strong><small>{extra.description}. Обложка и фон всей страницы. Без приглашения.</small></span><strong className="design-price">149 ₽</strong></label> : celebration ? <label className="design-plan"><input type="radio" name="product" value="celebration" checked readOnly /><span><strong>Праздник</strong><small>Золотое конфетти и праздничный фон. Для любого возраста.</small></span><strong className="design-price">149 ₽</strong></label> : holiday ? <label className="design-plan"><input type="radio" name="product" value="new_year" checked readOnly /><span><strong>Новый год</strong></span><strong className="design-price">149 ₽</strong></label> : <>
+      {((extra && !purchased) || (celebration && !access.celebration) || (holiday && !access.letter) || (child && !access.invitation)) && <form action={buy} className="design-checkout" onSubmit={(event) => trackEvent("design_theme_pay_click", { theme, product: String(new FormData(event.currentTarget).get("product") ?? "") })}>
+        <fieldset><legend>{extra ? `${extra.label} — 149 ₽` : celebration ? "Праздник — 149 ₽" : holiday ? access.newYear ? "Письмо от Деда Мороза" : "Новогоднее оформление" : access.children ? "Приглашение" : "Детское оформление"}</legend>
+          {extra ? <label className="design-plan"><input type="radio" name="product" value={extra.id} checked readOnly /><span><strong>{extra.label}</strong><small>{extra.description}. Обложка и фон всей страницы. Без приглашения.</small></span><strong className="design-price">149 ₽</strong></label> : celebration ? <label className="design-plan"><input type="radio" name="product" value="celebration" checked readOnly /><span><strong>Праздник</strong><small>Золотое конфетти и праздничный фон. Для любого возраста.</small></span><strong className="design-price">149 ₽</strong></label> : holiday ? <>
+            {!access.newYear && <label className="design-plan"><input type="radio" name="product" value="new_year" checked={holidayProduct === "new_year"} onChange={() => setHolidayProduct("new_year")} /><span><strong>Оформление</strong><small>Новогодний фон списка</small></span><strong className="design-price">149 ₽</strong></label>}
+            <label className="design-plan"><input type="radio" name="product" value="new_year_letter" checked={access.newYear || holidayProduct === "new_year_letter"} onChange={() => setHolidayProduct("new_year_letter")} /><span><strong>{access.newYear ? "Добавить письмо от Деда Мороза" : "Оформление + письмо от Деда Мороза"}</strong><small>Именное письмо A4 для печати</small></span><strong className="design-price">{access.newYear ? "50 ₽" : "199 ₽"}</strong></label>
+          </> : <>
             {!access.children && <label className="design-plan"><input type="radio" name="product" value="children" checked={product === "children"} onChange={() => setProduct("children")} /><span><strong>Оформление</strong><small>Голубая и розовая расцветки</small></span><strong className="design-price">149 ₽</strong></label>}
             <label className="design-plan"><input type="radio" name="product" value="children_invitation" checked={access.children || product === "children_invitation"} onChange={() => setProduct("children_invitation")} /><span><strong>{access.children ? "Добавить приглашение" : "Оформление + приглашение"}</strong><small>PNG для MAX, Telegram и ВК</small></span><strong className="design-price">{access.children ? "50 ₽" : "199 ₽"}</strong></label>
           </>}
@@ -93,9 +97,9 @@ export function DesignStudio({ wishlistId, title, eventDate, access, salesEnable
       </form>}
       {extra && purchased && <p className="row"><Check size={18} aria-hidden="true" />Оформление «{extra.label}» куплено</p>}
       {celebration && access.celebration && <p className="row"><Check size={18} aria-hidden="true" />Оформление «Праздник» куплено</p>}
-      {holiday && access.newYear && <p className="row"><Check size={18} aria-hidden="true" />Новогоднее оформление куплено</p>}
+      {holiday && access.newYear && <p className="row"><Check size={18} aria-hidden="true" />{access.letter ? "Новогоднее оформление и письмо куплены" : "Новогоднее оформление куплено"}</p>}
       {child && access.invitation && <p className="row"><Check size={18} aria-hidden="true" />Оформление и приглашение куплены</p>}
     </div>
     <div className="design-preview"><p className="design-preview__label">Предпросмотр</p><WishlistTheme theme={theme}>{theme !== "journal" ? <CelebrationHeading theme={theme} title={title} eventDate={eventDate} preview /> : <h2>{title}</h2>}{preview}</WishlistTheme></div>
-  </section>{child && invitationEditor}</>;
+  </section>{child && invitationEditor}{holiday && letterEditor}</>;
 }

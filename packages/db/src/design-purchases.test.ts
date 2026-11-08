@@ -3,7 +3,7 @@ import { beforeEach, expect, test } from "vitest";
 import { createTestDb, createUserFixture } from "./testing";
 import { createWishlist, deleteWishlist } from "./wishlists";
 import { attachDesignPayment, beginDesignPurchase, confirmDesignPayment, getDesignAccess, getDesignOrderByPayment, setWishlistTheme, rejectUnattachedDesignPurchase } from "./design-purchases";
-import { authIdentities } from "./schema";
+import { authIdentities, designPurchases } from "./schema";
 import type { Database } from "./types";
 
 let db: Database;
@@ -23,7 +23,7 @@ test("only owner may buy or select a theme; unpaid theme stays locked", async ()
   expect(await beginDesignPurchase(db, stranger, id, "children", "a@example.com")).toBeNull();
   expect(await setWishlistTheme(db, owner, id, "children")).toBe(false);
   expect(await setWishlistTheme(db, stranger, id, "journal")).toBe(false);
-  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, letter: false, celebration: false });
 });
 
 test("149/199 prices are server-owned; retries reuse order; pending cannot unlock", async () => {
@@ -43,7 +43,7 @@ test("confirmed payment unlocks just its list and handles duplicate confirmation
   expect(await confirmDesignPayment(db, order.id, "wrong")).toBe(false);
   expect(await confirmDesignPayment(db, order.id, "provider-1")).toBe(true);
   expect(await confirmDesignPayment(db, order.id, "provider-1")).toBe(true);
-  expect(await getDesignAccess(db, id)).toEqual({ theme: "children", children: true, invitation: true, newYear: false, celebration: false });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "children", children: true, invitation: true, newYear: false, letter: false, celebration: false });
   expect(await setWishlistTheme(db, owner, id, "journal")).toBe(true);
   expect((await getDesignAccess(db, id)).theme).toBe("journal");
   expect(await setWishlistTheme(db, owner, id, "children")).toBe(true);
@@ -62,7 +62,7 @@ test("test payments never grant real entitlements or consume real purchase", asy
   const order = (await beginDesignPurchase(db, owner, id, "children_invitation", "a@example.com", true))!;
   await attachDesignPayment(db, order.id, "test-payment", "https://yoomoney.ru/checkout/test");
   await confirmDesignPayment(db, order.id, "test-payment");
-  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, letter: false, celebration: false });
   expect((await beginDesignPurchase(db, owner, id, "children_invitation", "a@example.com"))?.amountKopecks).toBe(19900);
 });
 
@@ -90,11 +90,27 @@ test("New Year is a separate 149-ruble theme and does not unlock children or inv
   expect(order.amountKopecks).toBe(14900);
   await attachDesignPayment(db, order.id, "newyear-payment", "https://yoomoney.ru/checkout/test");
   await confirmDesignPayment(db, order.id, "newyear-payment");
-  expect(await getDesignAccess(db, id)).toMatchObject({ theme: "new-year", newYear: true, celebration: false, children: false, invitation: false });
+  expect(await getDesignAccess(db, id)).toMatchObject({ theme: "new-year", newYear: true, letter: false, celebration: false, children: false, invitation: false });
   expect(await setWishlistTheme(db, owner, id, "children-pink")).toBe(false);
   expect(await setWishlistTheme(db, stranger, id, "new-year")).toBe(false);
   expect(await beginDesignPurchase(db, owner, id, "new_year", "a@example.com")).toBeNull();
   expect((await beginDesignPurchase(db, owner, id, "children_invitation", "a@example.com"))?.amountKopecks).toBe(19900);
+});
+
+test("New Year letter bundle costs 199 rubles, or 50 on top of the New Year theme, and unlocks the theme", async () => {
+  expect((await beginDesignPurchase(db, owner, id, "new_year_letter", "a@example.com"))?.amountKopecks).toBe(19900);
+  await db.delete(designPurchases);
+  const theme = (await beginDesignPurchase(db, owner, id, "new_year", "a@example.com"))!;
+  await attachDesignPayment(db, theme.id, "newyear-payment", "https://yoomoney.ru/checkout/test");
+  await confirmDesignPayment(db, theme.id, "newyear-payment");
+  expect(await getDesignAccess(db, id)).toMatchObject({ newYear: true, letter: false });
+  const letter = (await beginDesignPurchase(db, owner, id, "new_year_letter", "a@example.com"))!;
+  expect(letter.amountKopecks).toBe(5000);
+  await attachDesignPayment(db, letter.id, "letter-payment", "https://yoomoney.ru/checkout/test");
+  await confirmDesignPayment(db, letter.id, "letter-payment");
+  expect(await getDesignAccess(db, id)).toMatchObject({ theme: "new-year", newYear: true, letter: true, children: false });
+  expect(await beginDesignPurchase(db, owner, id, "new_year_letter", "a@example.com")).toBeNull();
+  expect(await beginDesignPurchase(db, owner, id, "new_year", "a@example.com")).toBeNull();
 });
 
 test("child bundle does not block a separate New Year purchase", async () => {
@@ -121,7 +137,7 @@ test("celebration has its own price and rights; test payments do not unlock it",
   expect((await beginDesignPurchase(db, owner, id, "celebration", "b@example.com"))?.id).toBe(order.id);
   await attachDesignPayment(db, order.id, "celebration-paid", null);
   await confirmDesignPayment(db, order.id, "celebration-paid");
-  expect(await getDesignAccess(db, id)).toEqual({ theme: "celebration", celebration: true, children: false, invitation: false, newYear: false });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "celebration", celebration: true, children: false, invitation: false, newYear: false, letter: false });
   expect(await setWishlistTheme(db, stranger, id, "celebration")).toBe(false);
   expect(await setWishlistTheme(db, owner, id, "children")).toBe(false);
   expect(await setWishlistTheme(db, owner, id, "new-year")).toBe(false);
@@ -142,15 +158,15 @@ test("child bundle does not block or discount celebration", async () => {
   expect(await setWishlistTheme(db, owner, id, "celebration")).toBe(true);
 });
 
-const everything = (theme: "journal" | "children" | "children-pink" | "new-year" | "celebration") => ({ theme, children: true, invitation: true, newYear: true, celebration: true, additionalThemes: EXTRA_THEME_IDS });
+const everything = (theme: "journal" | "children" | "children-pink" | "new-year" | "celebration") => ({ theme, children: true, invitation: true, newYear: true, letter: true, celebration: true, additionalThemes: EXTRA_THEME_IDS });
 
 test("owner from the free list gets every design without payment; others stay locked", async () => {
   await db.insert(authIdentities).values({ userId: owner, provider: "telegram", providerUserId: "777" });
   await db.insert(authIdentities).values({ userId: stranger, provider: "telegram", providerUserId: "888" });
   expect(await getDesignAccess(db, id, ["777"])).toEqual(everything("journal"));
-  expect(await getDesignAccess(db, id, ["888"])).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
-  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
-  expect(await getDesignAccess(db, id, [])).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
+  expect(await getDesignAccess(db, id, ["888"])).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, letter: false, celebration: false });
+  expect(await getDesignAccess(db, id)).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, letter: false, celebration: false });
+  expect(await getDesignAccess(db, id, [])).toEqual({ theme: "journal", children: false, invitation: false, newYear: false, letter: false, celebration: false });
 });
 
 test("a VK account with the same numeric id is not treated as free", async () => {
