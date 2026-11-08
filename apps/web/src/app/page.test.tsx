@@ -145,6 +145,18 @@ describe("Home", () => {
     expect(finder).toContain("Подобрать с AI");
   });
 
+  test("shows the Ded Moroz letter banner from November 1 to December 31 only", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-11-20T12:00:00Z"));
+      expect(renderToStaticMarkup(await Home())).toMatch(/<a[^>]*href="\/wishlist\/pismo-dedu-morozu"[^>]*>Письмо Деду Морозу/);
+      vi.setSystemTime(new Date("2027-01-05T12:00:00Z"));
+      expect(renderToStaticMarkup(await Home())).not.toContain('aria-label="Письмо от Деда Мороза"');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("prioritizes New Year and Secret Santa in season and keeps the other links in HTML", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     try {

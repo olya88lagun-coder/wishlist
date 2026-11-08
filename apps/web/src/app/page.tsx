@@ -7,6 +7,7 @@ import { HomeMobileMenu } from "@/components/HomeMobileMenu";
 import { HomeGiftCollections } from "@/components/HomeGiftCollections";
 import { HomeWishlistPreview } from "@/components/HomeWishlistPreview";
 import { SantaBanner } from "@/components/SantaBanner";
+import { DedMorozBanner } from "@/components/DedMorozBanner";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
 import { HOME_FAQ } from "@/content/home-faq";
@@ -270,6 +271,10 @@ export default async function Home() {
 
         <div className="home-section">
           <SantaBanner />
+        </div>
+
+        <div className="home-section">
+          <DedMorozBanner />
         </div>
 
         <section className="home-section home-occasions" aria-labelledby="occasions-title">
