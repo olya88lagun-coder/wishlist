@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { Download, LoaderCircle, Snowflake } from "lucide-react";
+import { Download, LoaderCircle, Mail, Snowflake } from "lucide-react";
 import { dedMorozLetterSchema, dedMorozLetterText, type DedMorozLetterInput } from "../lib/ded-moroz-letter";
 import { printableText } from "../lib/invitation";
 import { DedMorozLetterPaper } from "./DedMorozLetterPaper";
@@ -110,6 +110,9 @@ export function DedMorozLetterEditor({ wishlistId, enabled, giftHint }: { wishli
           {!enabled && <p className="invitation-editor__availability">Текст письма можно посмотреть бесплатно. Скачать письмо можно после покупки пакета «Новогоднее оформление + письмо».</p>}
           <div className="invitation-editor__actions">
             <button type="submit" disabled={!enabled || busy}>{busy ? <LoaderCircle size={20} aria-hidden="true" /> : <Download size={20} aria-hidden="true" />}{busy ? "Готовим письмо…" : "Скачать письмо A4"}</button>
+            <a className="letter-editor__envelope" href="/ded-moroz-envelope-a4.pdf" download>
+              <Mail size={18} aria-hidden="true" />Скачать конверт A4
+            </a>
           </div>
           <p role="status" aria-live="polite" className={failed ? "invitation-editor__error" : "invitation-editor__status"}>{status}</p>
         </form>
