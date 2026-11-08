@@ -26,6 +26,7 @@ test("the Ded Moroz letter landing leads to list creation with its own call to a
   expect(html).toContain('href="/lists?preset=ded-moroz">Написать письмо Деду Морозу</a>');
   expect(html).toContain("wishlist-pismo-dedu-morozu.webp");
   expect(html).toContain('href="/blank-pismo-dedu-morozu.pdf" download="">Скачать бланк</a>');
+  expect(html).toContain('href="/ded-moroz-envelope-a4.pdf" download="">Скачать конверт A4</a>');
 });
 
 test("unknown occasions are not served", async () => {

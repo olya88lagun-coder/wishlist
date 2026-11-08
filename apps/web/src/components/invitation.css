@@ -90,3 +90,21 @@
   font-weight: 700;
   font-display: swap;
 }
+
+.letter-editor__envelope {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 12px 16px;
+  border: 1px solid #ad826e;
+  border-radius: 14px;
+  background: #fff9ed;
+  color: #852f42;
+  font-weight: 600;
+  text-decoration: none;
+}
+.letter-editor__envelope:hover { background: #f5e6d8; }
+.letter-editor__envelope:focus-visible { outline: 3px solid #852f42; outline-offset: 3px; }
+@media (max-width: 680px) { .letter-editor__envelope { width: 100%; } }

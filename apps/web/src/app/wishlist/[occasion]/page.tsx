@@ -57,7 +57,10 @@ export default async function WishlistLandingPage({ params }: { params: Promise<
               <Link className={`button ${styles.create}`} href={"ctaHref" in page ? page.ctaHref : "/lists"}>{"cta" in page ? page.cta : "Создать вишлист бесплатно"}</Link>
               <Link className={styles.ideas} href={page.ideas.href}>{page.ideas.label}</Link>
               {occasion === "pismo-dedu-morozu" && (
-                <a className={styles.ideas} href="/blank-pismo-dedu-morozu.pdf" download>Скачать бланк</a>
+                <>
+                  <a className={styles.ideas} href="/blank-pismo-dedu-morozu.pdf" download>Скачать бланк</a>
+                  <a className={styles.ideas} href="/ded-moroz-envelope-a4.pdf" download>Скачать конверт A4</a>
+                </>
               )}
             </div>
           </div>
