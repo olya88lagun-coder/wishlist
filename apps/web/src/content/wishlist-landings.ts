@@ -11,6 +11,7 @@ export type WishlistLanding = {
   updated: string;
   // Без своей кнопки используется «Создать вишлист бесплатно».
   cta?: string;
+  ctaHref?: string;
 };
 
 export const WISHLIST_LANDINGS = {
@@ -75,6 +76,7 @@ export const WISHLIST_LANDINGS = {
     ],
     updated: "2026-11-08",
     cta: "Написать письмо Деду Морозу",
+    ctaHref: "/lists?preset=ded-moroz",
   },
 } as const satisfies Record<string, WishlistLanding>;
 
