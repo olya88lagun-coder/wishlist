@@ -7,6 +7,16 @@ const articleCollections = [
   ["kak-sostavit-vishlist", "/gifts"],
   ["chto-podarit-mame-na-den-rozhdeniya", "/gifts/for-mom"],
   ["idei-podarkov-na-den-rozhdeniya", "/gifts/birthday"],
+  ["pismo-dedu-morozu", "/gifts/new-year"],
+  ["tajnyj-santa-pravila", "/gifts/secret-santa"],
+  ["tajnyj-santa-v-ofise", "/gifts/secret-santa"],
+  ["chto-podarit-na-tajnogo-santu", "/gifts/secret-santa"],
+  ["chto-podarit-na-novyj-god", "/gifts/new-year"],
+  ["chto-podarit-rebyonku-na-novyj-god", "/gifts/for-children"],
+  ["vishlist-na-novyj-god", "/gifts/new-year"],
+  ["podarki-kollegam-na-novyj-god", "/gifts/for-colleague"],
+  ["chto-ne-darit-na-novyj-god", "/gifts/new-year"],
+  ["podarki-v-poslednij-moment", "/gifts/new-year"],
 ] as const;
 
 test("each article leads to its matching collection and keeps wishlist creation", async ({ page }, testInfo) => {
