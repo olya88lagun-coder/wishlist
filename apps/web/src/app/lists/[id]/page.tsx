@@ -20,6 +20,7 @@ import { deleteItemAction } from "./actions";
 import { AddItemForm } from "./AddItemForm";
 import { ConfirmButton } from "./ConfirmButton";
 import { DesignPromo } from "./DesignPromo";
+import { DedMorozPromo } from "./DedMorozPromo";
 import { ItemEditor } from "./ItemEditor";
 import { ListSettings } from "./ListSettings";
 import { parseHint } from "./parse-hint";
@@ -77,7 +78,8 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
         )}
       />}
 
-      <DesignPromo wishlistId={wishlist.id} access={design} />
+      <DedMorozPromo wishlistId={wishlist.id} occasion={wishlist.occasion} access={design} />
+      <DesignPromo wishlistId={wishlist.id} access={design} newYear={wishlist.occasion === "new_year"} />
 
       {surpriseMode && <p className="owner-surprise-note">Режим «Полный сюрприз»: брони скрыты от владельца</p>}
 

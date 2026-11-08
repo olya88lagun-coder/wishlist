@@ -12,7 +12,7 @@ const THEME_NAMES: Partial<Record<DesignAccess["theme"], string>> = {
 };
 
 // Заметная карточка над инструментами списка: оформление раньше пряталось внизу страницы, под настройками.
-export function DesignPromo({ wishlistId, access }: { wishlistId: string; access: DesignAccess }) {
+export function DesignPromo({ wishlistId, access, newYear = false }: { wishlistId: string; access: DesignAccess; newYear?: boolean }) {
   const owned = access.children || access.newYear || access.celebration || Boolean(access.additionalThemes?.length);
   const themeName = THEME_NAMES[access.theme];
   const href = `/lists/${wishlistId}/design`;
@@ -23,7 +23,9 @@ export function DesignPromo({ wishlistId, access }: { wishlistId: string; access
         <h2>{!owned ? "Оформите список" : themeName ?? "Оформление куплено, но не применено"}</h2>
         <p>
           {!owned
-            ? "Золотой, голубой, розовый или новогодний фон для страницы, которую увидят гости. Приглашение можно сделать картинкой для мессенджеров."
+            ? newYear
+              ? "Новогодний фон для страницы, которую увидят гости, и именное письмо от Деда Мороза для печати."
+              : "Золотой, голубой, розовый или новогодний фон для страницы, которую увидят гости. Приглашение можно сделать картинкой для мессенджеров."
             : themeName ? access.invitation ? "Можно сменить цвет или создать приглашение." : "Оформление уже видно гостям. Здесь можно выбрать другую тему." : "Выберите цвет и нажмите «Применить»."}
         </p>
       </div>

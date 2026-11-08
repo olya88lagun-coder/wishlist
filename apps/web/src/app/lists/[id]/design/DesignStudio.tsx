@@ -10,15 +10,17 @@ import { trackEvent } from "@/lib/analytics";
 import { checkDesignPaymentAction, checkoutDesignAction, selectThemeAction } from "./actions";
 import { isUnsavedSelection } from "./design-state";
 
-export function DesignStudio({ wishlistId, title, eventDate, access, salesEnabled, testMode, offerUrl, receiptByProvider = false, publicHref, preview, invitationEditor, letterEditor, defaultTheme = "children", checkOnReturn = false }: {
-  wishlistId: string; title: string; eventDate?: string | null; access: DesignAccess; salesEnabled: boolean; testMode: boolean; offerUrl: string | null; receiptByProvider?: boolean; publicHref?: string; preview: ReactNode; invitationEditor?: ReactNode; letterEditor?: ReactNode; defaultTheme?: Theme; checkOnReturn?: boolean;
+export function DesignStudio({ wishlistId, title, eventDate, access, salesEnabled, testMode, offerUrl, receiptByProvider = false, publicHref, preview, invitationEditor, letterEditor, defaultTheme = "children", initialTheme, checkOnReturn = false }: {
+  wishlistId: string; title: string; eventDate?: string | null; access: DesignAccess; salesEnabled: boolean; testMode: boolean; offerUrl: string | null; receiptByProvider?: boolean; publicHref?: string; preview: ReactNode; invitationEditor?: ReactNode; letterEditor?: ReactNode; defaultTheme?: Theme; initialTheme?: Theme; checkOnReturn?: boolean;
 }) {
-  const [theme, setTheme] = useState<Theme>(access.children || access.newYear || access.celebration || access.additionalThemes?.length ? access.theme : defaultTheme);
+  // initialTheme: переход по ссылке «Написать ответ» сразу открывает новогоднюю тему с формой письма
+  const startTheme = initialTheme ?? (access.children || access.newYear || access.celebration || access.additionalThemes?.length ? access.theme : defaultTheme);
+  const [theme, setTheme] = useState<Theme>(startTheme);
   const [product, setProduct] = useState("children_invitation");
   const [holidayProduct, setHolidayProduct] = useState("new_year_letter");
   const [checkout, buy, buying] = useActionState(checkoutDesignAction.bind(null, wishlistId), { message: "" });
   const [selection, select, saving] = useActionState(selectThemeAction.bind(null, wishlistId), { message: "" });
-  useEffect(() => { setTheme(access.children || access.newYear || access.celebration || access.additionalThemes?.length ? access.theme : defaultTheme); }, [wishlistId, access.children, access.newYear, access.celebration, access.additionalThemes?.length, access.theme, defaultTheme]);
+  useEffect(() => { setTheme(startTheme); }, [startTheme]);
   useEffect(() => {
     if (checkOnReturn) void checkDesignPaymentAction(wishlistId).catch(() => {});
   }, [checkOnReturn, wishlistId]);
