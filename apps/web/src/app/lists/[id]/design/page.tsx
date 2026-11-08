@@ -5,6 +5,7 @@ import { getDesignAccess, getOwnerWishlistView, getPendingDesignOrders } from "@
 import { ItemCard } from "@/components/ItemCard";
 import { imageUrlFor } from "@/components/item-image";
 import { InvitationEditor } from "@/components/InvitationEditor";
+import { DedMorozLetterEditor } from "@/components/DedMorozLetterEditor";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
 import { readPaymentConfig } from "@/server/design-payments";
@@ -35,6 +36,7 @@ export default async function DesignPage({ params, searchParams }: { params: Pro
     </div>}
     <DesignStudio wishlistId={id} title={view.wishlist.title} eventDate={view.wishlist.eventDate} access={access} salesEnabled={Boolean(config)} testMode={config?.YOOKASSA_TEST_MODE === "true"} offerUrl={config?.YOOKASSA_OFFER_URL ?? null} receiptByProvider={Boolean(config?.YOOKASSA_VAT_CODE)} publicHref={`/${view.wishlist.slug}`} checkOnReturn={returned && pending.length > 0}
       defaultTheme={view.wishlist.occasion === "new_year" ? "new-year" : "celebration"}
+      letterEditor={<DedMorozLetterEditor wishlistId={id} enabled={access.letter} giftHint={view.items[0]?.title} />}
       invitationEditor={<InvitationEditor wishlistId={id} title={view.wishlist.title} eventDate={view.wishlist.eventDate} shareUrl={shareUrl} enabled={access.invitation} />}
       preview={<div className="grid">{view.items.slice(0, 2).map(item => <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, getEnv().S3_PUBLIC_BASE_URL) }} />)}{view.items.length === 0 && <p className="muted">Пока без подарков</p>}</div>} />
   </main>;

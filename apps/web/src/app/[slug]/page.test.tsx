@@ -32,13 +32,13 @@ function wishlist(status: PublicWishlistView["items"][number]["status"], isOwner
 }
 
 beforeEach(() => {
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false, celebration: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false, letter: false, celebration: false });
   vi.mocked(readViewer).mockResolvedValue({ viewer: { userId: null, guestToken: "test-guest" }, user: null });
 });
 
 test("renders the purchased pink theme without changing gifts or reservation controls", async () => {
   vi.mocked(getPublicWishlist).mockResolvedValue(wishlist("free"));
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "children-pink", children: true, invitation: false, newYear: false, celebration: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "children-pink", children: true, invitation: false, newYear: false, letter: false, celebration: false });
   const html = renderToStaticMarkup(await PublicWishlistPage({ params: Promise.resolve({ slug: "abcdefghij" }) }));
   expect(html).toContain('data-theme="children-pink"');
   expect(html).toContain("Тестовый подарок");
@@ -58,7 +58,7 @@ test("shows one invitation before the gifts only when this guest has a reservati
 
 test("New Year styling preserves the real gift and reservation action", async () => {
   vi.mocked(getPublicWishlist).mockResolvedValue(wishlist("free"));
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "new-year", children: false, invitation: false, newYear: true, celebration: false });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "new-year", children: false, invitation: false, newYear: true, letter: false, celebration: false });
   const html = renderToStaticMarkup(await PublicWishlistPage({ params: Promise.resolve({ slug: "abcdefghij" }) }));
   expect(html).toContain('data-theme="new-year"');
   expect(html).toContain("Тестовый подарок");
@@ -69,7 +69,7 @@ test("celebration cover shows the real title and date and preserves guest reserv
   const view = wishlist("free");
   view.wishlist.eventDate = "2026-12-12";
   vi.mocked(getPublicWishlist).mockResolvedValue(view);
-  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "celebration", children: false, invitation: false, newYear: false, celebration: true });
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "celebration", children: false, invitation: false, newYear: false, letter: false, celebration: true });
   const html = renderToStaticMarkup(await PublicWishlistPage({ params: Promise.resolve({ slug: "abcdefghij" }) }));
   expect(html).toContain('data-theme="celebration"');
   expect(html).toContain('class="celebration-heading"');

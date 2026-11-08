@@ -68,7 +68,7 @@ export async function createDesignCheckout(userId: string, wishlistId: string, p
   if (Date.now() - order.createdAt.getTime() > 23 * 60 * 60 * 1000) throw new Error("Нужна проверка предыдущего платежа");
   const amount = { value: (order.amountKopecks / 100).toFixed(2), currency: "RUB" };
   const extra = EXTRA_DESIGNS.find((design) => design.id === product);
-  const description = extra ? `Оформление вишлиста «${extra.label}»` : product === "celebration" ? "Оформление вишлиста «Праздник»" : product === "new_year" ? "Новогоднее оформление вишлиста" : product === "children" ? "Детское оформление вишлиста" : "Детское оформление и приглашение";
+  const description = extra ? `Оформление вишлиста «${extra.label}»` : product === "celebration" ? "Оформление вишлиста «Праздник»" : product === "new_year" ? "Новогоднее оформление вишлиста" : product === "new_year_letter" ? "Новогоднее оформление и письмо от Деда Мороза" : product === "children" ? "Детское оформление вишлиста" : "Детское оформление и приглашение";
   let payment: Payment;
   try { payment = await api("payments", {
     method: "POST", headers: { "Idempotence-Key": order.id },

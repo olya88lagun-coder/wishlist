@@ -52,3 +52,41 @@
 .invitation-editor__preview { padding-top: 64px; background-color: var(--inv-paper); border-radius: 20px; box-shadow: inset 0 0 0 6px #ffffff80, 0 12px 32px #193e450a; }
 .invitation-editor__preview h3 { color: var(--inv-ink); }
 .invitation-editor__preview p { background: var(--inv-paper); border-radius: 8px; }
+
+.letter-editor .invitation-editor__header > svg { color: #852f42; }
+.letter-editor .invitation-editor__actions button { background: #852f42; border-color: #852f42; }
+.letter-editor__paper { container-type: inline-size; box-shadow: 0 12px 32px #35251c20; }
+
+.letter-editor__watermark {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  opacity: .23;
+  color: #743042;
+}
+.letter-editor__watermark-grid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 240%;
+  height: 190%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  transform: translate(-50%, -50%) rotate(-28deg);
+  font-size: max(10px, 3.4cqw);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.letter-editor__watermark-grid > div { display: flex; justify-content: space-evenly; gap: max(12px, 3cqw); }
+.letter-editor__watermark-grid > div:nth-child(even) { transform: translateX(5%); }
+
+@font-face {
+  font-family: "Caveat";
+  src: url("../../assets/fonts/Caveat-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
