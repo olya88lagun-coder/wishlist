@@ -77,3 +77,27 @@ test("celebration purchase is recognized in the owner promo without offering ano
   expect(html).not.toContain("Оформите список");
   expect(html).toContain("Настроить оформление");
 });
+
+test("a New Year list shows the Ded Moroz letter card in season, linking straight to the letter form", async () => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  try {
+    vi.mocked(getOwnerWishlistView).mockResolvedValue({ ...view, wishlist: { ...view.wishlist, occasion: "new_year" } } as never);
+    vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false, letter: false, celebration: false });
+    vi.setSystemTime(new Date("2026-11-20T12:00:00Z"));
+    const html = renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }));
+    expect(html).toContain("Ответ от Деда Мороза");
+    expect(html).toContain('href="/lists/list-1/design?letter=1#letter"');
+    expect(html).toContain("именное письмо от Деда Мороза");
+    vi.mocked(getDesignAccess).mockResolvedValue({ theme: "new-year", children: false, invitation: false, newYear: true, letter: true, celebration: false });
+    expect(renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }))).toContain("Скачать письмо");
+    vi.setSystemTime(new Date("2027-01-05T12:00:00Z"));
+    expect(renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }))).not.toContain("Ответ от Деда Мороза");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("a birthday list never shows the Ded Moroz letter card", async () => {
+  vi.mocked(getDesignAccess).mockResolvedValue({ theme: "journal", children: false, invitation: false, newYear: false, letter: false, celebration: false });
+  expect(renderToStaticMarkup(await OwnerListPage({ params: Promise.resolve({ id: "list-1" }) }))).not.toContain("Ответ от Деда Мороза");
+});

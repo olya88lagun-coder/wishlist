@@ -17,7 +17,7 @@ import { checkDesignPaymentAction } from "./actions";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Оформление вишлиста", robots: { index: false, follow: false } };
 
-export default async function DesignPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ payment?: string }> }) {
+export default async function DesignPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ payment?: string; letter?: string }> }) {
   const user = await requireUser();
   const { id } = await params;
   const view = await getOwnerWishlistView(getDb(), user.id, id);
@@ -25,7 +25,8 @@ export default async function DesignPage({ params, searchParams }: { params: Pro
   const access = await getDesignAccess(getDb(), id, freeDesignTelegramIds());
   const pending = await getPendingDesignOrders(getDb(), user.id, id);
   const config = readPaymentConfig();
-  const returned = (await searchParams).payment === "return";
+  const query = await searchParams;
+  const returned = query.payment === "return";
   const shareUrl = new URL(`/${view.wishlist.slug}`, getEnv().APP_URL).toString();
   return <main className="page page--wide design-page">
     <Link href={`/lists/${id}`}>Вернуться к списку</Link>
@@ -36,6 +37,7 @@ export default async function DesignPage({ params, searchParams }: { params: Pro
     </div>}
     <DesignStudio wishlistId={id} title={view.wishlist.title} eventDate={view.wishlist.eventDate} access={access} salesEnabled={Boolean(config)} testMode={config?.YOOKASSA_TEST_MODE === "true"} offerUrl={config?.YOOKASSA_OFFER_URL ?? null} receiptByProvider={Boolean(config?.YOOKASSA_VAT_CODE)} publicHref={`/${view.wishlist.slug}`} checkOnReturn={returned && pending.length > 0}
       defaultTheme={view.wishlist.occasion === "new_year" ? "new-year" : "celebration"}
+      initialTheme={query.letter === "1" ? "new-year" : undefined}
       letterEditor={<DedMorozLetterEditor wishlistId={id} enabled={access.letter} giftHint={view.items[0]?.title} />}
       invitationEditor={<InvitationEditor wishlistId={id} title={view.wishlist.title} eventDate={view.wishlist.eventDate} shareUrl={shareUrl} enabled={access.invitation} />}
       preview={<div className="grid">{view.items.slice(0, 2).map(item => <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, getEnv().S3_PUBLIC_BASE_URL) }} />)}{view.items.length === 0 && <p className="muted">Пока без подарков</p>}</div>} />

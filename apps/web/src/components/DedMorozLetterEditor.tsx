@@ -63,7 +63,7 @@ export function DedMorozLetterEditor({ wishlistId, enabled, giftHint }: { wishli
   }
 
   return (
-    <section className="invitation-editor letter-editor ym-hide-content ym-disable-keys" aria-labelledby={`${id}-heading`}>
+    <section id="letter" className="invitation-editor letter-editor ym-hide-content ym-disable-keys" aria-labelledby={`${id}-heading`}>
       <header className="invitation-editor__header">
         <Snowflake size={28} aria-hidden="true" />
         <div><h2 id={`${id}-heading`}>Письмо от Деда Мороза</h2><p>Именное письмо для печати на A4. Данные ребёнка не сохраняются.</p></div>
