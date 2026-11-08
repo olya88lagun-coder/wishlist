@@ -19,6 +19,8 @@ describe("loginReturnPath", () => {
     expect(listCreationPath("/gifts/new-year")).toBe("/lists?returnTo=%2Fgifts%2Fnew-year");
     expect(loginReturnPath("/lists?returnTo=%2Fgifts%2Fnew-year")).toBe("/lists?returnTo=%2Fgifts%2Fnew-year");
     expect(loginReturnPath("/lists")).toBeNull();
+    expect(loginReturnPath("/lists?preset=ded-moroz")).toBe("/lists?preset=ded-moroz");
+    expect(loginReturnPath("/lists?preset=ded-moroz&x=1")).toBeNull();
     expect(loginReturnPath("/lists?returnTo=/gifts/new-year")).toBeNull();
     expect(loginReturnPath("/lists?returnTo=%2F%2Fevil.example")).toBeNull();
     expect(loginReturnPath("/lists?returnTo=%2Fgifts%2Fnew-year&x=1")).toBeNull();

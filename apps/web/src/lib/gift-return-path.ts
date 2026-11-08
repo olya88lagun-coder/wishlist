@@ -17,9 +17,12 @@ function isListCreationPath(raw: string): boolean {
   return giftReturnPath(decoded) !== null && listCreationPath(decoded) === raw;
 }
 
+// Создание письма Деду Морозу с лендинга: форма нового списка с готовыми полями
+export const DED_MOROZ_LIST_PATH = "/lists?preset=ded-moroz";
+
 // После входа можно вернуться в подборку, к созданию списка из подборки или в игру Тайного Санты (личные ссылки /santa/me/* — нет)
 export function loginReturnPath(raw: unknown): string | null {
   if (giftReturnPath(raw)) return raw as string;
-  if (typeof raw === "string" && isListCreationPath(raw)) return raw;
+  if (typeof raw === "string" && (isListCreationPath(raw) || raw === DED_MOROZ_LIST_PATH)) return raw;
   return typeof raw === "string" && /^\/santa\/(?:new|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/.test(raw) ? raw : null;
 }
