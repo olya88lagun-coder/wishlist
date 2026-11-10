@@ -24,6 +24,9 @@ export const STORE_STRATEGIES: Record<StoreId, StoreStrategy> = {
   sportmaster: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
   deparfum: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
   ormatek: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
+  // ЛЭТУАЛЬ и Sela раньше шли как other и загружались так же: поведение парсера не меняем
+  letual: { fetch: true, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "any" },
+  sela: { fetch: true, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "any" },
   lamoda: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
   ozon: { fetch: false, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "none" },
   other: { fetch: true, userAgent: LINK_PREVIEW_USER_AGENT, priceFrom: "any" },

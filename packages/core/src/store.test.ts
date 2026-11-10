@@ -38,6 +38,8 @@ describe("detectStore", () => {
     ["https://de-parfum.ru/catalog/podarki/", "deparfum", "Де-Парфюм"],
     ["https://ormatek.com/catalog/podushki/", "ormatek", "Ormatek"],
     ["https://www.ormatek.com/catalog/textile/", "ormatek", "Ormatek"],
+    ["https://www.letu.ru/product/1", "letual", "ЛЭТУАЛЬ"],
+    ["https://www.sela.ru/catalog/zhenshchiny/", "sela", "Sela"],
     ["https://www.de-parfum.ru/catalog/product/1287-light-blue-pour-femme/", "deparfum", "Де-Парфюм"],
     ["https://www.shop.mts.ru/catalog/smartfony/", "mts", "МТС Shop"],
   ])("%s → %s", (url, id, label) => {
@@ -45,6 +47,6 @@ describe("detectStore", () => {
   });
 
   test("falls back to the bare host for unknown shops", () => {
-    expect(detectStore("https://www.letu.ru/product/1")).toEqual({ id: "other", label: "letu.ru" });
+    expect(detectStore("https://www.example-shop.ru/product/1")).toEqual({ id: "other", label: "example-shop.ru" });
   });
 });
