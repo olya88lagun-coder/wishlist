@@ -285,3 +285,18 @@
     color-scheme: dark;
   }
 }
+
+/* Сцена жеребьёвки (lib/santa-draw.ts): мешок встряхивается, записки разлетаются веером и тают */
+.santa-draw-show { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: rgb(40 14 22 / .92); backdrop-filter: blur(12px); pointer-events: none; animation: santa-draw-fade 2.6s ease both; }
+.santa-draw-show__stage { position: relative; width: 160px; height: 160px; }
+.santa-draw__bag { width: 160px; height: 160px; transform-origin: 50% 90%; animation: santa-draw-shake .5s ease-in-out 2 both; filter: drop-shadow(0 12px 24px rgb(20 6 10 / .45)); }
+.santa-draw-show__note { position: absolute; left: 50%; top: 38%; width: 44px; height: 30px; margin: -15px 0 0 -22px; border: 1px solid #b1844b; border-radius: 3px; background: linear-gradient(180deg, #fff6e4 48%, #ecd9b4 50%, #fff6e4 54%); box-shadow: 0 4px 10px rgb(20 6 10 / .3); opacity: 0; animation: santa-draw-note 1.5s cubic-bezier(.2, .8, .3, 1) both; }
+@keyframes santa-draw-fade { 0% { opacity: 0; } 10%, 82% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes santa-draw-shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+@keyframes santa-draw-note {
+  0% { opacity: 0; transform: translate(0, 10px) scale(.4) rotate(0); }
+  15% { opacity: 1; }
+  70% { opacity: 1; transform: translate(var(--x), var(--y)) scale(1) rotate(var(--r)); }
+  100% { opacity: 0; transform: translate(var(--x), calc(var(--y) - 16px)) scale(.9) rotate(var(--r)); }
+}
+@media (prefers-reduced-motion: reduce) { .santa-draw-show { display: none; } }

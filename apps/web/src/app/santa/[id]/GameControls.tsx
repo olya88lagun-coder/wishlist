@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { playSantaDraw } from "@/lib/santa-draw";
 import { CopyLinkField } from "../CopyLinkField";
 import { drawSantaGameAction, issueRecoveryLinkAction, removeSantaParticipantAction } from "../actions";
 
-export function DrawButton({ gameId }: { gameId: string }) {
+export function DrawButton({ gameId, participants }: { gameId: string; participants: number }) {
   const [pending, start] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   return (
@@ -14,6 +15,7 @@ export function DrawButton({ gameId }: { gameId: string }) {
       <button type="button" className="button" disabled={pending} onClick={() => start(async () => {
         if (!window.confirm("После жеребьёвки вступить в игру будет нельзя. Провести?")) return;
         const result = await drawSantaGameAction(gameId);
+        if (result.ok) playSantaDraw(participants);
         setMessage(result.ok ? null : result.message);
       })}>Провести жеребьёвку</button>
       {message && <p className="error" role="alert">{message}</p>}

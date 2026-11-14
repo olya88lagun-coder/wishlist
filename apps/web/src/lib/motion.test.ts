@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { confettiPieces, giftFlightOffset, snowflakes, typewriterFrames } from "./motion";
+import { confettiPieces, drawNotes, giftFlightOffset, snowflakes, typewriterFrames } from "./motion";
 
 describe("giftFlightOffset", () => {
   it("connects the centers of the source and destination without assuming a direction", () => {
@@ -38,5 +38,20 @@ describe("confettiPieces", () => {
     const pieces = confettiPieces(6, ["a", "b"], () => 0.5);
     expect(pieces.map((piece) => piece.color)).toEqual(["a", "b", "a", "b", "a", "b"]);
     expect(pieces.every((piece) => piece.y < 0)).toBe(true);
+  });
+});
+
+describe("drawNotes", () => {
+  it("caps the notes, fans them above the bag and staggers them", () => {
+    const notes = drawNotes(30, 200, () => 0.5);
+    expect(notes).toHaveLength(12);
+    expect(notes.every((note) => note.y < 0)).toBe(true);
+    expect(notes[0]!.x).toBeLessThan(0);
+    expect(notes.at(-1)!.x).toBeGreaterThan(0);
+    expect(notes[1]!.delay).toBeGreaterThan(notes[0]!.delay);
+  });
+
+  it("shows at least one note", () => {
+    expect(drawNotes(0, 100)).toHaveLength(1);
   });
 });
