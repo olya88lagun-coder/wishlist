@@ -818,12 +818,12 @@ a { color: inherit; }
 }
 
 /* Первое открытие списка гостем (FirstOpenMark): шапка раскрывается как открытка */
-[data-first-open] .celebration-heading { animation: card-open 700ms cubic-bezier(.2, .7, .2, 1) both; transform-origin: 50% 0; }
+[data-first-open] .wishlist-page > :is(.celebration-heading, .display) { animation: card-open 700ms cubic-bezier(.2, .7, .2, 1) both; transform-origin: 50% 0; }
 @keyframes card-open { from { transform: perspective(900px) rotateX(-14deg) translateY(-8px); } to { transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   .confetti, .scroll-progress { display: none; }
-  [data-first-open] .celebration-heading { animation: none; }
+  [data-first-open] .wishlist-page > :is(.celebration-heading, .display) { animation: none; }
 }
 
 /* Плашка «В вашем списке: N» (SavedIdeasDock). Перерисовывается на каждое добавление — анимация играет заново */
