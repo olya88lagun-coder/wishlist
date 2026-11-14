@@ -12,7 +12,7 @@ export function SavedIdeaFlight() {
     function onAdded(event: Event) {
       if (prefersReducedMotion() || document.hidden) return;
       const { title } = (event as CustomEvent<{ title: string }>).detail;
-      const headings = Array.from(document.querySelectorAll<HTMLElement>(".gift-idea h3, .gift-card h3"));
+      const headings = Array.from(document.querySelectorAll<HTMLElement>(".gift-idea h4, .gift-card h3"));
       const focusedCard = document.activeElement?.closest(".gift-idea, .gift-card");
       const heading = headings.find((item) => item.textContent?.trim() === title && focusedCard?.contains(item))
         ?? headings.find((item) => item.textContent?.trim() === title);
