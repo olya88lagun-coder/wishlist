@@ -107,6 +107,10 @@
   min-height: clamp(390px, 39vw, 530px);
 }
 
+/* На фото уже есть свой конверт с печатью: кадрируем его за край, поверх остаётся один нарисованный (SantaEnvelopeScene) */
+.heroPhoto { overflow: hidden; }
+.heroPhoto img { transform: scale(1.8); transform-origin: 14% 0; }
+
 .heroPhoto img,
 .invitationPhoto img {
   object-fit: cover;

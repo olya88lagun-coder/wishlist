@@ -107,10 +107,14 @@
 .seal { position: absolute; left: 41%; top: 44%; width: 19%; opacity: .85; }
 .crack { opacity: .8; }
 @media (prefers-reduced-motion: no-preference) {
-  :global(.js-reveal .home-santa.is-visible) .note { animation: santa-note 1.5s cubic-bezier(.23,.72,.25,1) .25s both; }
-  :global(.js-reveal .home-santa.is-visible) .flap { animation: santa-flap 1.5s ease .25s both; }
-  :global(.js-reveal .home-santa.is-visible) .seal { animation: santa-seal 1.5s ease .25s both; }
-  :global(.js-reveal .home-santa.is-visible) .crack { animation: santa-crack 1.5s ease .25s both; }
+  :global(.js-reveal .home-santa.is-visible) .note,
+  .play .note { animation: santa-note 1.5s cubic-bezier(.23,.72,.25,1) .25s both; }
+  :global(.js-reveal .home-santa.is-visible) .flap,
+  .play .flap { animation: santa-flap 1.5s ease .25s both; }
+  :global(.js-reveal .home-santa.is-visible) .seal,
+  .play .seal { animation: santa-seal 1.5s ease .25s both; }
+  :global(.js-reveal .home-santa.is-visible) .crack,
+  .play .crack { animation: santa-crack 1.5s ease .25s both; }
 }
 @keyframes santa-note { 0%, 42% { transform: translateY(45%); opacity: 0; } 100% { transform: translateY(-78%); opacity: 1; } }
 @keyframes santa-flap { 0%, 25% { transform: none; opacity: 1; } 60%, 100% { transform: scaleY(-.18); opacity: .86; } }

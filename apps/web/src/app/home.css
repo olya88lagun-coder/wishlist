@@ -439,7 +439,7 @@
 .home-occasion[href="/gifts/for-mom"] { --occasion-wash: #f1e5e9; --occasion-ink: #955773; }
 .home-occasion__icon {
   position: absolute;
-  bottom: 60px;
+  top: 18px;
   right: 16px;
   width: 38px;
   color: var(--occasion-ink, #886337);
