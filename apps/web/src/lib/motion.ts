@@ -46,3 +46,20 @@ export function confettiPieces(count: number, colors: readonly string[], random:
     };
   });
 }
+
+export type DrawNote = { x: number; y: number; rotate: number; delay: number };
+
+// Записки жеребьёвки разлетаются из мешка веером вверх; радиус — в пикселях экрана
+export function drawNotes(count: number, radius: number, random: () => number = Math.random): DrawNote[] {
+  const total = Math.max(1, Math.min(count, 12));
+  return Array.from({ length: total }, (_, index) => {
+    const angle = Math.PI * (1.12 + (0.76 * (index + 0.5)) / total);
+    const distance = radius * (0.72 + random() * 0.28);
+    return {
+      x: Math.round(Math.cos(angle) * distance),
+      y: Math.round(Math.sin(angle) * distance),
+      rotate: Math.round(random() * 40 - 20),
+      delay: 380 + index * 70,
+    };
+  });
+}

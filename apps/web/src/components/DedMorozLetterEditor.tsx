@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Download, LoaderCircle, Mail, Snowflake } from "lucide-react";
 import { dedMorozLetterSchema, dedMorozLetterText, type DedMorozLetterInput } from "../lib/ded-moroz-letter";
 import { printableText } from "../lib/invitation";
+import { prefersReducedMotion } from "../lib/motion";
 import { DedMorozLetterPaper } from "./DedMorozLetterPaper";
 import "./invitation.css";
 
@@ -17,9 +18,16 @@ export function DedMorozLetterEditor({ wishlistId, enabled, giftHint }: { wishli
   const [status, setStatus] = useState("");
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Номер отправки: каждая успешная загрузка заново проигрывает «письмо складывается и улетает»
+  const [sent, setSent] = useState(0);
   const request = useRef<AbortController | null>(null);
 
   useEffect(() => () => request.current?.abort(), []);
+  useEffect(() => {
+    if (!sent) return;
+    const timer = setTimeout(() => setSent(0), 2800);
+    return () => clearTimeout(timer);
+  }, [sent]);
 
   const input: DedMorozLetterInput = { ...draft, achievements: [...draft.achievements], gift: draft.gift || undefined, wish: draft.wish || undefined };
   const parsed = dedMorozLetterSchema.safeParse(input);
@@ -53,6 +61,7 @@ export function DedMorozLetterEditor({ wishlistId, enabled, giftHint }: { wishli
       link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
       setStatus("Письмо готово. Скачивание началось. Распечатайте его на листе A4.");
+      if (!prefersReducedMotion()) setSent((count) => count + 1);
     } catch (error) {
       if (controller.signal.aborted) return;
       setFailed(true);
@@ -118,9 +127,22 @@ export function DedMorozLetterEditor({ wishlistId, enabled, giftHint }: { wishli
         </form>
         <div className="invitation-editor__preview-wrap">
           <p className="invitation-editor__caption">Предпросмотр письма</p>
-          <article className="letter-editor__paper" aria-label="Предпросмотр письма">
+          <article className={sent ? "letter-editor__paper letter-editor__paper--sent" : "letter-editor__paper"} key={sent ? `sent-${sent}` : "paper"} aria-label="Предпросмотр письма">
             <DedMorozLetterPaper letter={draft.name.trim() ? preview : { ...preview, initial: "" }} preview locked={!enabled} />
           </article>
+          {sent > 0 && (
+            <div className="letter-send" key={sent} aria-hidden="true">
+              <svg className="letter-send__envelope" viewBox="0 0 220 140">
+                <path d="M2 2h216v130q0 6-6 6H8q-6 0-6-6Z" fill="#f4dfb5" stroke="#b1844b" strokeWidth="2" />
+                <path d="m4 134 76-62m136 62-76-62" fill="none" stroke="#b1844b" strokeWidth="2" />
+                <path className="letter-send__flap" d="M2 2h216L128 76q-18 13-36 0Z" fill="#e3be84" stroke="#b1844b" strokeWidth="2" />
+                <g className="letter-send__seal">
+                  <circle cx="110" cy="74" r="17" fill="#862940" stroke="#ba5a65" strokeWidth="2" />
+                  <path d="M110 64v20m-8.7-15 17.4 10m0-10-17.4 10" stroke="#f7d4a9" strokeWidth="1.6" strokeLinecap="round" />
+                </g>
+              </svg>
+            </div>
+          )}
         </div>
       </div>
     </section>

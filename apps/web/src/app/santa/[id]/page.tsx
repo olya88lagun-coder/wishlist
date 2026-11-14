@@ -96,7 +96,7 @@ export default async function SantaGamePage({ params }: Props) {
             </li>
           ))}
         </ul>
-        {isOrganizer && open && <DrawButton gameId={game.id} />}
+        {isOrganizer && open && <DrawButton gameId={game.id} participants={participants.length} />}
       </section>
     </SantaFrame>
   );
