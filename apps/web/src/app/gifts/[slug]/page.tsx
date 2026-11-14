@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ScrollEffects } from "@/components/ScrollEffects";
 import { SavedIdeasDock } from "../SavedIdeasDock";
+import { SavedIdeaFlight } from "../SavedIdeaFlight";
 import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { GIFT_IDEAS, giftIdeaSearchLinks, giftIdeasCountLabel } from "@/content/gift-ideas";
 import { relatedGiftLinks } from "@/content/gift-related-links";
@@ -965,6 +966,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
     <main className="page page--wide gifts-page">
       <ScrollEffects progress />
       <SavedIdeasDock />
+      <SavedIdeaFlight />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
