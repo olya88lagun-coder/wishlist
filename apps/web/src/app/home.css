@@ -255,7 +255,8 @@
 .home-preview__action { position: relative; }
 .home-preview__cursor { position: absolute; z-index: 3; top: 50%; left: 60%; opacity: 0; pointer-events: none; }
 .home-preview__stamp { display: inline-block; opacity: 0; }
-.hero-button__site-icon { display: inline-grid; place-items: center; }
+/* .hero-button span { flex: 1 } растягивал и обёртку иконки: на телефоне подпись переносилась на две строки */
+.hero-button .hero-button__site-icon { display: inline-grid; place-items: center; flex: none; }
 .hero-button__site-icon svg { grid-area: 1 / 1; }
 .hero-button__site-icon svg:last-child { opacity: 0; }
 
