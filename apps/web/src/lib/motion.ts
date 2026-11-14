@@ -4,6 +4,12 @@ export function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 }
 
+export function giftFlightOffset(source: DOMRectReadOnly, target: DOMRectReadOnly) {
+  const x = source.left + source.width / 2;
+  const y = source.top + source.height / 2;
+  return { x, y, dx: target.left + target.width / 2 - x, dy: target.top + target.height / 2 - y };
+}
+
 // Кадры «печатающегося» плейсхолдера: набор по букве, пауза на полном тексте, стирание
 export function typewriterFrames(text: string, holdFrames = 24): string[] {
   const chars = Array.from(text);

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { confettiPieces, snowflakes, typewriterFrames } from "./motion";
+import { confettiPieces, giftFlightOffset, snowflakes, typewriterFrames } from "./motion";
+
+describe("giftFlightOffset", () => {
+  it("connects the centers of the source and destination without assuming a direction", () => {
+    const source = { left: 100, top: 500, width: 200, height: 30 } as DOMRectReadOnly;
+    const target = { left: 300, top: 400, width: 20, height: 20 } as DOMRectReadOnly;
+    expect(giftFlightOffset(source, target)).toEqual({ x: 200, y: 515, dx: 110, dy: -105 });
+  });
+});
 
 describe("typewriterFrames", () => {
   it("types, holds, erases and ends empty", () => {

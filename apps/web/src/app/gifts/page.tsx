@@ -3,6 +3,7 @@ import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { listWishlistsForOwner } from "@wishlist/db";
 import { GiftFinder } from "./GiftFinder";
 import { SavedIdeasDock } from "./SavedIdeasDock";
+import { SavedIdeaFlight } from "./SavedIdeaFlight";
 import { getDb } from "@/server/db";
 import { GIFTS_HUB_FAQ } from "@/content/gifts-hub-faq";
 import { faqPageJsonLd, giftsHubJsonLd } from "@/lib/structured-data";
@@ -81,6 +82,7 @@ export default async function GiftsPage({ searchParams }: { searchParams: Promis
       </p>
 
       <SavedIdeasDock />
+      <SavedIdeaFlight />
       <GiftFinder initialInterests={initialInterests} wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={isAffiliateEnabled()} extraStores={enabledExtraStores()} />
 
       <section className="gifts-page__how" aria-labelledby="gift-how-title">
