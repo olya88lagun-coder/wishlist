@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { faqPageJsonLd } from "@/lib/structured-data";
+import { SantaEnvelopeScene } from "@/components/SantaEnvelopeScene";
 import { SantaFrame } from "./SantaPresentation";
 import styles from "./landing.module.css";
 
@@ -62,10 +63,11 @@ export default function SantaLandingPage() {
               src="/santa/gifts.webp"
               alt=""
               fill
-              sizes="(max-width: 767px) 96vw, (max-width: 1232px) 50vw, 600px"
+              sizes="(max-width: 767px) 170vw, 1100px"
               fetchPriority="high"
               loading="eager"
             />
+            <SantaEnvelopeScene autoplay />
           </div>
         </header>
 

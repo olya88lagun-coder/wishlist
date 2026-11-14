@@ -17,6 +17,7 @@ describe("ideaIcon", () => {
     ["Фотокнига итогов года", "photo"],
     ["Увлажнитель воздуха", "home"],
     ["Санки или ватрушка", "sport"],
+    ["Портативный аккумулятор", "tech"],
   ])("%s → %s", (name, icon) => {
     expect(ideaIcon({ name })).toBe(icon);
   });
