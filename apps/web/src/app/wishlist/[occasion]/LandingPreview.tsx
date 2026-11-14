@@ -58,7 +58,7 @@ export function LandingPreview({ occasion }: { occasion: string }) {
           {preview.gifts.map((gift) => (
             <li className={styles.row} data-state={gift.state} key={gift.title}>
               <span className={styles.thumb}>
-                <Image src={gift.image} alt="" width={128} height={128} sizes="64px" />
+                <Image src={gift.image} alt="" width={128} height={128} sizes="128px" />
               </span>
               <span>
                 <strong className={styles.name}>{gift.title}</strong>
