@@ -26,6 +26,9 @@ import { ListSettings } from "./ListSettings";
 import { parseHint } from "./parse-hint";
 import { PendingRefresher } from "./PendingRefresher";
 import { QuickLinkForm } from "./QuickLinkForm";
+import { IdeaWishlistButton } from "@/app/gifts/IdeaWishlistButton";
+import { starterIdeas } from "@/lib/starter-ideas";
+import { GiftIdeaIcon } from "@/components/GiftIdeaIcon";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +51,8 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
   const design = await getDesignAccess(getDb(), id, freeDesignTelegramIds());
   const shareUrl = new URL(`/${wishlist.slug}`, getEnv().APP_URL).toString();
   const publicBaseUrl = getEnv().S3_PUBLIC_BASE_URL;
+  // Пока в списке меньше трёх подарков, подсказываем готовые идеи под повод
+  const starters = items.length < 3 ? starterIdeas(wishlist.occasion, items.map((item) => item.title)) : [];
   const pendingCount = items.filter((item) => item.parseStatus === "pending").length;
   const giftCountText = items.length === 0
     ? "Пока без подарков — добавьте первое желание."
@@ -130,6 +135,24 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
               );
             })}
           </div>
+        </section>
+      )}
+
+      {starters.length > 0 && (
+        <section className="owner-starters" aria-labelledby="owner-starters-title">
+          <p className="owner-section-kicker">Быстрый старт</p>
+          <h2 id="owner-starters-title">Не знаете, с чего начать?</h2>
+          <p className="owner-starters__lead">Добавьте готовую идею в одно касание, потом её можно изменить или заменить ссылкой из магазина.</p>
+          <ul className="owner-starters__list">
+            {starters.map((idea) => (
+              <li className="owner-starter" key={idea.name}>
+                <GiftIdeaIcon idea={idea} />
+                <strong>{idea.name}</strong>
+                <span className="owner-starter__price">{idea.price}</span>
+                <IdeaWishlistButton idea={idea} wishlists={[wishlist]} isAuthenticated returnPath={`/lists/${wishlist.id}`} source="starter" />
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
