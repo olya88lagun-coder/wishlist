@@ -8,6 +8,10 @@ import { HomeGiftCollections } from "@/components/HomeGiftCollections";
 import { HomeWishlistPreview } from "@/components/HomeWishlistPreview";
 import { SantaBanner } from "@/components/SantaBanner";
 import { DedMorozBanner } from "@/components/DedMorozBanner";
+import { ScrollEffects } from "@/components/ScrollEffects";
+import { SeasonalSnow } from "@/components/SeasonalSnow";
+import { TypewriterPlaceholder } from "@/components/TypewriterPlaceholder";
+import { isSantaSeason } from "@/components/santa-season";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
 import { HOME_FAQ } from "@/content/home-faq";
@@ -101,6 +105,14 @@ const TRUST_ITEMS = [
   { value: "любой магазин", label: "Wildberries, Ozon, маркетплейсы и локальные бренды" },
 ] as const;
 
+// Примеры для печатающегося плейсхолдера в поле AI-подбора
+const FINDER_EXAMPLES = [
+  "брат, 30 лет, любит походы",
+  "мама, сад и чай, до 3 000 ₽",
+  "коллега, кофе, Тайный Санта",
+  "подруга, йога и книги",
+] as const;
+
 const OCCASIONS = [
   {
     title: "День рождения",
@@ -127,9 +139,14 @@ const OCCASIONS = [
 function GiftIcon() {
   return (
     <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-      <rect x="3.5" y="8.5" width="17" height="4" rx="0.5" />
-      <path d="M5 12.5v8h14v-8M12 8.5v12" />
-      <path d="M12 8.5c-1.5-3.5-5.5-4-5.5-1.5 0 1.5 2.5 1.5 5.5 1.5zm0 0c1.5-3.5 5.5-4 5.5-1.5 0 1.5-2.5 1.5-5.5 1.5z" />
+      <path d="M5 12.5v8h14v-8M12 12.5v8" />
+      <g className="home-gift__lid">
+        <rect x="3.5" y="8.5" width="17" height="4" rx="0.5" />
+        <path d="M12 8.5c-1.5-3.5-5.5-4-5.5-1.5 0 1.5 2.5 1.5 5.5 1.5zm0 0c1.5-3.5 5.5-4 5.5-1.5 0 1.5-2.5 1.5-5.5 1.5z" />
+      </g>
+      <g className="home-gift__sparks" stroke="#c39650" strokeLinecap="round">
+        <path d="m3 6-2-2m11-1V0m8 6 2-2m0 6h2" />
+      </g>
     </svg>
   );
 }
@@ -188,7 +205,7 @@ export default async function Home() {
         <Arrow />
       </a>
       <Link className="hero-button hero-button--light" href={site!.href}>
-        <GlobeIcon />
+        <span className="hero-button__site-icon"><GlobeIcon /><GiftIcon /></span>
         <span>{site!.label}</span>
         <Arrow />
       </Link>
@@ -219,8 +236,10 @@ export default async function Home() {
         </div>
       </header>
 
+      <ScrollEffects reveal="main > .home-section, .home-step, .home-occasion" />
       <main>
         <section className="hero" aria-labelledby="hero-title">
+          {isSantaSeason() && <SeasonalSnow />}
           <div className="hero__copy">
             <p className="hero__eyebrow">Вишлист</p>
             <h1 id="hero-title" className="hero__title">
@@ -267,9 +286,10 @@ export default async function Home() {
               <button className="home-finder__submit" type="submit">Подобрать с AI</button>
             </div>
           </form>
+          <TypewriterPlaceholder targetId="home-finder-interests" examples={FINDER_EXAMPLES} />
         </section>
 
-        <div className="home-section">
+        <div className="home-section home-santa">
           <SantaBanner />
         </div>
 
@@ -278,15 +298,19 @@ export default async function Home() {
         </div>
 
         <section className="home-section home-occasions" aria-labelledby="occasions-title">
-          <div className="home-section__intro">
-            <p className="home-section__eyebrow">Для любого повода</p>
-            <h2 id="occasions-title" className="home-section__title">Подарки не повторяются, а выбор остаётся красивым</h2>
-          </div>
+          <p className="home-section__eyebrow">Для любого повода</p>
+          <h2 id="occasions-title" className="home-section__title">Подарки не повторяются, а выбор остаётся красивым</h2>
           <div className="home-occasion-grid">
             {OCCASIONS.map((occasion) => (
               <Link className="home-occasion" href={occasion.href} key={occasion.href}>
                 <span>{occasion.title}</span>
                 <p>{occasion.text}</p>
+                <svg className="home-occasion__icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
+                  {occasion.href === "/wishlist/birthday" && <path d="M11 28h10M13 27V14h6v13m-3-16c-6-3 0-8 0-8s6 5 0 8Z" />}
+                  {occasion.href === "/gifts/wedding" && <><circle cx="12" cy="18" r="7" /><circle cx="21" cy="18" r="7" /><path d="m16 7 2-3 2 3-2 3z" /></>}
+                  {occasion.href === "/wishlist/new-year" && <path d="M16 3v26M5 9l22 14M5 23 27 9M12 6l4 4 4-4m-8 20 4-4 4 4M7 14l5-1-1-5m14 10-5 1 1 5M7 18l5 1-1 5m14-10-5-1 1-5" />}
+                  {occasion.href === "/gifts/for-mom" && <path d="M16 28V17m0 6c-6-6-9-4-9-4s2 6 9 6m0-4c5-5 9-4 9-4s-2 6-9 6m0-6C5 13 8 7 13 9c-1-6 7-6 6 0 5-2 8 4-3 8Z" />}
+                </svg>
               </Link>
             ))}
           </div>
@@ -299,6 +323,7 @@ export default async function Home() {
             {STEPS.map((step, index) => (
               <li key={step.title} className="home-step">
                 <span className="home-step__number">{String(index + 1).padStart(2, "0")}</span>
+                {index === 2 && <span className="home-step__gift"><GiftIcon /></span>}
                 <h3>{step.title}</h3>
                 <p>{step.text}</p>
               </li>
