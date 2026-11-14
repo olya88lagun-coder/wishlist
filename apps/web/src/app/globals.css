@@ -846,13 +846,24 @@ a { color: inherit; }
   100% { opacity: 0; transform: translate(var(--x), calc(var(--y) + 260px)) rotate(var(--r)); }
 }
 
-/* Первое открытие списка гостем (FirstOpenMark): шапка раскрывается как открытка */
-[data-first-open] .wishlist-page > :is(.celebration-heading, .display) { animation: card-open 700ms cubic-bezier(.2, .7, .2, 1) both; transform-origin: 50% 0; }
-@keyframes card-open { from { transform: perspective(900px) rotateX(-14deg) translateY(-8px); } to { transform: none; } }
+/* Первое открытие списка гостем (FirstOpenMark): открытка раскрывается поверх страницы и тает */
+.postcard { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: rgb(35 20 26 / .6); backdrop-filter: blur(3px); cursor: pointer; animation: postcard-fade 3s ease both; }
+.postcard__card { position: relative; width: min(86vw, 420px); aspect-ratio: 3 / 2; perspective: 1400px; animation: postcard-rise .6s cubic-bezier(.2, .8, .3, 1) both; filter: drop-shadow(0 22px 40px rgb(20 8 12 / .5)); }
+.postcard__inside, .postcard__cover { position: absolute; inset: 0; display: grid; place-content: center; gap: 6px; padding: 18px; border-radius: 10px; text-align: center; }
+.postcard__inside { border: 1px solid var(--confetti-1, #c9a45c); background: #fffaf0; color: #3b2a20; }
+.postcard__kicker { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--confetti-2, #7a2234); }
+.postcard__title { font-family: var(--font-playfair), Georgia, serif; font-size: clamp(22px, 6vw, 30px); font-weight: 500; line-height: 1.15; overflow-wrap: anywhere; }
+.postcard__owner { color: #6a5646; font-size: 14px; }
+.postcard__cover { transform-origin: 0 50%; backface-visibility: hidden; background: linear-gradient(145deg, var(--confetti-2, #7a2234), color-mix(in srgb, var(--confetti-2, #7a2234) 70%, #000)); border: 1px solid var(--confetti-1, #c9a45c); color: #fff6e4; animation: postcard-open 1.1s cubic-bezier(.5, .1, .3, 1) .9s both; }
+.postcard__seal { justify-self: center; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--confetti-1, #c9a45c); color: #3b2a20; font-size: 20px; box-shadow: 0 3px 8px rgb(0 0 0 / .3); }
+.postcard__hello { font-family: var(--font-playfair), Georgia, serif; font-style: italic; font-size: clamp(20px, 5.4vw, 26px); }
+@keyframes postcard-fade { 0% { opacity: 0; } 10%, 82% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes postcard-rise { from { transform: translateY(28px) scale(.94); } to { transform: none; } }
+@keyframes postcard-open { from { transform: rotateY(0); } to { transform: rotateY(-168deg); } }
 
 @media (prefers-reduced-motion: reduce) {
   .confetti, .scroll-progress { display: none; }
-  [data-first-open] .wishlist-page > :is(.celebration-heading, .display) { animation: none; }
+  .postcard { display: none; }
 }
 
 /* Плашка «В вашем списке: N» (SavedIdeasDock). Перерисовывается на каждое добавление — анимация играет заново */
