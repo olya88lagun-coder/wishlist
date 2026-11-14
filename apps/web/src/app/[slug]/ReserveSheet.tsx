@@ -6,6 +6,16 @@ import { initialFormState } from "../lists/form-state";
 import { reserveAction } from "./actions";
 import { withActionAnalytics } from "@/lib/action-analytics";
 import { GUEST_CTA_TITLE_ID } from "./GuestCta";
+import { burstConfetti } from "@/lib/confetti";
+
+// Залп запускается прямо после ответа: после брони лист уже исчезает со страницы, и эффект в нём не успел бы сработать
+function withConfetti<State extends { status: string }>(action: (previous: State, form: FormData) => Promise<State>) {
+  return async (previous: State, form: FormData): Promise<State> => {
+    const result = await action(previous, form);
+    if (result.status === "success") burstConfetti();
+    return result;
+  };
+}
 
 type Props = { slug: string; itemId: string; itemTitle: string; priceText: string | null; ownerName: string; defaultName: string };
 
@@ -14,7 +24,7 @@ export function ReserveSheet({ slug, itemId, itemTitle, priceText, ownerName, de
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
-  const [state, action] = useActionState(withActionAnalytics(reserveAction.bind(null, slug, itemId), "wishlist_reserved"), initialFormState);
+  const [state, action] = useActionState(withConfetti(withActionAnalytics(reserveAction.bind(null, slug, itemId), "wishlist_reserved")), initialFormState);
 
   useEffect(() => {
     if (state.status === "success") setOpen(false);

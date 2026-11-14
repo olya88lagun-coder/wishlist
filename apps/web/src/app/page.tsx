@@ -8,6 +8,10 @@ import { HomeGiftCollections } from "@/components/HomeGiftCollections";
 import { HomeWishlistPreview } from "@/components/HomeWishlistPreview";
 import { SantaBanner } from "@/components/SantaBanner";
 import { DedMorozBanner } from "@/components/DedMorozBanner";
+import { ScrollEffects } from "@/components/ScrollEffects";
+import { SeasonalSnow } from "@/components/SeasonalSnow";
+import { TypewriterPlaceholder } from "@/components/TypewriterPlaceholder";
+import { isSantaSeason } from "@/components/santa-season";
 import { startLinks } from "@/components/start-links";
 import { ARTICLES } from "@/content/articles";
 import { HOME_FAQ } from "@/content/home-faq";
@@ -99,6 +103,14 @@ const TRUST_ITEMS = [
   { value: "1 ссылка", label: "для Telegram, VK, MAX и гостей" },
   { value: "0 дублей", label: "подарки бронируются без регистрации" },
   { value: "любой магазин", label: "Wildberries, Ozon, маркетплейсы и локальные бренды" },
+] as const;
+
+// Примеры для печатающегося плейсхолдера в поле AI-подбора
+const FINDER_EXAMPLES = [
+  "брат, 30 лет, любит походы",
+  "мама, сад и чай, до 3 000 ₽",
+  "коллега, кофе, Тайный Санта",
+  "подруга, йога и книги",
 ] as const;
 
 const OCCASIONS = [
@@ -219,8 +231,10 @@ export default async function Home() {
         </div>
       </header>
 
+      <ScrollEffects reveal="main > .home-section, .home-step, .home-occasion" />
       <main>
         <section className="hero" aria-labelledby="hero-title">
+          {isSantaSeason() && <SeasonalSnow />}
           <div className="hero__copy">
             <p className="hero__eyebrow">Вишлист</p>
             <h1 id="hero-title" className="hero__title">
@@ -267,6 +281,7 @@ export default async function Home() {
               <button className="home-finder__submit" type="submit">Подобрать с AI</button>
             </div>
           </form>
+          <TypewriterPlaceholder targetId="home-finder-interests" examples={FINDER_EXAMPLES} />
         </section>
 
         <div className="home-section">
@@ -278,10 +293,8 @@ export default async function Home() {
         </div>
 
         <section className="home-section home-occasions" aria-labelledby="occasions-title">
-          <div className="home-section__intro">
-            <p className="home-section__eyebrow">Для любого повода</p>
-            <h2 id="occasions-title" className="home-section__title">Подарки не повторяются, а выбор остаётся красивым</h2>
-          </div>
+          <p className="home-section__eyebrow">Для любого повода</p>
+          <h2 id="occasions-title" className="home-section__title">Подарки не повторяются, а выбор остаётся красивым</h2>
           <div className="home-occasion-grid">
             {OCCASIONS.map((occasion) => (
               <Link className="home-occasion" href={occasion.href} key={occasion.href}>

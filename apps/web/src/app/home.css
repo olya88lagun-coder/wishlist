@@ -247,12 +247,6 @@
 }
 
 .home-section { max-width: 1320px; margin: 0 auto; padding: 72px clamp(16px, 4vw, 48px) 0; }
-.home-section__intro {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 32px;
-}
 .home-section__eyebrow {
   margin: 0 0 10px;
   font-size: 13px;
@@ -483,7 +477,6 @@
   }
   .home-trust__item:first-child { border-radius: 18px 18px 0 0; }
   .home-trust__item:last-child { border-bottom: 1px solid var(--home-line); border-radius: 0 0 18px 18px; }
-  .home-section__intro { display: block; }
   .home-occasion-grid { grid-template-columns: 1fr; }
   .home-occasion { min-height: 160px; }
   .home-finder { flex-direction: column; align-items: stretch; }
@@ -518,4 +511,25 @@
 @media (prefers-reduced-motion: reduce) {
   .hero-button, .hero-button__arrow, .home-articles a, .home-collections__group a, .home-create, .home-occasion { transition: none; }
   .hero__copy > * { animation: none; }
+}
+
+/* Появление блоков при прокрутке (ScrollEffects reveal). Прячем только при JS: без него всё видно сразу */
+.js-reveal :is(main > .home-section, .home-step, .home-occasion) { transition: opacity 600ms ease, transform 600ms cubic-bezier(.2, .7, .2, 1); }
+.js-reveal :is(main > .home-section, .home-step, .home-occasion):not(.is-visible) { opacity: 0; transform: translateY(16px); }
+.js-reveal :is(.home-step, .home-occasion):nth-child(2) { transition-delay: 90ms; }
+.js-reveal :is(.home-step, .home-occasion):nth-child(3) { transition-delay: 180ms; }
+.js-reveal .home-occasion:nth-child(4) { transition-delay: 270ms; }
+
+/* Сезонный снег в первом экране (SeasonalSnow) */
+.hero { position: relative; }
+.snow { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.hero > :not(.snow, .snow-toggle) { position: relative; z-index: 1; }
+.snow__flake { position: absolute; top: -10px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1px rgb(156 120 67 / .22), 0 0 8px rgb(156 120 67 / .45); opacity: .9; animation: snow-fall linear infinite; }
+@keyframes snow-fall { to { transform: translate(var(--drift), min(720px, 100vh)); } }
+.snow-toggle { position: absolute; right: clamp(8px, 2vw, 20px); bottom: 8px; z-index: 2; width: 32px; height: 32px; border: 1px solid var(--home-line, #e3d6c2); border-radius: 50%; background: rgba(255, 252, 245, .85); color: var(--home-gold); font-size: 15px; line-height: 1; cursor: pointer; }
+.snow-toggle[aria-pressed="false"] { opacity: .55; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal :is(main > .home-section, .home-step, .home-occasion) { transition: none; opacity: 1; transform: none; }
+  .snow, .snow-toggle { display: none; }
 }

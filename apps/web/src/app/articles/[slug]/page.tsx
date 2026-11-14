@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ScrollEffects } from "@/components/ScrollEffects";
 import { DEFAULT_OG_IMAGES } from "@/content/og";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -79,6 +80,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   return (
     <main className="article-page">
+      <ScrollEffects progress />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

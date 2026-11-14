@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent, type MouseEvent } from "react";
 import type { WishlistSummary } from "@wishlist/db";
 import { addGiftToWishlist } from "./actions";
+import { announceGiftAdded } from "./SavedIdeasDock";
 import { trackEvent } from "@/lib/analytics";
 import { type ExtraStore, extraStoresForIdea } from "@/app/go/store-routing";
 import { SEARCH_STORES, STORE_LABELS, storeSearchHref } from "@/app/go/store-search";
@@ -126,6 +127,7 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
         return;
       }
       setAddedItems((current) => ({ ...current, [result.title]: response.itemId }));
+      announceGiftAdded({ wishlistId, title: result.title });
       trackEvent("gift_finder_save", { store: "search" });
       trackEvent("wishlist_item_added", { source: "finder" });
       setOpenWishlistFor(null);

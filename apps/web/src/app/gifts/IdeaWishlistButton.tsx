@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { WishlistSummary } from "@wishlist/db";
 import { addGiftToWishlist } from "./actions";
+import { announceGiftAdded } from "./SavedIdeasDock";
 import { trackEvent } from "@/lib/analytics";
 import { listCreationPath } from "@/lib/gift-return-path";
 
@@ -30,6 +31,7 @@ export function IdeaWishlistButton({ idea, wishlists, isAuthenticated, returnPat
       const response = await addGiftToWishlist({ wishlistId, title: idea.name, productUrl: null, note: `${idea.why} Поиск: ${idea.query}` });
       if (!response.ok) { setError(response.message); return; }
       setAdded(true);
+      announceGiftAdded({ wishlistId, title: idea.name });
       trackEvent("wishlist_item_added", { source: "collection" });
     } catch {
       setError("Не удалось добавить подарок. Проверьте соединение и попробуйте ещё раз.");
