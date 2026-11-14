@@ -7,6 +7,7 @@ import { prefersReducedMotion } from "@/lib/motion";
 export function FirstOpenMark({ slug }: { slug: string }) {
   useEffect(() => {
     if (prefersReducedMotion()) return;
+    const root = document.documentElement;
     const key = `opened:${slug}`;
     try {
       if (sessionStorage.getItem(key)) return;
@@ -14,13 +15,9 @@ export function FirstOpenMark({ slug }: { slug: string }) {
     } catch {
       return;
     }
-    const root = document.documentElement;
     root.dataset.firstOpen = "";
-    const timer = setTimeout(() => delete root.dataset.firstOpen, 2000);
-    return () => {
-      clearTimeout(timer);
-      delete root.dataset.firstOpen;
-    };
+    // Без очистки в cleanup: React в dev запускает эффект дважды, и снятый сразу атрибут не успел бы сработать
+    setTimeout(() => delete root.dataset.firstOpen, 2000);
   }, [slug]);
   return null;
 }
