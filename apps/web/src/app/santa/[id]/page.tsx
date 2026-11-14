@@ -7,6 +7,7 @@ import { readViewer } from "@/server/viewer";
 import { CopyLinkField } from "../CopyLinkField";
 import { SantaCover, SantaFacts, SantaFrame } from "../SantaPresentation";
 import { DrawButton, ParticipantControls, RecipientLink } from "./GameControls";
+import { RecipientReveal } from "./RecipientReveal";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Тайный Санта" };
@@ -41,11 +42,14 @@ export default async function SantaGamePage({ params }: Props) {
         {recipient ? (
           <section className="santa-paper santa-recipient" aria-label="Ваш получатель">
             <p className="santa-kicker">Результат жеребьёвки · Только для вас</p>
-            <p className="santa-recipient__label">Вы дарите:</p>
-            <h2>{recipient.displayName}</h2>
-            {recipient.wishlistSlug
-              ? <RecipientLink href={`/${recipient.wishlistSlug}`} />
-              : <p className="santa-note">Список желаний получателя удалён.</p>}
+            <RecipientReveal storageKey={`santa-reveal:${game.id}:${me.participantId}`}>
+              <p className="santa-recipient__label">Вы дарите:</p>
+              <h2>{recipient.displayName}</h2>
+              {recipient.wishlistSlug
+                ? <RecipientLink href={`/${recipient.wishlistSlug}`} />
+                : <p className="santa-note">Список желаний получателя удалён.</p>}
+            </RecipientReveal>
+            <noscript><p className="santa-recipient__label">Вы дарите: <strong>{recipient.displayName}</strong></p></noscript>
           </section>
         ) : (
           <section className="santa-paper" aria-labelledby="santa-waiting">
