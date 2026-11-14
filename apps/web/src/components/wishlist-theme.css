@@ -1,3 +1,35 @@
+/* The decorative reservation layer is appended to body. */
+body:has(.wishlist-theme[data-theme="celebration"] > .wishlist-page) {
+  --confetti-1: #e4b962; --confetti-2: #bf6885; --confetti-3: #f3d597; --confetti-4: #965692;
+}
+body:has(.wishlist-theme[data-theme="children"] > .wishlist-page) {
+  --confetti-1: #efb85a; --confetti-2: #60aec6; --confetti-3: #95c59e; --confetti-4: #e77e6e;
+}
+body:has(.wishlist-theme[data-theme="children-pink"] > .wishlist-page) {
+  --confetti-1: #e788ad; --confetti-2: #9d86c8; --confetti-3: #eec075; --confetti-4: #f2a491;
+}
+body:has(.wishlist-theme[data-theme="new-year"] > .wishlist-page) {
+  --confetti-1: #efc271; --confetti-2: #a42739; --confetti-3: #487664; --confetti-4: #e8b4ab;
+}
+body:has(.wishlist-theme[data-theme="wedding"] > .wishlist-page) {
+  --confetti-1: #ad8953; --confetti-2: #4d8b79; --confetti-3: #c9ddd1; --confetti-4: #d6aaab;
+}
+body:has(.wishlist-theme[data-theme="quiet-luxury"] > .wishlist-page) {
+  --confetti-1: #c2a273; --confetti-2: #624e40; --confetti-3: #e0c6a2; --confetti-4: #a48479;
+}
+body:has(.wishlist-theme[data-theme="space"] > .wishlist-page) {
+  --confetti-1: #83b9e7; --confetti-2: #9087dc; --confetti-3: #e6c585; --confetti-4: #bf9dda;
+}
+body:has(.wishlist-theme[data-theme="flower-garden"] > .wishlist-page) {
+  --confetti-1: #ca9bb1; --confetti-2: #75977c; --confetti-3: #cc9def; --confetti-4: #e6b47b;
+}
+body:has(.wishlist-theme[data-theme="valentines"] > .wishlist-page) {
+  --confetti-1: #de949b; --confetti-2: #922d4e; --confetti-3: #f0bf9a; --confetti-4: #c46189;
+}
+body:has(.wishlist-theme[data-theme="march-8"] > .wishlist-page) {
+  --confetti-1: #e3b351; --confetti-2: #9067a6; --confetti-3: #e7a3bc; --confetti-4: #91aa79;
+}
+
 .wishlist-theme[data-theme^="children"] {
   --paper: #f0f8fd;
   --paper-deep: #eff8fc;

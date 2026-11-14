@@ -73,6 +73,24 @@ a { color: inherit; }
 
 .sticker { display: inline-block; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
 .sticker--countdown { background: var(--sticker-bg); color: var(--sticker-ink); transform: rotate(-3deg); }
+.countdown-flip { display: inline-flex; gap: 2px; perspective: 5em; }
+.countdown-flip > span {
+  display: inline-block;
+  min-width: .78em;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 24%) 49%, rgb(0 0 0 / 10%) 50%, rgb(255 255 255 / 24%) 55%);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .countdown-flip > span { animation: countdown-flip .55s ease-out .22s both; }
+  .countdown-flip > span:nth-child(2) { animation-delay: .29s; }
+  .countdown-flip > span:nth-child(3) { animation-delay: .36s; }
+}
+@keyframes countdown-flip {
+  from { transform: rotateX(-78deg) translateY(-.15em); opacity: .5; }
+  to { transform: none; opacity: 1; }
+}
 .sticker--reserved { background: var(--reserved-bg); color: var(--pink-ink); transform: rotate(8deg); animation: slap 280ms cubic-bezier(0.2, 1.6, 0.4, 1); }
 @keyframes slap { from { transform: scale(1.8) rotate(-12deg); opacity: 0; } to { transform: scale(1) rotate(8deg); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .sticker--reserved { animation: none; } }
@@ -803,3 +821,59 @@ a { color: inherit; }
   }
 }
 .affiliate-notice { margin: 16px 0; padding: 12px 0 0; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink); }
+
+/* Полоска прогресса чтения (ScrollEffects progress) */
+.scroll-progress { position: fixed; inset: 0 0 auto; z-index: 50; height: 3px; background: linear-gradient(90deg, #c9a45c, #9c7843); transform: scaleX(0); transform-origin: 0 50%; pointer-events: none; }
+
+/* Конфетти после брони (lib/confetti.ts). Цвета темы можно задать через --confetti-1…4 */
+.confetti { position: fixed; z-index: 1000; width: 0; height: 0; pointer-events: none; }
+.confetti__piece { position: absolute; width: 7px; height: 7px; border-radius: 2px; opacity: 0; animation: confetti-fly 1.3s cubic-bezier(.15, .7, .3, 1) both; }
+.confetti__piece--wide { width: 10px; height: 5px; }
+.confetti__piece:nth-child(3n) { border-radius: 50%; }
+.confetti__piece:nth-child(5n) { border-radius: 80% 0 80% 0; }
+@keyframes confetti-fly {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--x), calc(var(--y) + 260px)) rotate(var(--r)); }
+}
+
+/* Первое открытие списка гостем (FirstOpenMark): шапка раскрывается как открытка */
+[data-first-open] .wishlist-page > :is(.celebration-heading, .display) { animation: card-open 700ms cubic-bezier(.2, .7, .2, 1) both; transform-origin: 50% 0; }
+@keyframes card-open { from { transform: perspective(900px) rotateX(-14deg) translateY(-8px); } to { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti, .scroll-progress { display: none; }
+  [data-first-open] .wishlist-page > :is(.celebration-heading, .display) { animation: none; }
+}
+
+/* Плашка «В вашем списке: N» (SavedIdeasDock). Перерисовывается на каждое добавление — анимация играет заново */
+.saved-dock { position: fixed; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 40; display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 999px; background: #2c2620; color: #fff8ec; box-shadow: 0 10px 30px rgb(40 30 20 / .25); font-size: 15px; text-decoration: none; animation: dock-bump 420ms cubic-bezier(.2, 1.6, .4, 1); }
+.saved-dock__open { color: #e8cf9a; font-weight: 600; }
+.saved-idea-flight {
+  position: fixed;
+  z-index: 41;
+  max-width: min(180px, 42vw);
+  overflow: hidden;
+  padding: 7px 11px;
+  border: 1px solid #bc934f;
+  border-radius: 8px;
+  background: #fff6e4;
+  color: #782b40;
+  font-size: .76rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: saved-idea-flight .56s cubic-bezier(.35,.1,.65,1) both;
+}
+@keyframes saved-idea-flight {
+  0% { transform: translate(-50%,-50%) rotate(-4deg); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: .95; }
+  100% { transform: translate(calc(-50% + var(--flight-x)),calc(-50% + var(--flight-y))) rotate(7deg) scale(.16); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .saved-idea-flight { display: none; }
+}
+@keyframes dock-bump { 0% { transform: scale(.85); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .saved-dock { animation: none; } }

@@ -67,6 +67,56 @@
 .link:focus-visible { outline: 2px solid #fff2dc; outline-offset: 4px; }
 .photo { position: relative; min-height: 240px; background: #591923; }
 .photo img { object-fit: cover; object-position: 50% 53%; }
+.scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, transparent 15%, rgb(45 12 22 / 62%));
+  pointer-events: none;
+}
+.envelope {
+  position: relative;
+  width: min(46%, 220px);
+  aspect-ratio: 220 / 124;
+  transform: translateY(16%) rotate(-10deg);
+  border-radius: 5px;
+  background: #ad7843;
+  box-shadow: 3px 12px 28px rgb(37 11 17 / 45%);
+}
+.note {
+  position: absolute;
+  inset: 6% 10% auto;
+  display: grid;
+  gap: 2px;
+  padding: 5% 3%;
+  border: 1px solid #bc925a;
+  background: #fff6e4;
+  color: #782b40;
+  font: italic 500 clamp(.8rem, 1.65vw, 1.2rem) / 1 var(--font-playfair), Georgia, serif;
+  text-align: center;
+  transform: translateY(-78%);
+}
+.note strong { font-size: 1.25em; letter-spacing: .17em; }
+.flap, .pocket { position: absolute; inset: 0; width: 100%; }
+.flap { height: 63%; opacity: .86; transform: scaleY(-.18); transform-origin: top; }
+.pocket { height: 100%; }
+.seal { position: absolute; left: 41%; top: 44%; width: 19%; opacity: .85; }
+.crack { opacity: .8; }
+@media (prefers-reduced-motion: no-preference) {
+  :global(.js-reveal .home-santa.is-visible) .note { animation: santa-note 1.5s cubic-bezier(.23,.72,.25,1) .25s both; }
+  :global(.js-reveal .home-santa.is-visible) .flap { animation: santa-flap 1.5s ease .25s both; }
+  :global(.js-reveal .home-santa.is-visible) .seal { animation: santa-seal 1.5s ease .25s both; }
+  :global(.js-reveal .home-santa.is-visible) .crack { animation: santa-crack 1.5s ease .25s both; }
+}
+@keyframes santa-note { 0%, 42% { transform: translateY(45%); opacity: 0; } 100% { transform: translateY(-78%); opacity: 1; } }
+@keyframes santa-flap { 0%, 25% { transform: none; opacity: 1; } 60%, 100% { transform: scaleY(-.18); opacity: .86; } }
+@keyframes santa-seal {
+  0%, 22% { transform: none; opacity: 1; }
+  34% { transform: rotate(12deg) scale(1.12); opacity: 1; }
+  64%, 100% { transform: translateY(8%) rotate(-12deg); opacity: .85; }
+}
+@keyframes santa-crack { 0%, 28% { opacity: 0; } 33%, 100% { opacity: .8; } }
 
 @media (max-width: 640px) {
   .banner { grid-template-columns: minmax(0, 1fr); }
