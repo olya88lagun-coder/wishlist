@@ -67,6 +67,9 @@
 .link:focus-visible { outline: 2px solid #fff2dc; outline-offset: 4px; }
 .photo { position: relative; min-height: 240px; background: #591923; }
 .photo img { object-fit: cover; object-position: 50% 53%; }
+/* На фото уже есть свой конверт с печатью: кадрируем его за край, чтобы остался один — нарисованный поверх */
+.santaPhoto { overflow: hidden; }
+.santaPhoto img { transform: scale(1.8); transform-origin: 14% 0; }
 .scene {
   position: absolute;
   inset: 0;

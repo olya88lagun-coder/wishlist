@@ -13,14 +13,14 @@ export function SantaBanner({ eager = false }: { eager?: boolean }) {
         <p>Пригласите друзей одной ссылкой, обменяйтесь вишлистами и узнайте, кому готовить подарок.</p>
         <Link className={styles.link} href="/santa">Тайный Санта <span aria-hidden="true">→</span></Link>
       </div>
-      <div className={styles.photo}>
-        <Image src="/santa/gifts.webp" alt="" fill sizes="(max-width: 640px) 100vw, 612px" loading={eager ? "eager" : "lazy"} />
+      <div className={`${styles.photo} ${styles.santaPhoto}`}>
+        <Image src="/santa/gifts.webp" alt="" fill sizes="(max-width: 640px) 180vw, 1100px" loading={eager ? "eager" : "lazy"} />
         <div className={styles.scene} aria-hidden="true">
           <div className={styles.envelope}>
-            <div className={styles.note}>Вы дарите <strong>???</strong></div>
             <svg className={styles.flap} viewBox="0 0 220 78" preserveAspectRatio="none">
               <path d="M1 1h218L128 67q-18 13-36 0Z" fill="#e3be84" stroke="#b1844b" />
             </svg>
+            <div className={styles.note}>Вы дарите <strong>???</strong></div>
             <svg className={styles.pocket} viewBox="0 0 220 124" preserveAspectRatio="none">
               <path d="M1 1 110 79 219 1v116q0 6-6 6H7q-6 0-6-6Z" fill="#f4dfb5" stroke="#b1844b" />
               <path d="m4 118 70-63m142 63-70-63" fill="none" stroke="#b1844b" />
