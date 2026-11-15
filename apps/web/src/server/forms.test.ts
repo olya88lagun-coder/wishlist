@@ -85,4 +85,9 @@ describe("parseItemForm", () => {
       value: { title: "", sourceUrl: "https://www.wildberries.ru/catalog/173937886/detail.aspx", priceKopecks: null, note: null, isMustHave: false },
     });
   });
+
+  test("mobile share text «Название https://…» keeps only the link", () => {
+    const result = parseItemForm(form({ url: "Кроссовки мужские белые https://www.wildberries.ru/catalog/173937886/detail.aspx" }));
+    expect(result).toMatchObject({ ok: true, value: { sourceUrl: "https://www.wildberries.ru/catalog/173937886/detail.aspx" } });
+  });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import { UrlInput } from "@/components/UrlInput";
 import { SubmitButton } from "@/components/SubmitButton";
 import { initialFormState } from "../form-state";
 import { addItemAction } from "./actions";
@@ -22,7 +23,7 @@ export function QuickLinkForm({ wishlistId }: { wishlistId: string }) {
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, textarea, select, [contenteditable='true']")) return;
       const text = event.clipboardData?.getData("text")?.trim() ?? "";
-      if (!/^https?:\/\/\S+$/i.test(text) || !formRef.current) return;
+      if (!/https?:\/\/\S+/i.test(text) || !formRef.current) return;
       event.preventDefault();
       const input = formRef.current.elements.namedItem("url") as HTMLInputElement;
       input.value = text;
@@ -39,11 +40,9 @@ export function QuickLinkForm({ wishlistId }: { wishlistId: string }) {
     <form ref={formRef} action={action} className="stack quick-link owner-quick-link" noValidate>
       <label htmlFor="quick-url" className="serif">Вставьте ссылку на подарок</label>
       <div className="quick-link__row">
-        <input
+        <UrlInput
           id="quick-url"
           name="url"
-          type="url"
-          inputMode="url"
           className="input"
           placeholder="https://www.wildberries.ru/catalog/…"
           defaultValue={state.status === "error" ? (state.values.url ?? "") : ""}

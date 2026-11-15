@@ -1,3 +1,4 @@
+import { UrlInput } from "@/components/UrlInput";
 import type { FieldErrors } from "@/server/forms";
 import type { FormState } from "../form-state";
 
@@ -16,7 +17,7 @@ export function ItemFields({ idPrefix, defaults, errors }: { idPrefix: string; d
     <>
       <div className="field">
         <label htmlFor={id("url")}>Ссылка на товар</label>
-        <input id={id("url")} name="url" type="url" inputMode="url" className="input" placeholder="https://www.wildberries.ru/…" defaultValue={defaults.url} aria-invalid={errors.url ? true : undefined} aria-describedby={errors.url ? id("url-error") : undefined} />
+        <UrlInput id={id("url")} name="url" className="input" placeholder="https://www.wildberries.ru/…" defaultValue={defaults.url} aria-invalid={errors.url ? true : undefined} aria-describedby={errors.url ? id("url-error") : undefined} />
         {errors.url && <p id={id("url-error")} className="error">{errors.url}</p>}
       </div>
       <div className="field">

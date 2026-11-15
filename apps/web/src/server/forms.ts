@@ -49,7 +49,9 @@ export function parseWishlistForm(form: FormData): FormResult<WishlistInput> {
 
 export function parseItemForm(form: FormData): FormResult<ItemInput> {
   const errors: FieldErrors = {};
-  const rawUrl = text(form, "url");
+  // Мобильное «Поделиться» из WB/Ozon даёт «Название товара https://…»: берём только ссылку
+  const pastedUrl = text(form, "url");
+  const rawUrl = pastedUrl.match(/https?:\/\/\S+/i)?.[0] ?? pastedUrl;
   const rawTitle = text(form, "title");
   // По ссылке название подтянет воркер; без ссылки подарок должен как-то называться
   if (rawTitle === "" && rawUrl === "") errors.title = "Вставьте ссылку или напишите название";
