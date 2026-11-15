@@ -4,8 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
 import { WISHLIST_LANDINGS, type WishlistLandingSlug } from "@/content/wishlist-landings";
+import { ScrollEffects } from "@/components/ScrollEffects";
 import { SiteFooter } from "@/components/SiteFooter";
 import { faqPageJsonLd } from "@/lib/structured-data";
+import { LandingPreview } from "./LandingPreview";
+import { LetterScene } from "./LetterScene";
 import styles from "./landing.module.css";
 
 export const dynamicParams = false;
@@ -43,6 +46,7 @@ export default async function WishlistLandingPage({ params }: { params: Promise<
   return (
     <main className={styles.landing} data-occasion={occasion}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ScrollEffects reveal="[data-landing-preview]" />
       <div className={styles.content}>
         <div className={styles.masthead}>
           <Link href="/" aria-label="MyWishList — на главную">MyWishList</Link>
@@ -75,6 +79,8 @@ export default async function WishlistLandingPage({ params }: { params: Promise<
             />
           </div>
         </header>
+
+        {occasion === "pismo-dedu-morozu" ? <LetterScene /> : <LandingPreview occasion={occasion} />}
 
         <section className={styles.guide} aria-labelledby="wishlist-guide">
           <p className={styles.kicker}>От идеи до подарка</p>

@@ -1,0 +1,49 @@
+.section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 560px); align-items: center; gap: clamp(24px, 5vw, 64px); padding: clamp(28px, 5vw, 56px) clamp(16px, 4vw, 40px) 0; }
+.section h2 { margin: 6px 0 16px; font: 500 clamp(1.7rem, 3.4vw, 2.5rem) / 1.1 var(--serif); }
+.text { max-width: 44ch; margin: 0; color: var(--muted); font-size: 1.05rem; line-height: 1.6; }
+@media (max-width: 860px) { .section { grid-template-columns: minmax(0, 1fr); } }
+.kicker { margin: 0; color: var(--accent); font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.stage { display: grid; justify-items: center; width: 100%; box-sizing: border-box; gap: 14px; max-width: 560px; margin: 0; padding: 34px 20px 22px; border: 1px solid var(--line); border-radius: 26px; background: var(--panel); box-shadow: 0 22px 44px rgb(60 30 40 / .12); }
+
+/* Конверт: ширина 76% сцены, пропорции как у SVG (220×124). Все слои внутри позиционируются относительно него */
+.envelope { position: relative; width: min(76%, 360px); aspect-ratio: 220 / 124; margin-top: clamp(130px, 38%, 170px); }
+.back { position: absolute; inset: 0; border-radius: 5px; background: #cfa467; box-shadow: 3px 14px 30px rgb(60 30 40 / .25); }
+.flapOpen, .flap { position: absolute; left: 0; top: 0; width: 100%; height: 63%; transform-origin: top; }
+.flapOpen { transform: scaleY(-1); }
+.flap { opacity: 0; transform: scaleY(-1); }
+.pocket { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Лист обрезается по нижнему краю конверта: уезжая вниз, он не должен выходить за конверт. Высота слота 300% конверта, поэтому bottom: 4% = 12% высоты конверта */
+.slot { position: absolute; left: 0; right: 0; bottom: 0; height: 300%; overflow: hidden; }
+.paper { position: absolute; left: 9%; bottom: 4%; width: 82%; aspect-ratio: 1 / 1.05; padding: 7% 8%; border: 1px solid #d9c9a8; border-radius: 4px; background: #fff8e8; color: #3b2a20; box-shadow: 0 2px 10px rgb(60 30 40 / .18); transform: rotate(-1deg); }
+.hello { margin: 0 0 8%; font: italic 500 clamp(.85rem, 2.2vw, 1.05rem) / 1.2 var(--serif); }
+.line { display: block; width: var(--w); height: 5px; margin-bottom: 7%; border-radius: 3px; background: #c9b896; transform-origin: left; }
+.sign { margin: 6% 0 0; text-align: right; font: italic 500 clamp(.8rem, 2vw, .95rem) / 1 var(--serif); color: #782b40; }
+.seal { position: absolute; left: 41%; top: 44%; width: 19%; opacity: 0; }
+.caption { margin: 0; color: var(--muted); font-weight: 700; text-align: center; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .stage:global(.is-visible) .line { animation: ls-write .5s ease calc(.5s + var(--i) * .45s) both; }
+  .stage:global(.is-visible) .sign { animation: ls-fade .5s ease 2.1s both; }
+  .stage:global(.is-visible) .paper { animation: ls-slide .9s cubic-bezier(.5, .05, .3, 1) 2.8s both; }
+  .stage:global(.is-visible) .flapOpen { animation: ls-hide .1s linear 3.6s both; }
+  .stage:global(.is-visible) .flap { animation: ls-close .7s ease 3.6s both; }
+  .stage:global(.is-visible) .seal { animation: ls-seal .5s cubic-bezier(.2, 1.6, .4, 1) 4.3s both; }
+  .stage:global(.is-visible) .envelope { animation: ls-lift .8s cubic-bezier(.3, .1, .2, 1) 4.9s both; }
+  .stage:global(.is-visible) .caption { animation: ls-fade .6s ease 5.2s both; }
+}
+/* Без анимации — итог: письмо в закрытом конверте */
+@media (prefers-reduced-motion: reduce) {
+  .envelope { transform: translateY(-45%); }
+  .paper { transform: translateY(52%) rotate(-1deg); }
+  .flapOpen { opacity: 0; }
+  .flap { opacity: 1; transform: none; }
+  .seal { opacity: .95; }
+}
+@keyframes ls-lift { to { transform: translateY(-45%); } }
+@keyframes ls-write { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes ls-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ls-slide { to { transform: translateY(52%) rotate(0); } }
+@keyframes ls-hide { to { opacity: 0; } }
+/* 0% невидим: fill-mode both применяет первый кадр ещё во время задержки */
+@keyframes ls-close { 0% { opacity: 0; transform: scaleY(-1); } 1% { opacity: 1; transform: scaleY(-1); } 100% { opacity: 1; transform: scaleY(1); } }
+@keyframes ls-seal { from { opacity: 0; transform: scale(1.8); } to { opacity: .95; transform: none; } }

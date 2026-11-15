@@ -300,3 +300,27 @@
   100% { opacity: 0; transform: translate(var(--x), calc(var(--y) - 16px)) scale(.9) rotate(var(--r)); }
 }
 @media (prefers-reduced-motion: reduce) { .santa-draw-show { display: none; } }
+
+/* Получатель под печатью (RecipientReveal): участник сам ломает печать, имя появляется */
+.santa-seal { display: flex; align-items: center; gap: 18px; width: 100%; margin: 14px 0 4px; padding: 14px 18px; border: 1px dashed var(--santa-line); border-radius: 18px; background: var(--santa-paper); color: var(--santa-ink); font: inherit; text-align: start; cursor: pointer; }
+.santa-seal:hover { border-color: var(--santa-accent); }
+.santa-seal:focus-visible { outline: 3px solid var(--santa-focus); outline-offset: 3px; }
+.santa-seal__wax { flex: none; width: 88px; height: 88px; overflow: visible; filter: drop-shadow(0 6px 10px rgb(53 24 32 / .3)); }
+.santa-seal__text { display: grid; gap: 4px; }
+.santa-seal__text strong { font-family: var(--font-playfair), Georgia, serif; font-size: 1.35rem; font-weight: 500; }
+.santa-seal__text span { color: var(--santa-muted); }
+.santa-seal__crack { opacity: 0; }
+.santa-seal__half { transform-box: fill-box; transform-origin: 50% 100%; }
+.santa-reveal--open:focus { outline: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .santa-seal:not(.santa-seal--breaking) .santa-seal__wax { animation: santa-seal-idle 2.8s ease-in-out infinite; }
+  .santa-seal--breaking .santa-seal__crack { animation: santa-crack-in .25s ease both; }
+  .santa-seal--breaking .santa-seal__half--left { animation: santa-half-left .7s cubic-bezier(.4, 0, .6, 1) .25s both; }
+  .santa-seal--breaking .santa-seal__half--right { animation: santa-half-right .7s cubic-bezier(.4, 0, .6, 1) .25s both; }
+  .santa-reveal--open { animation: santa-reveal-in .6s cubic-bezier(.2, .7, .2, 1) both; }
+}
+@keyframes santa-seal-idle { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-4deg) scale(1.03); } }
+@keyframes santa-crack-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes santa-half-left { to { transform: translate(-14px, 10px) rotate(-24deg); opacity: 0; } }
+@keyframes santa-half-right { to { transform: translate(14px, 10px) rotate(24deg); opacity: 0; } }
+@keyframes santa-reveal-in { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }

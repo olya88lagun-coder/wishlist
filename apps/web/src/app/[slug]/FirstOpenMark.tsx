@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { prefersReducedMotion } from "@/lib/motion";
 
-// Первое открытие списка за сессию: ставит <html data-first-open>, по нему CSS раскрывает шапку как открытку
-export function FirstOpenMark({ slug }: { slug: string }) {
+const SHOW_MS = 3000;
+
+// Первое открытие списка за сессию: поверх страницы раскрывается открытка «Для вас — вишлист …» и тает.
+// Цвета берутся из --confetti-1…4 темы списка. Клик пропускает показ
+export function FirstOpenMark({ slug, title, ownerName }: { slug: string; title: string; ownerName: string }) {
+  const [show, setShow] = useState(false);
+
   useEffect(() => {
     if (prefersReducedMotion()) return;
-    const root = document.documentElement;
     const key = `opened:${slug}`;
     try {
       if (sessionStorage.getItem(key)) return;
@@ -15,9 +19,25 @@ export function FirstOpenMark({ slug }: { slug: string }) {
     } catch {
       return;
     }
-    root.dataset.firstOpen = "";
-    // Без очистки в cleanup: React в dev запускает эффект дважды, и снятый сразу атрибут не успел бы сработать
-    setTimeout(() => delete root.dataset.firstOpen, 2000);
+    setShow(true);
+    // Без очистки в cleanup: React в dev запускает эффект дважды, и снятый сразу показ не успел бы сыграть
+    setTimeout(() => setShow(false), SHOW_MS);
   }, [slug]);
-  return null;
+
+  if (!show) return null;
+  return (
+    <div className="postcard" aria-hidden="true" onClick={() => setShow(false)}>
+      <div className="postcard__card">
+        <div className="postcard__inside">
+          <span className="postcard__kicker">Для вас</span>
+          <strong className="postcard__title">{title}</strong>
+          <span className="postcard__owner">вишлист {ownerName}</span>
+        </div>
+        <div className="postcard__cover">
+          <span className="postcard__seal">✦</span>
+          <span className="postcard__hello">Вам открытка</span>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -1,0 +1,74 @@
+.section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 560px); align-items: center; gap: clamp(24px, 5vw, 64px); padding: clamp(28px, 5vw, 56px) clamp(16px, 4vw, 40px) 0; }
+.section h2 { margin: 6px 0 16px; font: 500 clamp(1.7rem, 3.4vw, 2.5rem) / 1.1 var(--serif); }
+.text { max-width: 44ch; margin: 0; color: var(--muted); font-size: 1.05rem; line-height: 1.6; }
+.kicker { margin: 0; color: var(--accent); font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.preview { position: relative; max-width: 560px; margin: 0; padding: 22px; border: 1px solid var(--line); border-radius: 26px; background: var(--panel); box-shadow: 0 22px 44px rgb(60 30 40 / .12); }
+.head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.eyebrow { margin: 0 0 4px; color: var(--muted); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
+.title { font: 500 1.55rem / 1.1 var(--serif); }
+.days { flex: none; padding: 5px 13px; border-radius: 999px; background: var(--accent); color: var(--panel); font-size: .8rem; font-weight: 700; }
+.list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.row { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 10px; border: 1px solid var(--line); border-radius: 18px; background: color-mix(in srgb, var(--panel) 60%, #fff); }
+.thumb { position: relative; display: block; width: 64px; height: 64px; overflow: hidden; border-radius: 12px; background: var(--line); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.name { display: block; font-weight: 700; line-height: 1.25; }
+.price { display: block; margin-top: 2px; color: var(--muted); font-size: .9rem; }
+.action { position: relative; display: grid; place-items: center; min-width: 124px; height: 36px; }
+.btn, .stamp { grid-area: 1 / 1; display: inline-grid; place-items: center; padding: 8px 16px; border-radius: 999px; font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.btn { background: var(--accent); color: var(--panel); }
+.stamp { background: #8a3550; color: #fff7ee; opacity: 0; }
+.cursor { position: absolute; left: 62%; top: 52%; opacity: 0; pointer-events: none; }
+.row[data-state="reserved"] { opacity: .72; }
+.row[data-state="reserved"] .btn { opacity: 0; }
+.row[data-state="reserved"] .stamp { opacity: 1; transform: rotate(-4deg); }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 2px 0; color: var(--muted); font-size: .9rem; }
+.counter { position: relative; display: inline-grid; font-variant-numeric: tabular-nums; }
+.counter > span { grid-area: 1 / 1; }
+.countAfter { opacity: 0; }
+.secret { font-weight: 700; color: var(--accent); opacity: 0; }
+
+/* Сцена: курсор нажимает «Я подарю» → штамп «Забронировано» → счётчик уменьшается → «владелец не узнает». Один раз при появлении */
+@media (prefers-reduced-motion: no-preference) {
+  .preview:global(.is-visible) .cursor { animation: lp-cursor 3.4s ease .4s both; }
+  .preview:global(.is-visible) .row[data-state="booking"] .btn { animation: lp-btn 3.4s ease .4s both; }
+  .preview:global(.is-visible) .row[data-state="booking"] .stamp { animation: lp-stamp 3.4s cubic-bezier(.2, 1.6, .4, 1) .4s both; }
+  .preview:global(.is-visible) .row[data-state="booking"] { animation: lp-row 3.4s ease .4s both; }
+  .preview:global(.is-visible) .countBefore { animation: lp-out 3.4s ease .4s both; }
+  .preview:global(.is-visible) .countAfter { animation: lp-in 3.4s ease .4s both; }
+  .preview:global(.is-visible) .secret { animation: lp-secret 3.4s ease .4s both; }
+}
+/* Без анимации показываем итог сразу */
+@media (prefers-reduced-motion: reduce) {
+  .row[data-state="booking"] { opacity: .72; }
+  .row[data-state="booking"] .btn { opacity: 0; }
+  .row[data-state="booking"] .stamp { opacity: 1; transform: rotate(-4deg); }
+  .countBefore { opacity: 0; }
+  .countAfter, .secret { opacity: 1; }
+}
+@keyframes lp-cursor {
+  0%, 6% { opacity: 0; transform: translate(70px, 26px) scale(.85); }
+  26%, 30% { opacity: 1; transform: translate(0, 0); }
+  34% { opacity: 1; transform: translate(0, 0) scale(.78); }
+  40% { opacity: 1; transform: translate(0, 0); }
+  62%, 100% { opacity: 0; transform: translate(12px, 10px); }
+}
+@keyframes lp-btn { 0%, 36% { opacity: 1; transform: none; } 40%, 100% { opacity: 0; transform: scale(.9); } }
+@keyframes lp-stamp {
+  0%, 38% { opacity: 0; transform: rotate(-14deg) scale(1.5); }
+  48%, 100% { opacity: 1; transform: rotate(-4deg) scale(1); }
+}
+@keyframes lp-row { 0%, 40% { opacity: 1; } 52%, 100% { opacity: .72; } }
+@keyframes lp-out { 0%, 40% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes lp-in { 0%, 40% { opacity: 0; transform: translateY(6px); } 52%, 100% { opacity: 1; transform: none; } }
+@keyframes lp-secret { 0%, 52% { opacity: 0; transform: translateY(5px); } 68%, 100% { opacity: 1; transform: none; } }
+
+@media (max-width: 860px) {
+  .section { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .preview { padding: 16px; }
+  .row { grid-template-columns: 52px minmax(0, 1fr); }
+  .thumb { width: 52px; height: 52px; }
+  .action { grid-column: 1 / -1; justify-self: end; margin-top: -4px; }
+  .footer { flex-direction: column; align-items: flex-start; }
+}

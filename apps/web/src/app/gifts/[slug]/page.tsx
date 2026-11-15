@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ScrollEffects } from "@/components/ScrollEffects";
+import { GiftIdeaIcon } from "@/components/GiftIdeaIcon";
 import { SavedIdeasDock } from "../SavedIdeasDock";
 import { SavedIdeaFlight } from "../SavedIdeaFlight";
 import { DEFAULT_OG_IMAGES, SITE_NAME } from "@/content/og";
@@ -1028,6 +1029,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                 {group.ideas.map((idea) => (
                   <li className="gift-idea" key={idea.name}>
                     <div className="gift-idea__head">
+                      <GiftIdeaIcon idea={idea} />
                       <h4>{idea.name}</h4>
                       <span className="gift-idea__price">{idea.price}</span>
                     </div>

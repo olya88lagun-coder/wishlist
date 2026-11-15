@@ -8,7 +8,7 @@
 |---|---|---|---|
 | `auth_completed` | Успешная проверка Telegram Widget, VK или Mini App | `provider`: `telegram`, `vk`, `telegram_miniapp` | 672426855 |
 | `wishlist_created` | Список создан в БД; подтверждение доставлено после редиректа | `source`: `finder`, `direct` | 672426921 |
-| `wishlist_item_added` | Подарок добавлен в БД | `source`: `finder`, `manual`, `link` | 672426922 |
+| `wishlist_item_added` | Подарок добавлен в БД | `source`: `finder`, `manual`, `link`, `collection` (кнопка «В вишлист» в подборке), `starter` (быстрый старт в пустом списке) | 672426922 |
 | `wishlist_link_copied` | `clipboard.writeText` завершился успешно | — | 672426927 |
 | `wishlist_reserved` | Server Action бронирования вернул успех | — | 672426929 |
 | `guest_wishlist_cta_click` | Нажата ссылка гостевого приглашения | `destination`, `placement`, `signed_in` | 672426934 |
@@ -50,3 +50,12 @@
 Дополнительная проверка с полностью отключённым JavaScript выявила зависание нативного ответа после ручного добавления в локальном Next dev. Оно воспроизвелось и с исходными файлами `master`; операция в тестовой БД завершалась. Исправление этого отдельного поведения и его production-проверка не входят в данный пакет.
 
 Документация Яндекса: [готовность счётчика](https://yandex.ru/support/metrica/ru/code/counter-initialize), [reachGoal](https://yandex.ru/support/metrica/ru/objects/reachgoal), [составная цель](https://yandex.ru/support/metrica/ru/general/goal-steps).
+
+## Как оценить вау-эффекты (запущены 14.11.2026)
+
+Новых целей не заводили: сравнивайте две недели до и после 14.11.2026.
+
+- Конфетти и приглашение после брони → `guest_wishlist_cta_click` с `placement=after_reservation`, делённое на `wishlist_reserved`.
+- Плашка «В вашем списке: N» и полёт идеи → `wishlist_item_added` с `source=collection` и `gift_finder_save`.
+- Быстрый старт в пустом списке (с 14.11.2026) → `wishlist_item_added` с `source=starter`; общий признак — доля списков, где после `wishlist_created` был хотя бы один `wishlist_item_added`.
+- Живая главная → конверсия визита главной в `wishlist_created` и глубина просмотра главной.

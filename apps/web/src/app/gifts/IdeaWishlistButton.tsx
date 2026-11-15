@@ -10,7 +10,7 @@ import { listCreationPath } from "@/lib/gift-return-path";
 type Idea = { name: string; why: string; query: string };
 
 // Сохранение готовой идеи из подборки в вишлист: гость сначала входит и создаёт список, затем возвращается в подборку
-export function IdeaWishlistButton({ idea, wishlists, isAuthenticated, returnPath }: { idea: Idea; wishlists: WishlistSummary[]; isAuthenticated: boolean; returnPath: string }) {
+export function IdeaWishlistButton({ idea, wishlists, isAuthenticated, returnPath, source = "collection" }: { idea: Idea; wishlists: WishlistSummary[]; isAuthenticated: boolean; returnPath: string; source?: "collection" | "starter" }) {
   const [open, setOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
@@ -32,7 +32,7 @@ export function IdeaWishlistButton({ idea, wishlists, isAuthenticated, returnPat
       if (!response.ok) { setError(response.message); return; }
       setAdded(true);
       announceGiftAdded({ wishlistId, title: idea.name });
-      trackEvent("wishlist_item_added", { source: "collection" });
+      trackEvent("wishlist_item_added", { source });
     } catch {
       setError("Не удалось добавить подарок. Проверьте соединение и попробуйте ещё раз.");
     } finally { setAdding(false); }
