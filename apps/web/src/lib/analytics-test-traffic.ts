@@ -69,18 +69,46 @@ export function stopMetrikaForTestTraffic(id: number, target: MetrikaContext = w
   }
 }
 
+function metrikaPageUrl(raw: string): string {
+  if (!raw) return "";
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return "";
+    const campaign = new URLSearchParams();
+    for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "utm_id"]) {
+      const value = url.searchParams.get(key);
+      if (value) campaign.set(key, value);
+    }
+    return url.origin + url.pathname + (campaign.size ? `?${campaign}` : "");
+  } catch {
+    return "";
+  }
+}
+
+function hasTelegramLaunchData(raw: string): boolean {
+  const url = new URL(raw);
+  return [url.searchParams, new URLSearchParams(url.hash.slice(1))].some((params) =>
+    Array.from(params.keys()).some((key) => key.toLowerCase() === "tgwebappdata"),
+  );
+}
+
 export function metrikaLoaderScript(id: number): string {
   return `
     (function() {
       var testTraffic = (${isAnalyticsTestTraffic.toString()});
       var stopCounter = (${stopMetrikaForTestTraffic.toString()});
+      var pageUrl = (${metrikaPageUrl.toString()});
+      var telegramLaunch = (${hasTelegramLaunchData.toString()});
+      function trackingBlocked() {
+        return testTraffic(window) || telegramLaunch(window.location.href);
+      }
       // Remember readiness even if the suspended React context has not mounted.
       document.addEventListener("yacounter${id}inited", function() {
-        if (testTraffic(window)) { stopCounter(${id}, window); return; }
+        if (trackingBlocked()) { stopCounter(${id}, window); return; }
         if (window.__wlMetrikaStarted !== false) window.__wlMetrikaReady = true;
       });
       window.__wlLoadMetrika = function() {
-        if (testTraffic(window)) { stopCounter(${id}, window); return; }
+        if (trackingBlocked()) { stopCounter(${id}, window); return; }
         if (window.__wlMetrikaStarted) return;
         window.__wlMetrikaStarted = true;
         (function(m,e,t,r,i,k,a){
@@ -90,7 +118,7 @@ export function metrikaLoaderScript(id: number): string {
             if (document.scripts[j].src === r) return;
           }
           k=e.createElement(t),a=e.getElementsByTagName(t)[0],
-          k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+          k.async=1,k.src=r,k.referrerPolicy="origin",a.parentNode.insertBefore(k,a)
         })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js?id=${id}", "ym");
         window.ym(${id}, "init", {
           ssr: true,
@@ -98,8 +126,8 @@ export function metrikaLoaderScript(id: number): string {
           webvisor: false,
           clickmap: true,
           ecommerce: "dataLayer",
-          referrer: document.referrer,
-          url: window.location.href,
+          referrer: pageUrl(document.referrer),
+          url: pageUrl(window.location.href),
           accurateTrackBounce: true,
           trackLinks: true
         });
