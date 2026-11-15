@@ -16,9 +16,9 @@ export function HomeStickyCreate({ href }: { href: string }) {
     });
     observer.observe(hero);
 
-    // Внизу страницы уже есть те же кнопки создания: липкую кнопку прячем
+    // Внизу страницы уже есть те же кнопки создания: липкую кнопку прячем на финальном блоке и ниже него
     const final = document.getElementById("final-title")?.closest("section");
-    const finalObserver = final ? new IntersectionObserver(([entry]) => entry && setAtFinal(entry.isIntersecting)) : null;
+    const finalObserver = final ? new IntersectionObserver(([entry]) => entry && setAtFinal(entry.isIntersecting || entry.boundingClientRect.bottom <= 0)) : null;
     if (final) finalObserver?.observe(final);
     return () => {
       observer.disconnect();

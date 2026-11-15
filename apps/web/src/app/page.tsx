@@ -402,13 +402,22 @@ export default async function Home() {
         )}
 
         <section id="about" className="home-section home-about" aria-labelledby="about-title">
-          <p className="home-section__eyebrow">О нас</p>
-          <h2 id="about-title" className="home-section__title">Вишлист без лишнего</h2>
-          <p>
-            MyWishList — бесплатный сервис для списков желаний. Он работает на сайте и в Telegram: добавляйте подарки
-            из любых магазинов, отмечайте, чего хочется больше всего, и отправляйте близким одну ссылку. Гости видят,
-            что уже выбрано, и бронируют подарок без регистрации, а вы не узнаете, кто и что подарит, до самого праздника.
-          </p>
+          <div className="home-about__head">
+            <p className="home-section__eyebrow">О нас</p>
+            <h2 id="about-title" className="home-section__title">Вишлист без лишнего</h2>
+          </div>
+          <div className="home-about__body">
+            <p>
+              MyWishList — бесплатный сервис для списков желаний. Он работает на сайте и в Telegram: добавляйте подарки
+              из любых магазинов, отмечайте, чего хочется больше всего, и отправляйте близким одну ссылку. Гости видят,
+              что уже выбрано, и бронируют подарок без регистрации, а вы не узнаете, кто и что подарит, до самого праздника.
+            </p>
+            <ul className="home-about__facts">
+              <li>Бесплатно</li>
+              <li>Сайт и Telegram</li>
+              <li>Гостям не нужна регистрация</li>
+            </ul>
+          </div>
         </section>
 
         <section className="home-section">
@@ -417,7 +426,7 @@ export default async function Home() {
       </main>
 
       <div className="home-footer">
-        <SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />
+        <SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} showProjects={false} />
       </div>
     </div>
   );

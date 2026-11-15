@@ -9,8 +9,10 @@ export function OtherProjects({ placement }: { placement: Exclude<OtherProjectPl
         {OTHER_PROJECTS.map((project) => (
           <li key={project.id}>
             <a href={otherProjectUrl(project, placement)} target="_blank" rel="noopener noreferrer">
+              <span className="other-projects__site">{project.site}</span>
               <span className="other-projects__name">{project.name}</span>
               <span className="other-projects__summary">{project.summary}</span>
+              <span className="other-projects__cue" aria-hidden="true">Открыть ↗</span>
             </a>
           </li>
         ))}

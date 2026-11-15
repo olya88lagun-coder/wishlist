@@ -670,6 +670,35 @@
 .home-faq__item[open] summary::after { content: "−"; }
 .home-faq__item p { margin: 0 0 18px; font-size: 16px; line-height: 1.6; color: var(--home-soft); }
 .home-about p { max-width: 760px; margin: 0; font-size: 17px; line-height: 1.65; }
+.home-about__head .home-section__title { margin-bottom: 20px; }
+.home-about__facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; padding: 0; list-style: none; }
+.home-about__facts li {
+  padding: 8px 14px; border: 1px solid rgb(156 120 67 / .4); border-radius: 999px;
+  background: #f4e8d4; color: #6f4f27; font-size: 14px; font-weight: 500;
+}
+@media (min-width: 900px) {
+  .home-about { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: start; }
+  .home-about__head .home-section__title { margin-bottom: 0; }
+}
+
+/* Другие проекты автора: тихие карточки с золотой отсечкой, чтобы не спорили с основным призывом */
+.home-section .other-projects__title {
+  margin-bottom: 16px; color: var(--home-gold); font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+}
+.home-section .other-projects__list { gap: 16px; }
+.home-section .other-projects__list a {
+  position: relative; display: flex; flex-direction: column; gap: 6px; padding: 24px 24px 22px;
+  border: 1px solid var(--home-line); border-radius: 20px; background: var(--home-card);
+  transition: border-color .2s, transform .2s;
+}
+.home-section .other-projects__list a::before {
+  content: ""; position: absolute; top: 0; left: 24px; width: 40px; height: 3px; border-radius: 0 0 3px 3px; background: var(--home-gold);
+}
+.home-section .other-projects__list a:hover { border-color: var(--home-gold); transform: translateY(-2px); }
+.home-section .other-projects__site { margin: 0; color: var(--home-gold); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.home-section .other-projects__name { margin: 0; font-family: var(--font-playfair), Georgia, serif; font-size: 24px; font-weight: 500; line-height: 1.2; }
+.home-section .other-projects__summary { color: var(--home-soft); }
+.home-section .other-projects__cue { display: block; margin-top: auto; padding-top: 10px; color: var(--home-gold); font-size: 14px; font-weight: 500; }
 .home-footer { max-width: 1320px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 48px) 48px; }
 .home-footer .site-footer { border-top-color: var(--home-line); color: var(--home-soft); }
 .home-footer .site-footer a { color: var(--home-soft); }
