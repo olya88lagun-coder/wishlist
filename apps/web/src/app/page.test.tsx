@@ -41,6 +41,7 @@ describe("Home", () => {
     expect(html).toContain('href="/lists"');
     expect(html).toContain('href="/articles"');
     expect(html).not.toContain("final-title");
+    expect(html).not.toContain("home-sticky-create");
   });
 
   test("renders premium trust signals, gift scenarios, and public structured data", async () => {
@@ -130,6 +131,7 @@ describe("Home", () => {
     expect(html.indexOf('id="final-title"')).toBeGreaterThan(html.indexOf('id="faq"'));
     expect(final).toContain("Собрать в Telegram");
     expect(final).toContain("Собрать на сайте");
+    expect(html).toMatch(/<a[^>]*class="home-sticky-create"[^>]*href="\/login"[^>]*>Создать список/);
   });
 
   test("sends interests to /gifts from the dedicated AI finder section", async () => {
