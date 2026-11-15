@@ -20,7 +20,7 @@ import { freeDesignTelegramIds } from "@/server/free-designs";
 import { readViewer } from "@/server/viewer";
 import { CancelReservationButton } from "./CancelReservationButton";
 import { FirstOpenMark } from "./FirstOpenMark";
-import { GuestCta } from "./GuestCta";
+import { GuestCta, GuestCtaShortcut } from "./GuestCta";
 import { ReserveSheet } from "./ReserveSheet";
 import { reminderBotLink } from "./remind-link";
 
@@ -82,6 +82,8 @@ export default async function PublicWishlistPage({ params }: Props) {
         <CountdownSticker occasion={wishlist.occasion} eventDate={wishlist.eventDate} />
       </div>
       <h1 className="display">{wishlist.title}</h1></>}
+
+      {!isOwner && !reservedSomething && <GuestCtaShortcut signedIn={user !== null} />}
 
       {isOwner && (
         <p className="panel muted" style={{ marginBottom: 20 }}>

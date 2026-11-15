@@ -149,6 +149,15 @@ a { color: inherit; }
 .quick-link__row .button { flex: 0 0 auto; width: auto; }
 .guest-cta { border: 1px solid var(--line); }
 .guest-cta .button { min-height: 44px; }
+.guest-cta-shortcut {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  text-underline-offset: 3px;
+}
 .site-footer { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
 .login-back { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-soft); font-size: 14px; text-underline-offset: 4px; }
 .login-back:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }

@@ -83,10 +83,17 @@ test("successful activation, copy and reservation emit once without personal fie
   expect(count(ownerGoals, "auth_completed")).toBe(1);
   expect(count(ownerGoals, "wishlist_created")).toBe(1);
 
-  const guest = await browser.newContext();
+  const guest = await browser.newContext({ viewport: page.viewportSize() });
   const guestGoals = await captureGoals(guest);
   const guestPage = await guest.newPage();
   await guestPage.goto(publicHref!);
+  const guestShortcut = guestPage.getByRole("link", { name: "Создать свой вишлист", exact: true });
+  await expect(guestShortcut).toBeInViewport();
+  await guestShortcut.click();
+  await expect(guestPage).toHaveURL(/#guest-cta-title$/);
+  await expect(guestPage.getByRole("heading", { name: "Соберите свой вишлист" })).toBeFocused();
+  await expect.poll(() => count(guestGoals, "guest_wishlist_cta_jump")).toBe(1);
+  expect(count(guestGoals, "guest_wishlist_cta_click")).toBe(0);
   await guestPage.getByRole("button", { name: "Я подарю", exact: true }).first().click();
   await guestPage.getByRole("dialog").getByRole("button", { name: "Я подарю", exact: true }).click();
   await expect(guestPage.getByRole("dialog").locator(".error").first()).toBeVisible();

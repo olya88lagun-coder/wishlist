@@ -1,6 +1,7 @@
 export const ANALYTICS_EVENTS = [
   "gift_finder_submit", "gift_finder_result", "gift_finder_product_click", "partner_product_click",
   "gift_finder_save", "gift_finder_dismiss", "landing_gift_finder_click", "guest_wishlist_cta_click",
+  "guest_wishlist_cta_jump",
   "auth_completed", "wishlist_created", "wishlist_item_added", "wishlist_link_copied", "wishlist_reserved",
   "design_theme_select", "design_theme_pay_click",
   "santa_created", "santa_joined", "santa_drawn", "santa_recipient_opened",
