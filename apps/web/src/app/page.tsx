@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { OtherProjects } from "@/components/OtherProjects";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -6,6 +7,7 @@ import { EditorialMenu } from "@/components/EditorialMenu";
 import { HomeMobileMenu } from "@/components/HomeMobileMenu";
 import { HomeGiftCollections } from "@/components/HomeGiftCollections";
 import { HomeWishlistPreview } from "@/components/HomeWishlistPreview";
+import { HomeStickyCreate } from "@/components/HomeStickyCreate";
 import { SantaBanner } from "@/components/SantaBanner";
 import { DedMorozBanner } from "@/components/DedMorozBanner";
 import { ScrollEffects } from "@/components/ScrollEffects";
@@ -118,21 +120,25 @@ const OCCASIONS = [
     title: "День рождения",
     text: "Соберите желания разного бюджета и отправьте близким один аккуратный ориентир.",
     href: "/wishlist/birthday",
+    photo: "/gifts/seo/birthday-1.webp",
   },
   {
     title: "Свадьба",
     text: "Гости видят свободные идеи, а пара не получает два одинаковых подарка.",
     href: "/gifts/wedding",
+    photo: "/gifts/seo/wedding-2.webp",
   },
   {
     title: "Новый год",
     text: "Подготовьте семейный список заранее и сохраните интригу до праздника.",
     href: "/wishlist/new-year",
+    photo: "/gifts/seo/new-year-2.webp",
   },
   {
     title: "Подарок маме",
     text: "Начните с интересов, привычек и маленьких ежедневных радостей.",
     href: "/gifts/for-mom",
+    photo: "/gifts/seo/mom-2.webp",
   },
 ] as const;
 
@@ -236,7 +242,7 @@ export default async function Home() {
         </div>
       </header>
 
-      <ScrollEffects reveal="main > .home-section, .home-step, .home-occasion" />
+      <ScrollEffects reveal=".home main > .home-section" />
       <main>
         <section className="hero" aria-labelledby="hero-title">
           {isSantaSeason() && <SeasonalSnow />}
@@ -255,6 +261,7 @@ export default async function Home() {
           </div>
           <HomeWishlistPreview />
         </section>
+        {site && <HomeStickyCreate href={site.href} />}
 
         <section className="home-trust" aria-label="Почему удобно использовать MyWishList">
           {TRUST_ITEMS.map((item) => (
@@ -303,14 +310,14 @@ export default async function Home() {
           <div className="home-occasion-grid">
             {OCCASIONS.map((occasion) => (
               <Link className="home-occasion" href={occasion.href} key={occasion.href}>
-                <span>{occasion.title}</span>
-                <p>{occasion.text}</p>
-                <svg className="home-occasion__icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
-                  {occasion.href === "/wishlist/birthday" && <path d="M11 28h10M13 27V14h6v13m-3-16c-6-3 0-8 0-8s6 5 0 8Z" />}
-                  {occasion.href === "/gifts/wedding" && <><circle cx="12" cy="18" r="7" /><circle cx="21" cy="18" r="7" /><path d="m16 7 2-3 2 3-2 3z" /></>}
-                  {occasion.href === "/wishlist/new-year" && <path d="M16 3v26M5 9l22 14M5 23 27 9M12 6l4 4 4-4m-8 20 4-4 4 4M7 14l5-1-1-5m14 10-5 1 1 5M7 18l5 1-1 5m14-10-5-1 1-5" />}
-                  {occasion.href === "/gifts/for-mom" && <path d="M16 28V17m0 6c-6-6-9-4-9-4s2 6 9 6m0-4c5-5 9-4 9-4s-2 6-9 6m0-6C5 13 8 7 13 9c-1-6 7-6 6 0 5-2 8 4-3 8Z" />}
-                </svg>
+                <div className="home-occasion__image">
+                  <Image src={occasion.photo} alt="" fill sizes="(max-width: 899px) 46vw, (max-width: 1320px) 23vw, 300px" />
+                </div>
+                <div className="home-occasion__copy">
+                  <h3>{occasion.title}</h3>
+                  <p>{occasion.text}</p>
+                  <span className="home-occasion__cue" aria-hidden="true">Смотреть идеи →</span>
+                </div>
               </Link>
             ))}
           </div>
@@ -322,11 +329,11 @@ export default async function Home() {
           <ol className="home-steps">
             {STEPS.map((step, index) => (
               <li key={step.title} className="home-step">
-                <span className="home-step__number">{String(index + 1).padStart(2, "0")}</span>
+                <span className="home-step__number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                 {index === 2 ? (
                   <span className="home-step__gift"><GiftIcon /></span>
                 ) : (
-                  <svg className="home-step__gift" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <svg className="home-step__gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     {index === 0
                       ? <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
                       : <path d="M4 12v7h16v-7M12 3v12M7 8l5-5 5 5" />}
@@ -339,12 +346,14 @@ export default async function Home() {
           </ol>
         </section>
 
-        <div className="home-section home-santa">
-          <div className="home-seasonal">
-            <SantaBanner />
-            <DedMorozBanner />
+        {isSantaSeason() && (
+          <div className="home-section home-santa">
+            <div className="home-seasonal">
+              <SantaBanner />
+              <DedMorozBanner />
+            </div>
           </div>
-        </div>
+        )}
 
         <HomeGiftCollections />
 
@@ -365,8 +374,10 @@ export default async function Home() {
         </section>
 
         <section id="faq" className="home-section home-faq" aria-labelledby="faq-title">
-          <p className="home-section__eyebrow">Вопросы и ответы</p>
-          <h2 id="faq-title" className="home-section__title">Частые вопросы о списке желаний</h2>
+          <div>
+            <p className="home-section__eyebrow">Вопросы и ответы</p>
+            <h2 id="faq-title" className="home-section__title">Частые вопросы о списке желаний</h2>
+          </div>
           <div className="home-faq__list">
             {HOME_FAQ.map((item, i) => (
               <details className="home-faq__item" key={item.question} open={i === 0}>

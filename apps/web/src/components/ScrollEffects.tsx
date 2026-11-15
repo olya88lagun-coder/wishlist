@@ -28,7 +28,7 @@ export function ScrollEffects({ reveal, progress = false }: Props) {
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
-        entry.target.classList.add("is-visible");
+        entry.target.classList.add("is-visible", "is-revealed");
         observer.unobserve(entry.target);
       }
     }, { rootMargin: "0px 0px -10% 0px" });
