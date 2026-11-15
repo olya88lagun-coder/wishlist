@@ -270,6 +270,14 @@ export default async function Home() {
             <p className="home-section__eyebrow">Нужен подарок?</p>
             <h2 id="finder-title" className="home-section__title">Не знаете, что подарить?</h2>
             <p>Ответьте на несколько вопросов — AI подберёт идеи по человеку, поводу, интересам и бюджету.</p>
+            <div className="home-finder__demo" aria-label="Пример подбора">
+              <p className="home-finder__ask">«Маме, 55 лет. Любит сад, чай и тёплые пледы. Бюджет — до 3 000 ₽»</p>
+              <ul>
+                <li><span>Лейка и набор для рассады</span><b>2 400 ₽</b></li>
+                <li><span>Чайный набор с травами</span><b>1 850 ₽</b></li>
+                <li><span>Плед с бахромой</span><b>2 990 ₽</b></li>
+              </ul>
+            </div>
           </div>
           <form className="home-finder__form" action="/gifts" method="get" aria-labelledby="finder-title">
             <label htmlFor="home-finder-interests">Кому вы выбираете подарок и что этот человек любит?</label>
@@ -288,14 +296,6 @@ export default async function Home() {
           </form>
           <TypewriterPlaceholder targetId="home-finder-interests" examples={FINDER_EXAMPLES} />
         </section>
-
-        <div className="home-section home-santa">
-          <SantaBanner />
-        </div>
-
-        <div className="home-section">
-          <DedMorozBanner />
-        </div>
 
         <section className="home-section home-occasions" aria-labelledby="occasions-title">
           <p className="home-section__eyebrow">Для любого повода</p>
@@ -323,13 +323,28 @@ export default async function Home() {
             {STEPS.map((step, index) => (
               <li key={step.title} className="home-step">
                 <span className="home-step__number">{String(index + 1).padStart(2, "0")}</span>
-                {index === 2 && <span className="home-step__gift"><GiftIcon /></span>}
+                {index === 2 ? (
+                  <span className="home-step__gift"><GiftIcon /></span>
+                ) : (
+                  <svg className="home-step__gift" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {index === 0
+                      ? <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+                      : <path d="M4 12v7h16v-7M12 3v12M7 8l5-5 5 5" />}
+                  </svg>
+                )}
                 <h3>{step.title}</h3>
                 <p>{step.text}</p>
               </li>
             ))}
           </ol>
         </section>
+
+        <div className="home-section home-santa">
+          <div className="home-seasonal">
+            <SantaBanner />
+            <DedMorozBanner />
+          </div>
+        </div>
 
         <HomeGiftCollections />
 
@@ -352,14 +367,14 @@ export default async function Home() {
         <section id="faq" className="home-section home-faq" aria-labelledby="faq-title">
           <p className="home-section__eyebrow">Вопросы и ответы</p>
           <h2 id="faq-title" className="home-section__title">Частые вопросы о списке желаний</h2>
-          <dl className="home-faq__list">
-            {HOME_FAQ.map((item) => (
-              <div className="home-faq__item" key={item.question}>
-                <dt>{item.question}</dt>
-                <dd>{item.answer}</dd>
-              </div>
+          <div className="home-faq__list">
+            {HOME_FAQ.map((item, i) => (
+              <details className="home-faq__item" key={item.question} open={i === 0}>
+                <summary>{item.question}</summary>
+                <p>{item.answer}</p>
+              </details>
             ))}
-          </dl>
+          </div>
         </section>
 
         {!signedIn && (
