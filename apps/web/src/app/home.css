@@ -533,7 +533,9 @@
 .home-finder:not(.home-final) .home-section__title { color: #fbf6ef; }
 .home-finder:not(.home-final) .home-section__eyebrow { color: #d2ad72; }
 .home-finder:not(.home-final) p { color: #e6cfc4; }
-.home-finder:not(.home-final) .home-finder__form { background: #fbf6ef; }
+.home-finder:not(.home-final) .home-finder__form { flex-basis: 580px; gap: 12px; padding: clamp(20px, 2.4vw, 32px); background: #fbf6ef; box-shadow: 0 18px 40px rgb(20 4 9 / .28); }
+.home-finder:not(.home-final) .home-finder__form label { font-size: 1rem; line-height: 1.35; }
+.home-finder:not(.home-final) .home-finder__input, .home-finder:not(.home-final) .home-finder__submit { min-height: 54px; }
 .home-finder__demo { margin-top: 24px; padding: 18px; border-radius: 18px; background: rgb(255 255 255 / 0.07); }
 .home-finder:not(.home-final) .home-finder__ask { margin: 0 0 12px; color: #f4ece0; font-style: italic; }
 .home-finder__demo ul { margin: 0; padding: 0; list-style: none; }
@@ -762,6 +764,10 @@
   .home-preview .card__title { font-size: 0.81rem; }
   .home-preview .card__price, .home-preview .sticker { font-size: 0.7rem; }
   .home-preview__action { min-height: 23px; }
+}
+/* Низкие телефоны (375×667): убираем второстепенное из первого экрана, чтобы пример вишлиста влез целиком */
+@media (max-width: 600px) and (max-height: 700px) {
+  .hero__eyebrow, .hero__finder-link { display: none; }
 }
 @media (max-width: 480px) {
   .home-finder__row { flex-direction: column; }

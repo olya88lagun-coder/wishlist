@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export function HomeStickyCreate({ href }: { href: string }) {
   const [pastHero, setPastHero] = useState(false);
+  const [atFinal, setAtFinal] = useState(false);
 
   useEffect(() => {
     const hero = document.getElementById("hero-title")?.closest("section");
@@ -14,11 +15,19 @@ export function HomeStickyCreate({ href }: { href: string }) {
       if (entry) setPastHero(!entry.isIntersecting && entry.boundingClientRect.bottom <= 0);
     });
     observer.observe(hero);
-    return () => observer.disconnect();
+
+    // Внизу страницы уже есть те же кнопки создания: липкую кнопку прячем
+    const final = document.getElementById("final-title")?.closest("section");
+    const finalObserver = final ? new IntersectionObserver(([entry]) => entry && setAtFinal(entry.isIntersecting)) : null;
+    if (final) finalObserver?.observe(final);
+    return () => {
+      observer.disconnect();
+      finalObserver?.disconnect();
+    };
   }, []);
 
   return (
-    <Link className="home-sticky-create" href={href} hidden={!pastHero}>
+    <Link className="home-sticky-create" href={href} hidden={!pastHero || atFinal}>
       Создать список
     </Link>
   );
