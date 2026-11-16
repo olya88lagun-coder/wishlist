@@ -1,9 +1,8 @@
-import { getDesignAccess, getPublicWishlist, type PublicItemView } from "@wishlist/db";
+import { getDesignAccess, getPublicWishlist, isAffiliateStore, type PublicItemView } from "@wishlist/db";
 import { CelebrationHeading } from "@/components/CelebrationHeading";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AffiliateNotice } from "@/components/AffiliateNotice";
 import { CountdownSticker } from "@/components/CountdownSticker";
 import { EmptyState } from "@/components/EmptyState";
 import { WishlistTheme } from "@/components/WishlistTheme";
@@ -13,7 +12,6 @@ import { toCardModel } from "@/components/item-card-model";
 import { ReservedSticker } from "@/components/ReservedSticker";
 import { ShareBar } from "@/components/ShareBar";
 import { SiteFooter } from "@/components/SiteFooter";
-import { isAffiliateEnabled } from "@/server/affiliate-notice";
 import { getDb } from "@/server/db";
 import { getEnv } from "@/server/env";
 import { freeDesignTelegramIds } from "@/server/free-designs";
@@ -99,7 +97,7 @@ export default async function PublicWishlistPage({ params }: Props) {
         <>
         <section className="grid" aria-label="Подарки">
           {items.map((item) => (
-            <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl), linkHref: isOwner ? null : `/go/${item.id}` }} adLabel={!isOwner && isAffiliateEnabled()} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
+            <ItemCard key={item.id} item={{ ...item, imageUrl: imageUrlFor(item.imageKey, publicBaseUrl), linkHref: isOwner ? null : `/go/${item.id}` }} adLabel={!isOwner && isAffiliateStore(item.store)} dimmed={item.status === "reserved_by_other"} sticker={stickerFor(item)}>
               {!isOwner && item.status === "free" && (
                 <ReserveSheet
                   slug={wishlist.slug}
@@ -138,7 +136,6 @@ export default async function PublicWishlistPage({ params }: Props) {
       <div style={{ marginTop: 32 }}>
         <ShareBar url={shareUrl} title={`${wishlist.title} — вишлист ${ownerName}`} />
       </div>
-      {!isOwner && <AffiliateNotice />}
       <SiteFooter botUsername={env.TELEGRAM_BOT_USERNAME} />
     </main></WishlistTheme>
   );
