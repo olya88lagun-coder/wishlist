@@ -7,6 +7,18 @@ type Props = { botUsername: string; signedIn: boolean; reservedSomething: boolea
 
 export const GUEST_CTA_TITLE_ID = "guest-cta-title";
 
+export function GuestCtaShortcut({ signedIn }: { signedIn: boolean }) {
+  return (
+    <a
+      className="guest-cta-shortcut"
+      href={`#${GUEST_CTA_TITLE_ID}`}
+      onClick={() => trackEvent("guest_wishlist_cta_jump", { signed_in: signedIn })}
+    >
+      Создать свой вишлист
+    </a>
+  );
+}
+
 export function GuestCta({ botUsername, signedIn, reservedSomething }: Props) {
   return (
     <section className="panel stack guest-cta" aria-label="Свой вишлист">

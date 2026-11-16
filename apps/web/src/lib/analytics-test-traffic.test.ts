@@ -55,17 +55,38 @@ test("a restored document reads a reset saved by another document in the same ta
   expect(isAnalyticsTestTraffic(page)).toBe(false);
 });
 
-function loader(page = tab(), readyDuringInit = false) {
+function loader(page = tab(), readyDuringInit = false, referrer = "") {
   const anchor = { parentNode: { insertBefore: vi.fn() } };
-  const document = Object.assign(new EventTarget(), { scripts: [] as { src?: string }[], referrer: "", createElement: vi.fn(() => ({})), getElementsByTagName: () => [anchor] });
+  const document = Object.assign(new EventTarget(), { scripts: [] as { src?: string }[], referrer, createElement: vi.fn(() => ({})), getElementsByTagName: () => [anchor] });
   if (readyDuringInit) page.ym = vi.fn((_id: number, action: string) => {
     if (action === "init") document.dispatchEvent(new Event("yacounter112836417inited"));
   });
   anchor.parentNode.insertBefore.mockImplementation((script: { src?: string }) => { document.scripts.push(script); });
-  const scope = { window: page, document, URLSearchParams, Date };
+  const scope = { window: page, document, URL, URLSearchParams, Date };
   runInNewContext(metrikaLoaderScript(112836417), scope);
   return { page, document, anchor };
 }
+
+test("Metrika init receives only page paths and campaign parameters", () => {
+  const { page } = loader(tab("?utm_source=telegram&next=%2Flists&_ym_debug=2#guest-cta-title"), false,
+    "https://partner.example/entry?email=private&utm_medium=referral#private");
+  const queued = (page.ym as unknown as { a: unknown[][] }).a;
+  expect(queued[0]![2]).toMatchObject({
+    url: "https://my-wish-list.online/gifts?utm_source=telegram",
+    referrer: "https://partner.example/entry?utm_medium=referral",
+  });
+});
+
+test.each(["#tgWebAppData=private", "?tgWebAppData=private"])("Metrika waits until Telegram launch data is out of the address: %s", (launch) => {
+  const page = tab();
+  page.location.href = `https://my-wish-list.online/tg${launch}`;
+  const { document } = loader(page);
+  expect(document.createElement).not.toHaveBeenCalled();
+  expect(page.ym).toBeUndefined();
+  page.location.href = "https://my-wish-list.online/lists";
+  page.__wlLoadMetrika!();
+  expect(document.createElement).toHaveBeenCalledTimes(1);
+});
 
 test("the inline loader remembers readiness before the React listener mounts", () => {
   const { page, document } = loader(tab(), true);

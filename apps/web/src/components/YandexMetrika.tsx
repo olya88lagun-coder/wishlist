@@ -12,9 +12,9 @@ function AnalyticsContext() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   useEffect(() => {
+    window.__wlLoadMetrika?.();
     initializeAnalytics();
     collectAnalyticsCompletions();
-    window.__wlLoadMetrika?.();
   }, [pathname, searchParams]);
   return null;
 }
@@ -33,6 +33,7 @@ export function YandexMetrika() {
         <div>
           <img
             src={"https://mc.yandex.ru/watch/" + id}
+            referrerPolicy="origin"
             style={{ position: "absolute", left: "-9999px" }}
             alt=""
           />
