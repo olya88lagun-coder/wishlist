@@ -27,7 +27,7 @@ function makeIdeas(person: string, occasion: string, interests: string): Result[
   ];
 }
 
-export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = false, extraStores = [], initialPerson = "mom", initialBudget = "5000", initialOccasion = "birthday", initialInterests = "", returnPath = "/gifts" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; showAdLabel?: boolean; extraStores?: readonly ExtraStore[]; initialPerson?: Person; initialBudget?: string; initialOccasion?: string; initialInterests?: string; returnPath?: string }) {
+export function GiftFinder({ wishlists, isAuthenticated = false, adStores = [], extraStores = [], initialPerson = "mom", initialBudget = "5000", initialOccasion = "birthday", initialInterests = "", returnPath = "/gifts" }: { wishlists: WishlistSummary[]; isAuthenticated?: boolean; adStores?: readonly string[]; extraStores?: readonly ExtraStore[]; initialPerson?: Person; initialBudget?: string; initialOccasion?: string; initialInterests?: string; returnPath?: string }) {
   const [person, setPerson] = useState<Person>(initialPerson);
   const [occasion, setOccasion] = useState(OCCASIONS.some(([value]) => value === initialOccasion) ? initialOccasion : "birthday");
   const [interests, setInterests] = useState(initialInterests);
@@ -235,13 +235,15 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
           </div>
           {addError && <p className="error" role="status">{addError}</p>}
           <div className="gift-finder__cards">
-            {results.map((result) => (
+            {results.map((result) => {
+              const stores = [...SEARCH_STORES, ...extraStoresForIdea({ name: result.title, query: result.searchQuery, budget: Number(effectiveBudget) || undefined }, extraStores)];
+              return (
               <article className="panel gift-card" key={result.title}>
                 <h3>{result.title}</h3>
                 <p className="muted">{result.reason}</p>
-                <p className="card__meta">{showAdLabel ? "Реклама · поиск в магазинах: " : "Поиск в магазинах: "}{result.searchQuery}</p>
+                <p className="card__meta">{stores.some((store) => adStores.includes(store)) ? "Реклама · поиск в магазинах: " : "Поиск в магазинах: "}{result.searchQuery}</p>
                 <div className="card__actions">
-                  {[...SEARCH_STORES, ...extraStoresForIdea({ name: result.title, query: result.searchQuery, budget: Number(effectiveBudget) || undefined }, extraStores)].map((store) => (
+                  {stores.map((store) => (
                     <a
                       key={store}
                       className="button button--ghost button--small"
@@ -258,9 +260,10 @@ export function GiftFinder({ wishlists, isAuthenticated = false, showAdLabel = f
                 </div>
                 {addingTitle === result.title && <p className="muted" role="status">Добавляем…</p>}
               </article>
-            ))}
+              );
+            })}
           </div>
-          <p className="muted gift-finder__note">{showAdLabel ? "Реклама. Ссылки на магазины партнёрские: если вы купите товар, сервис может получить комиссию. Для вас цена не меняется. " : ""}Это идеи подарков, а не конкретные товары. Кнопки откроют поиск по идее в Ozon, Wildberries или Яндекс Маркете; цена и наличие зависят от магазина.</p>
+          <p className="muted gift-finder__note">Это идеи подарков, а не конкретные товары. Кнопки откроют поиск по идее в Ozon, Wildberries или Яндекс Маркете; цена и наличие зависят от магазина.</p>
         </section>
       )}
     </section>

@@ -7,8 +7,7 @@ import { SavedIdeaFlight } from "./SavedIdeaFlight";
 import { getDb } from "@/server/db";
 import { GIFTS_HUB_FAQ } from "@/content/gifts-hub-faq";
 import { faqPageJsonLd, giftsHubJsonLd } from "@/lib/structured-data";
-import { isAffiliateEnabled } from "@/server/affiliate-notice";
-import { enabledExtraStores } from "@/server/store-routing";
+import { affiliateSearchStores, enabledExtraStores } from "@/server/store-routing";
 import { readViewer } from "@/server/viewer";
 
 const HUB_TITLE = "AI-подбор подарков: идеи по человеку, поводу и бюджету";
@@ -83,7 +82,7 @@ export default async function GiftsPage({ searchParams }: { searchParams: Promis
 
       <SavedIdeasDock />
       <SavedIdeaFlight />
-      <GiftFinder initialInterests={initialInterests} wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={isAffiliateEnabled()} extraStores={enabledExtraStores()} />
+      <GiftFinder initialInterests={initialInterests} wishlists={wishlists} isAuthenticated={Boolean(user)} adStores={affiliateSearchStores()} extraStores={enabledExtraStores()} />
 
       <section className="gifts-page__how" aria-labelledby="gift-how-title">
         <div className="gifts-page__how-copy">

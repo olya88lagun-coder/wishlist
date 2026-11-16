@@ -3,7 +3,10 @@ import { expect, test, vi } from "vitest";
 
 vi.mock("@/server/viewer", () => ({ readViewer: vi.fn().mockResolvedValue({ user: null }) }));
 vi.mock("@/server/db", () => ({ getDb: vi.fn() }));
-vi.mock("@wishlist/db", () => ({ listWishlistsForOwner: vi.fn() }));
+vi.mock("@wishlist/db", async () => ({
+  listWishlistsForOwner: vi.fn(),
+  isAffiliateStore: (await vi.importActual<typeof import("@wishlist/db")>("@wishlist/db")).isAffiliateStore,
+}));
 
 import GiftPage, { generateMetadata } from "./page";
 import sitemap from "../../sitemap";
