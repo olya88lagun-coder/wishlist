@@ -3,7 +3,7 @@ import { getDesignAccess, getPublicWishlist } from "@wishlist/db";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, expect, test, vi } from "vitest";
 
-vi.mock("@wishlist/db", () => ({ getPublicWishlist: vi.fn(), getDesignAccess: vi.fn() }));
+vi.mock("@wishlist/db", () => ({ getPublicWishlist: vi.fn(), getDesignAccess: vi.fn(), isAffiliateStore: vi.fn(() => false) }));
 vi.mock("@/server/db", () => ({ getDb: vi.fn() }));
 vi.mock("@/server/viewer", () => ({ readViewer: vi.fn() }));
 vi.mock("@/server/env", () => ({

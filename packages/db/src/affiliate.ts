@@ -25,6 +25,12 @@ const AFFILIATE_ENV_BY_STORE: Record<string, string> = {
   other: "AFFILIATE_OTHER_TEMPLATE",
 };
 
+// Ссылка на подарок рекламная (и требует пометки «Реклама»), только если для его магазина задан партнёрский шаблон
+export function isAffiliateStore(store: string | null): boolean {
+  const envName = store ? AFFILIATE_ENV_BY_STORE[store] : undefined;
+  return Boolean(envName && process.env[envName]?.trim());
+}
+
 export async function getGoTarget(db: Database, itemId: string): Promise<GoTarget | null> {
   if (!isUuid(itemId)) return null;
   const [row] = await db

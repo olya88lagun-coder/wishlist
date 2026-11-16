@@ -12,17 +12,19 @@ export function SiteFooter({
 }) {
   return (
     <footer className="site-footer">
-      <span>my-wish-list.online</span>
-      <a href={`https://t.me/${botUsername}`} target="_blank" rel="noopener noreferrer">
-        Бот в Telegram
-      </a>
-      <a href={`https://t.me/${botUsername}?start=feedback`} target="_blank" rel="noopener noreferrer">
-        Написать отзыв
-      </a>
-      <a href="/privacy">Политика конфиденциальности</a>
-      <a href="/oferta">Условия покупки</a>
+      <span className="site-footer__brand">my-wish-list.online</span>
+      <nav className="site-footer__links" aria-label="Ссылки сервиса">
+        <a href={`https://t.me/${botUsername}`} target="_blank" rel="noopener noreferrer">
+          Бот в Telegram
+        </a>
+        <a href={`https://t.me/${botUsername}?start=feedback`} target="_blank" rel="noopener noreferrer">
+          Написать отзыв
+        </a>
+        <a href="/privacy">Политика конфиденциальности</a>
+        <a href="/oferta">Условия покупки</a>
+      </nav>
       {showProjects && (
-        <span>
+        <span className="site-footer__projects">
           Другие проекты автора:{" "}
           {OTHER_PROJECTS.map((project, index) => (
             <span key={project.id}>

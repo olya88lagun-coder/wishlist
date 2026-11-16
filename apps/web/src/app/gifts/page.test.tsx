@@ -2,8 +2,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import GiftsPage, { metadata } from "./page";
 
-vi.mock("@wishlist/db", () => ({
+vi.mock("@wishlist/db", async () => ({
   listWishlistsForOwner: vi.fn(),
+  isAffiliateStore: (await vi.importActual<typeof import("@wishlist/db")>("@wishlist/db")).isAffiliateStore,
 }));
 
 vi.mock("@/server/db", () => ({

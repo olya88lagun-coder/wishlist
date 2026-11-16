@@ -10,8 +10,9 @@ vi.mock("@/server/db", () => ({
   getDb: vi.fn(),
 }));
 
-vi.mock("@wishlist/db", () => ({
+vi.mock("@wishlist/db", async () => ({
   listWishlistsForOwner: vi.fn(),
+  isAffiliateStore: (await vi.importActual<typeof import("@wishlist/db")>("@wishlist/db")).isAffiliateStore,
 }));
 
 import GiftRecipientPage, { generateMetadata } from "./page";
@@ -100,7 +101,7 @@ test("marks store search links as advertising only when a partner template is co
 
     process.env.AFFILIATE_OZON_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
     const marked = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
-    expect(marked).toContain("Ссылки на магазины партнёрские");
+    expect(marked).not.toContain("Ссылки на магазины партнёрские");
     expect(marked).toContain('<span class="gift-idea__ad">Реклама · найти:</span>');
   } finally {
     if (saved === undefined) delete process.env.AFFILIATE_OZON_TEMPLATE;
@@ -255,14 +256,12 @@ test("has a sport page with its own metadata, ideas and Спортмастер c
   }
 });
 
-test("puts the general advertising note at the bottom while the idea links keep their own label", async () => {
+test("has no general advertising note: the label stays next to the advertised idea links", async () => {
   const saved = process.env.AFFILIATE_OZON_TEMPLATE;
   try {
     process.env.AFFILIATE_OZON_TEMPLATE = "https://ad.example/g/CODE/?ulp={url}";
     const html = renderToStaticMarkup(await GiftRecipientPage({ params: Promise.resolve({ slug: "for-mom" }) }));
-    const note = html.indexOf("Ссылки на магазины партнёрские");
-    expect(note).toBeGreaterThan(html.lastIndexOf("gift-idea__stores"));
-    expect(note).toBeGreaterThan(html.indexOf("Чего лучше не дарить"));
+    expect(html).not.toContain("Ссылки на магазины партнёрские");
     expect(html).toContain("Реклама · найти:");
   } finally {
     if (saved === undefined) delete process.env.AFFILIATE_OZON_TEMPLATE;

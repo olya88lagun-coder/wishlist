@@ -20,11 +20,9 @@ import { WISHLIST_LANDINGS, type WishlistLandingSlug } from "@/content/wishlist-
 import { PartnerGiftCard } from "../PartnerGiftCard";
 import { ChildrenGiftPage, childrenMetadata } from "../ChildrenGiftPage";
 import { getDb } from "@/server/db";
-import { AffiliateNotice } from "@/components/AffiliateNotice";
 import { BrandOfferCards } from "@/components/BrandOfferCards";
 import { extraStoresForIdea } from "@/app/go/store-routing";
-import { isAffiliateEnabled } from "@/server/affiliate-notice";
-import { enabledExtraStores } from "@/server/store-routing";
+import { affiliateSearchStores, enabledExtraStores } from "@/server/store-routing";
 import { readViewer } from "@/server/viewer";
 import "../gift-ideas.css";
 
@@ -936,7 +934,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
 
   const ideas = GIFT_IDEAS[slug];
   const seo = getSeoContent(slug, page);
-  const adLabel = isAffiliateEnabled();
+  const adStores = affiliateSearchStores();
   const extraStores = enabledExtraStores();
   const { user } = await readViewer();
   const wishlists = user ? await listWishlistsForOwner(getDb(), user.id) : [];
@@ -1026,7 +1024,10 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
             <div className="gift-ideas__group" key={group.title}>
               <h3>{group.title}</h3>
               <ul className="gift-ideas__list">
-                {group.ideas.map((idea) => (
+                {group.ideas.map((idea) => {
+                  const links = giftIdeaSearchLinks(idea.query, `gifts/${slug}`, extraStoresForIdea(idea, extraStores));
+                  const isAd = links.some((link) => adStores.includes(link.id));
+                  return (
                   <li className="gift-idea" key={idea.name}>
                     <div className="gift-idea__head">
                       <GiftIdeaIcon idea={idea} />
@@ -1035,14 +1036,15 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
                     </div>
                     <p>{idea.why}</p>
                     <p className="gift-idea__stores">
-                      <span className={adLabel ? "gift-idea__ad" : undefined}>{adLabel ? "Реклама · найти:" : "Найти:"}</span>
-                      {giftIdeaSearchLinks(idea.query, `gifts/${slug}`, extraStoresForIdea(idea, extraStores)).map((link) => (
+                      <span className={isAd ? "gift-idea__ad" : undefined}>{isAd ? "Реклама · найти:" : "Найти:"}</span>
+                      {links.map((link) => (
                         <a key={link.store} href={link.href} target="_blank" rel="sponsored nofollow noopener noreferrer">{link.store}</a>
                       ))}
                     </p>
                     <IdeaWishlistButton idea={idea} wishlists={wishlists} isAuthenticated={Boolean(user)} returnPath={`/gifts/${slug}`} />
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </div>
           ))}
@@ -1062,7 +1064,7 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
 
       {slug === "under-3000" ? <PartnerGiftCard /> : null}
 
-      <GiftFinder key={slug} wishlists={wishlists} isAuthenticated={Boolean(user)} showAdLabel={adLabel} extraStores={extraStores} initialPerson={page.person} initialBudget={slug.startsWith("under-") ? slug.slice(6) : undefined} initialOccasion={slug} returnPath={`/gifts/${slug}`} />
+      <GiftFinder key={slug} wishlists={wishlists} isAuthenticated={Boolean(user)} adStores={adStores} extraStores={extraStores} initialPerson={page.person} initialBudget={slug.startsWith("under-") ? slug.slice(6) : undefined} initialOccasion={slug} returnPath={`/gifts/${slug}`} />
 
       <section className="gifts-page__seo">
         <h2>Идеи подарков: с чего начать</h2>
@@ -1098,7 +1100,6 @@ export default async function GiftRecipientPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      <AffiliateNotice />
     </main>
   );
 }

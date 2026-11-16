@@ -36,6 +36,7 @@ export function giftIdeasCountLabel(content: GiftIdeasContent): string {
 
 export function giftIdeaSearchLinks(query: string, source: string, extraStores: readonly ExtraStore[] = []) {
   return [...SEARCH_STORES, ...extraStores].map((store) => ({
+    id: store,
     store: STORE_LABELS[store] ?? store,
     href: storeSearchHref(store, query, source),
   }));

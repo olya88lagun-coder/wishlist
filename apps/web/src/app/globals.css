@@ -838,7 +838,14 @@ a { color: inherit; }
     overflow-wrap: break-word;
   }
 }
-.affiliate-notice { margin: 16px 0; padding: 12px 0 0; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink); }
+.site-footer__links { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+@media (max-width: 640px) {
+  .site-footer { flex-direction: column; justify-content: flex-start; gap: 4px; }
+  .site-footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .site-footer__links a { padding: 11px 0; }
+  .site-footer__projects { padding-top: 8px; }
+  .site-footer__projects a { display: inline; padding: 0; }
+}
 
 /* Полоска прогресса чтения (ScrollEffects progress) */
 .scroll-progress { position: fixed; inset: 0 0 auto; z-index: 50; height: 3px; background: linear-gradient(90deg, #c9a45c, #9c7843); transform: scaleX(0); transform-origin: 0 50%; pointer-events: none; }
