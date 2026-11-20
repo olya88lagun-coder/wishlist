@@ -23,6 +23,7 @@ import { DesignPromo } from "./DesignPromo";
 import { DedMorozPromo } from "./DedMorozPromo";
 import { ItemEditor } from "./ItemEditor";
 import { ListSettings } from "./ListSettings";
+import { RenameButton } from "./RenameButton";
 import { parseHint } from "./parse-hint";
 import { PendingRefresher } from "./PendingRefresher";
 import { QuickLinkForm } from "./QuickLinkForm";
@@ -64,6 +65,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
       {design.theme !== "journal" ? <>
         <div className="owner-hero__actions theme-owner-navigation">
           <Link className="owner-back-link" href="/lists">← Все списки</Link>
+          <RenameButton />
           <Link className="button button--ghost button--small" href={`/${wishlist.slug}`}>Как видят гости</Link>
         </div>
         <CelebrationHeading theme={design.theme} title={wishlist.title} eventDate={wishlist.eventDate}>
@@ -78,6 +80,7 @@ export default async function OwnerListPage({ params }: { params: Promise<{ id: 
           <>
             <Link className="owner-back-link" href="/lists">← Все списки</Link>
             <CountdownSticker occasion={wishlist.occasion} eventDate={wishlist.eventDate} />
+            <RenameButton />
             <Link className="button button--ghost button--small" href={`/${wishlist.slug}`}>Как видят гости</Link>
           </>
         )}
