@@ -98,8 +98,25 @@ a { color: inherit; }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
 @media (min-width: 900px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
-.card { position: relative; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.card { position: relative; display: grid; gap: 6px; align-content: start; min-width: 0; padding: 8px; border-radius: var(--radius); border: 1px solid color-mix(in srgb, var(--line) 55%, transparent); background: color-mix(in srgb, var(--card) 62%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.card--dimmed { opacity: 0.8; }
 .card--dimmed .tile { opacity: 0.55; }
+/* Вычёркивание: линия «проводится» по названию забронированного подарка */
+.card--dimmed .card__title { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--pink-text); color: var(--ink-soft); animation: card-strike 0.7s ease-out 0.15s both; }
+@keyframes card-strike { from { text-decoration-color: transparent; } to { text-decoration-color: var(--pink-text); } }
+/* 3D-наклон к курсору (TiltCards); переменные задаёт скрипт, без него карточка плоская */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+  .card.is-tilting { transform: perspective(700px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateZ(0); transition: transform 0.08s linear; box-shadow: 0 10px 24px rgb(0 0 0 / 0.1); }
+}
+/* Мягкий тёплый градиент под матовыми карточками */
+body { background-image: radial-gradient(60vmax 40vmax at 10% -5%, rgb(255 190 160 / 0.28), transparent 70%), radial-gradient(50vmax 40vmax at 100% 20%, rgb(255 230 140 / 0.22), transparent 70%); background-attachment: fixed; }
+@media (prefers-color-scheme: dark) { body { background-image: radial-gradient(60vmax 40vmax at 10% -5%, rgb(212 83 126 / 0.14), transparent 70%), radial-gradient(50vmax 40vmax at 100% 20%, rgb(255 230 109 / 0.06), transparent 70%); } }
+/* Маркер под выделенным словом заголовка: «прорисовывается» при загрузке */
+.display i, .hero__title .hero__accent { background-image: linear-gradient(transparent 64%, rgb(255 230 109 / 0.7) 64%, rgb(255 230 109 / 0.7) 92%, transparent 92%); background-repeat: no-repeat; background-size: 100% 100%; padding: 0 0.08em; width: fit-content; animation: marker-draw 0.8s ease-out 0.3s both; }
+@keyframes marker-draw { from { background-size: 0% 100%; } to { background-size: 100% 100%; } }
+@media (prefers-color-scheme: dark) { .display i { background-image: linear-gradient(transparent 64%, rgb(212 83 126 / 0.5) 64%, rgb(212 83 126 / 0.5) 92%, transparent 92%); } }
+@media (prefers-reduced-motion: reduce) { .card--dimmed .card__title, .display i, .hero__title .hero__accent { animation: none; } }
 .card__sticker { position: absolute; right: -4px; top: -8px; z-index: 1; }
 .card__title { font-size: 14px; margin: 2px 0 0; overflow-wrap: anywhere; }
 .card__price { font-family: var(--font-playfair), Georgia, serif; font-size: 15px; margin: 0; }

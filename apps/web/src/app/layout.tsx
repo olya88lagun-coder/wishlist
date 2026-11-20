@@ -3,6 +3,7 @@ import { Manrope, Playfair_Display } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { YandexMetrika } from "@/components/YandexMetrika";
+import { TiltCards } from "@/components/TiltCards";
 
 const manrope = Manrope({ subsets: ["latin", "cyrillic"], variable: "--font-manrope" });
 const playfair = Playfair_Display({
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ru" className={`${manrope.variable} ${playfair.variable}`}>
-      <body>{children}<YandexMetrika /></body>
+      <body>{children}<YandexMetrika /><TiltCards /></body>
     </html>
   );
 }
