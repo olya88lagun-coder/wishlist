@@ -136,8 +136,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(105deg, rgb(28 14 18 / 0.72) 0%, rgb(40 18 24 / 0.55) 36%, rgb(58 28 30 / 0.28) 58%, rgb(246 241 231 / 0.08) 100%),
-    linear-gradient(180deg, rgb(20 10 14 / 0.35) 0%, transparent 28%, rgb(20 10 14 / 0.45) 100%);
+    linear-gradient(105deg, rgb(22 10 14 / 0.82) 0%, rgb(32 14 20 / 0.68) 34%, rgb(48 22 26 / 0.4) 56%, rgb(20 10 14 / 0.18) 100%),
+    linear-gradient(180deg, rgb(16 8 12 / 0.42) 0%, transparent 30%, rgb(16 8 12 / 0.55) 100%);
 }
 .hero__copy {
   position: relative;
@@ -186,7 +186,17 @@
   color: #fff8ec;
 }
 .hero__title em { display: block; font-style: italic; font-weight: 400; }
-.hero__title .hero__accent { margin-top: 0.06em; color: #e8c88f; }
+/* На тёмном фото-герое старый жёлтый маркер из globals даёт белый/золотой текст на светлой полосе — перебиваем: тёмные чернила на плотном золоте */
+.hero .hero__title .hero__accent {
+  margin-top: 0.06em;
+  color: #1a1510;
+  background-image: linear-gradient(
+    transparent 58%,
+    rgb(232 200 143 / 0.96) 58%,
+    rgb(232 200 143 / 0.96) 94%,
+    transparent 94%
+  );
+}
 .hero__lead { max-width: 430px; margin: 0 0 24px; font-size: clamp(17px, 1.4vw, 20px); line-height: 1.55; color: rgb(255 248 236 / 0.82); }
 .hero__actions { display: grid; gap: 12px; max-width: 360px; }
 .hero__secondary { margin: 14px 0 0; font-size: 16px; }
@@ -791,8 +801,8 @@
   .hero__atmosphere-img { object-position: 72% 38%; }
   .hero__atmosphere::after {
     background:
-      linear-gradient(180deg, rgb(24 12 16 / 0.55) 0%, rgb(28 14 18 / 0.42) 40%, rgb(28 14 18 / 0.72) 100%),
-      linear-gradient(105deg, rgb(28 14 18 / 0.5) 0%, transparent 70%);
+      linear-gradient(180deg, rgb(18 8 12 / 0.62) 0%, rgb(24 12 16 / 0.5) 38%, rgb(18 8 12 / 0.78) 100%),
+      linear-gradient(105deg, rgb(22 10 14 / 0.58) 0%, transparent 72%);
   }
   .hero__copy { max-width: none; width: 100%; margin-left: 0; }
   .hero__brand-name { font-size: clamp(30px, 8vw, 44px); }
