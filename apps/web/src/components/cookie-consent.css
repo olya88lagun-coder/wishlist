@@ -1,0 +1,112 @@
+/* Компактная плашка согласия: тёплые токены бренда, минимум высоты на мобильном */
+.cookie-consent {
+  --home-ink: #1d1b18;
+  --home-gold: #9c7843;
+  position: fixed;
+  z-index: 40;
+  inset-inline: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 14px;
+  max-width: 560px;
+  margin-inline: auto;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--home-gold) 42%, var(--paper));
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--paper) 92%, #fff) 0%, var(--paper) 100%);
+  color: var(--home-ink);
+  box-shadow: 0 10px 28px rgb(29 27 24 / 0.12);
+}
+
+.cookie-consent__copy {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--home-ink);
+}
+
+.cookie-consent__copy a {
+  color: var(--home-gold);
+  font-weight: 600;
+  text-underline-offset: 2px;
+}
+
+.cookie-consent__actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.cookie-consent__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--home-ink);
+  background: var(--home-ink);
+  color: var(--paper);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cookie-consent__btn--ghost {
+  background: transparent;
+  color: var(--home-ink);
+  border-color: color-mix(in srgb, var(--home-ink) 28%, transparent);
+}
+
+.cookie-consent__btn:focus-visible {
+  outline: 2px solid var(--home-gold);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .cookie-consent {
+    inset-inline: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    gap: 6px 8px;
+    padding: 7px 8px;
+    border-radius: 12px;
+  }
+
+  .cookie-consent__copy {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .cookie-consent__btn {
+    min-height: 28px;
+    padding: 0 8px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+}
+
+/* Узкие телефоны: кнопки под текстом, но без лишних отступов */
+@media (max-width: 360px) {
+  .cookie-consent {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .cookie-consent__actions {
+    justify-content: stretch;
+  }
+
+  .cookie-consent__btn {
+    flex: 1;
+  }
+}
+
+/* Липкая кнопка создания не наезжает на плашку cookie */
+.home:has(.cookie-consent) .home-sticky-create:not([hidden]) {
+  bottom: calc(72px + env(safe-area-inset-bottom));
+}

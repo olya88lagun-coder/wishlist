@@ -92,6 +92,14 @@ function hasTelegramLaunchData(raw: string): boolean {
   );
 }
 
+function analyticsConsentGranted(): boolean {
+  try {
+    return localStorage.getItem("wl_cookie_consent") === "accepted";
+  } catch {
+    return false;
+  }
+}
+
 export function metrikaLoaderScript(id: number): string {
   return `
     (function() {
@@ -99,16 +107,18 @@ export function metrikaLoaderScript(id: number): string {
       var stopCounter = (${stopMetrikaForTestTraffic.toString()});
       var pageUrl = (${metrikaPageUrl.toString()});
       var telegramLaunch = (${hasTelegramLaunchData.toString()});
+      var analyticsConsented = (${analyticsConsentGranted.toString()});
       function trackingBlocked() {
         return testTraffic(window) || telegramLaunch(window.location.href);
       }
       // Remember readiness even if the suspended React context has not mounted.
       document.addEventListener("yacounter${id}inited", function() {
-        if (trackingBlocked()) { stopCounter(${id}, window); return; }
+        if (trackingBlocked() || !analyticsConsented()) { stopCounter(${id}, window); return; }
         if (window.__wlMetrikaStarted !== false) window.__wlMetrikaReady = true;
       });
       window.__wlLoadMetrika = function() {
         if (trackingBlocked()) { stopCounter(${id}, window); return; }
+        if (!analyticsConsented()) return;
         if (window.__wlMetrikaStarted) return;
         window.__wlMetrikaStarted = true;
         (function(m,e,t,r,i,k,a){
@@ -132,7 +142,7 @@ export function metrikaLoaderScript(id: number): string {
           trackLinks: true
         });
       };
-      window.__wlLoadMetrika();
+      if (analyticsConsented()) window.__wlLoadMetrika();
     })();
   `;
 }

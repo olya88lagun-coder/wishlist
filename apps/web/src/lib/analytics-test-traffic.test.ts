@@ -1,6 +1,16 @@
 import { runInNewContext } from "node:vm";
 import { expect, test, vi } from "vitest";
+import { COOKIE_CONSENT_KEY } from "./cookie-consent";
 import { isAnalyticsTestTraffic, metrikaLoaderScript, stopMetrikaForTestTraffic } from "./analytics-test-traffic";
+
+function memoryStorage(initial?: Record<string, string>) {
+  const map = new Map(Object.entries(initial ?? {}));
+  return {
+    getItem: (key: string) => map.get(key) ?? null,
+    setItem: (key: string, value: string) => { map.set(key, value); },
+    removeItem: (key: string) => { map.delete(key); },
+  };
+}
 
 function tab(search = "") {
   const storage = new Map<string, string>();
@@ -55,16 +65,17 @@ test("a restored document reads a reset saved by another document in the same ta
   expect(isAnalyticsTestTraffic(page)).toBe(false);
 });
 
-function loader(page = tab(), readyDuringInit = false, referrer = "") {
+function loader(page = tab(), readyDuringInit = false, referrer = "", consent: "accepted" | "rejected" | null = "accepted") {
   const anchor = { parentNode: { insertBefore: vi.fn() } };
   const document = Object.assign(new EventTarget(), { scripts: [] as { src?: string }[], referrer, createElement: vi.fn(() => ({})), getElementsByTagName: () => [anchor] });
   if (readyDuringInit) page.ym = vi.fn((_id: number, action: string) => {
     if (action === "init") document.dispatchEvent(new Event("yacounter112836417inited"));
   });
   anchor.parentNode.insertBefore.mockImplementation((script: { src?: string }) => { document.scripts.push(script); });
-  const scope = { window: page, document, URL, URLSearchParams, Date };
+  const localStorage = memoryStorage(consent ? { [COOKIE_CONSENT_KEY]: consent } : undefined);
+  const scope = { window: page, document, URL, URLSearchParams, Date, localStorage };
   runInNewContext(metrikaLoaderScript(112836417), scope);
-  return { page, document, anchor };
+  return { page, document, anchor, localStorage };
 }
 
 test("Metrika init receives only page paths and campaign parameters", () => {
@@ -80,12 +91,29 @@ test("Metrika init receives only page paths and campaign parameters", () => {
 test.each(["#tgWebAppData=private", "?tgWebAppData=private"])("Metrika waits until Telegram launch data is out of the address: %s", (launch) => {
   const page = tab();
   page.location.href = `https://my-wish-list.online/tg${launch}`;
-  const { document } = loader(page);
+  const { document, localStorage } = loader(page);
   expect(document.createElement).not.toHaveBeenCalled();
   expect(page.ym).toBeUndefined();
   page.location.href = "https://my-wish-list.online/lists";
+  localStorage.setItem(COOKIE_CONSENT_KEY, "accepted");
   page.__wlLoadMetrika!();
   expect(document.createElement).toHaveBeenCalledTimes(1);
+});
+
+test("Metrika stays unloaded until cookie consent is accepted", () => {
+  const pending = loader(tab(), false, "", null);
+  expect(pending.document.createElement).not.toHaveBeenCalled();
+  expect(pending.page.ym).toBeUndefined();
+  pending.page.__wlLoadMetrika!();
+  expect(pending.document.createElement).not.toHaveBeenCalled();
+  pending.localStorage.setItem(COOKIE_CONSENT_KEY, "accepted");
+  pending.page.__wlLoadMetrika!();
+  expect(pending.document.createElement).toHaveBeenCalledTimes(1);
+
+  const rejected = loader(tab(), false, "", "rejected");
+  expect(rejected.document.createElement).not.toHaveBeenCalled();
+  rejected.page.__wlLoadMetrika!();
+  expect(rejected.document.createElement).not.toHaveBeenCalled();
 });
 
 test("the inline loader remembers readiness before the React listener mounts", () => {
