@@ -16,8 +16,8 @@ test("cookie bar uses warm paper and home brand tokens and stays compact on mobi
   expect(css).toMatch(/--home-ink:\s*#1d1b18/);
   expect(css).toMatch(/--home-gold:\s*#9c7843/);
   expect(css).toMatch(/@media \(max-width: 600px\)/);
-  expect(css).toMatch(/min-height:\s*30px/);
-  expect(css).toMatch(/font-size:\s*12px/);
+  expect(css).toMatch(/min-height:\s*28px/);
+  expect(css).toMatch(/font-size:\s*11px/);
 });
 
 test("button labels stay Принять and Только нужные", () => {
