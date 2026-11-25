@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
-import { Figtree, Playfair_Display } from "next/font/google";
+import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { CookieConsent } from "@/components/CookieConsent";
 import { YandexMetrika } from "@/components/YandexMetrika";
 import { TiltCards } from "@/components/TiltCards";
 
-/* Figtree: latin only on Google Fonts; Cyrillic falls back to system-ui until GF ships it */
-const figtree = Figtree({ subsets: ["latin", "latin-ext"], variable: "--font-figtree" });
+/* Source Sans 3: solid Cyrillic on Google Fonts (not Manrope / not Golos Text) */
+const sourceSans = Source_Sans_3({
+  subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"],
+  variable: "--font-source-sans",
+});
 const playfair = Playfair_Display({
   subsets: ["latin", "cyrillic"],
   style: ["normal", "italic"],
@@ -41,7 +44,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ru" className={`${figtree.variable} ${playfair.variable}`}>
+    <html lang="ru" className={`${sourceSans.variable} ${playfair.variable}`}>
       <body>{children}<CookieConsent /><YandexMetrika /><TiltCards /></body>
     </html>
   );

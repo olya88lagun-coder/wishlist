@@ -2,7 +2,7 @@
   /* Blush linen — warmer than old cream #f6f1e7, distinct from sage-cream */
   --paper: #f8eee6;
   --paper-deep: #efe0d4;
-  --font-body: var(--font-figtree), system-ui, sans-serif;
+  --font-body: var(--font-source-sans), system-ui, sans-serif;
   --ink: #2c2c2a;
   --ink-soft: #5f5e5a;
   --ink-faint: #62615b;
