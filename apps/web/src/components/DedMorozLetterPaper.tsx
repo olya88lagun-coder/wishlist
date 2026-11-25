@@ -78,7 +78,7 @@ export function DedMorozLetterPaper({ letter, preview = false, locked = false, l
       width: "100%", ...(preview ? { minHeight: size(1754) } : { height: "100%" }),
       paddingTop: size(75), paddingBottom: size(76), paddingLeft: size(104), paddingRight: size(104),
       gap: size(layout.sectionGap, 9), background: paper, color: ink, fontWeight: 600,
-      fontFamily: preview ? "var(--font-manrope), system-ui, sans-serif" : "Manrope",
+      fontFamily: preview ? "var(--font-figtree), system-ui, sans-serif" : "Manrope",
     }}>
       <div aria-hidden="true" style={frame} />
       <div aria-hidden="true" style={{ ...frame, top: size(54), right: size(54), bottom: size(54), left: size(54), border: "1px solid #d9bd8b" }} />
@@ -111,7 +111,7 @@ export function DedMorozLetterPaper({ letter, preview = false, locked = false, l
           {greeting}
         </h3>
         {paragraphs.map((paragraph, index) => (
-          <p key={index} style={{ margin: 0, fontFamily: preview ? "Caveat, var(--font-manrope), sans-serif" : "Caveat, Manrope", fontWeight: 700, fontSize: size(layout.font, 17), lineHeight: layout.line, wordBreak: "break-word" }}>
+          <p key={index} style={{ margin: 0, fontFamily: preview ? "Caveat, var(--font-figtree), sans-serif" : "Caveat, Manrope", fontWeight: 700, fontSize: size(layout.font, 17), lineHeight: layout.line, wordBreak: "break-word" }}>
             {paragraph}
           </p>
         ))}

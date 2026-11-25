@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Manrope, Playfair_Display } from "next/font/google";
+import { Figtree, Playfair_Display } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { CookieConsent } from "@/components/CookieConsent";
 import { YandexMetrika } from "@/components/YandexMetrika";
 import { TiltCards } from "@/components/TiltCards";
 
-const manrope = Manrope({ subsets: ["latin", "cyrillic"], variable: "--font-manrope" });
+/* Figtree: latin only on Google Fonts; Cyrillic falls back to system-ui until GF ships it */
+const figtree = Figtree({ subsets: ["latin", "latin-ext"], variable: "--font-figtree" });
 const playfair = Playfair_Display({
   subsets: ["latin", "cyrillic"],
   style: ["normal", "italic"],
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ru" className={`${manrope.variable} ${playfair.variable}`}>
+    <html lang="ru" className={`${figtree.variable} ${playfair.variable}`}>
       <body>{children}<CookieConsent /><YandexMetrika /><TiltCards /></body>
     </html>
   );
