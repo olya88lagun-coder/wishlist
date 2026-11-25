@@ -109,19 +109,26 @@ describe("Home", () => {
     expect(html).toMatch(/<h1[^>]*>Список желаний онлайн:/);
   });
 
-  test("shows a guest wishlist preview next to the two creation links", async () => {
+  test("puts brand and one primary CTA in the hero, with the wishlist preview below", async () => {
     const html = renderToStaticMarkup(await Home());
-    const hero = html.slice(html.indexOf('class="hero"'), html.indexOf("home-trust"));
+    const hero = html.slice(html.indexOf('class="hero"'), html.indexOf("home-demo"));
+    const demo = html.slice(html.indexOf("home-demo"), html.indexOf("home-trust"));
 
+    expect(hero).toContain("MyWishList");
+    expect(hero).toContain("«Вишлист»");
     expect(hero).toContain("Собрать в Telegram");
     expect(hero).toContain("Собрать на сайте");
-    expect(hero).toContain("День рождения Ани");
-    expect(hero).toContain("12 дней");
-    expect(hero).toContain("Я подарю");
-    expect(hero).toContain("Забронировано");
+    expect(hero).toContain("wishlist-birthday.webp");
+    expect(hero).not.toContain("День рождения Ани");
     expect(hero).not.toContain("<form");
     expect(hero).toContain('href="#finder"');
-    expect(hero.match(/<img[^>]*>/g)!.every((img) => img.includes('loading="eager"'))).toBe(true);
+    expect(hero.match(/class="hero-button /g) ?? []).toHaveLength(1);
+
+    expect(demo).toContain("День рождения Ани");
+    expect(demo).toContain("12 дней");
+    expect(demo).toContain("Я подарю");
+    expect(demo).toContain("Забронировано");
+    expect(demo.match(/<img[^>]*>/g)!.every((img) => img.includes('loading="eager"'))).toBe(true);
   });
 
   test("repeats both creation links for guests after the FAQ", async () => {

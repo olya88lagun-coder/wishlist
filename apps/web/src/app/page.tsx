@@ -190,31 +190,40 @@ export default async function Home() {
   const [telegram, site] = signedIn ? [null, null] : start;
   const listLink = signedIn ? start[0] : null;
   const articles = ARTICLES.slice(0, 3);
-  const createActions = signedIn ? (
-    <>
-      <Link className="hero-button hero-button--dark" href={listLink!.href}>
-        <GlobeIcon />
-        <span>{listLink!.label}</span>
-        <Arrow />
-      </Link>
-      <Link className="hero-button hero-button--light" href="/me">
-        <GlobeIcon />
-        <span>Профиль</span>
-        <Arrow />
-      </Link>
-    </>
+  const primaryCta = (key: string) => signedIn ? (
+    <Link key={key} className="hero-button hero-button--dark" href={listLink!.href}>
+      <GlobeIcon />
+      <span>{listLink!.label}</span>
+      <Arrow />
+    </Link>
   ) : (
+    <a key={key} className="hero-button hero-button--dark" href={telegram!.href} target="_blank" rel="noopener noreferrer">
+      <TelegramIcon />
+      <span>{telegram!.label}</span>
+      <Arrow />
+    </a>
+  );
+  const secondaryCta = signedIn ? (
+    <Link className="hero__text-link" href="/me">Профиль →</Link>
+  ) : (
+    <Link className="hero__text-link" href={site!.href}>Собрать на сайте →</Link>
+  );
+  const createActions = (
     <>
-      <a className="hero-button hero-button--dark" href={telegram!.href} target="_blank" rel="noopener noreferrer">
-        <TelegramIcon />
-        <span>{telegram!.label}</span>
-        <Arrow />
-      </a>
-      <Link className="hero-button hero-button--light" href={site!.href}>
-        <span className="hero-button__site-icon"><GlobeIcon /><GiftIcon /></span>
-        <span>{site!.label}</span>
-        <Arrow />
-      </Link>
+      {primaryCta("final-primary")}
+      {signedIn ? (
+        <Link className="hero-button hero-button--light" href="/me">
+          <GlobeIcon />
+          <span>Профиль</span>
+          <Arrow />
+        </Link>
+      ) : (
+        <Link className="hero-button hero-button--light" href={site!.href}>
+          <span className="hero-button__site-icon"><GlobeIcon /><GiftIcon /></span>
+          <span>{site!.label}</span>
+          <Arrow />
+        </Link>
+      )}
     </>
   );
 
@@ -246,8 +255,21 @@ export default async function Home() {
       <main>
         <section className="hero" aria-labelledby="hero-title">
           {isSantaSeason() && <SeasonalSnow />}
+          <div className="hero__atmosphere" aria-hidden="true">
+            <Image
+              className="hero__atmosphere-img"
+              src="/landing/wishlist-birthday.webp"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+            />
+          </div>
           <div className="hero__copy">
-            <p className="hero__eyebrow">Вишлист</p>
+            <p className="hero__brand">
+              <span className="hero__brand-name">MyWishList</span>
+              <span className="hero__brand-lockup">«Вишлист»</span>
+            </p>
             <h1 id="hero-title" className="hero__title">
               Список желаний онлайн: <em>подарки, которые</em> <em className="hero__accent">правда хочется</em>
             </h1>
@@ -255,13 +277,17 @@ export default async function Home() {
               Создайте вишлист на сайте или в Telegram за минуту и отправьте друзьям одну ссылку. Они выберут подарок без регистрации, и никто не подарит второй такой же.
             </p>
             <div className="hero__actions">
-              {createActions}
+              {primaryCta("hero-primary")}
             </div>
+            <p className="hero__secondary">{secondaryCta}</p>
             <p className="hero__finder-link">Не знаете, что подарить? <a href="#finder">Подобрать с AI →</a></p>
           </div>
-          <HomeWishlistPreview />
         </section>
         {site && <HomeStickyCreate href={site.href} />}
+
+        <section className="home-demo" aria-label="Пример вишлиста для гостей">
+          <HomeWishlistPreview />
+        </section>
 
         <section className="home-trust" aria-label="Почему удобно использовать MyWishList">
           {TRUST_ITEMS.map((item) => (
