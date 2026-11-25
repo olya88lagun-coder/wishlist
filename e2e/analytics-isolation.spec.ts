@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { captureGoals, captureMetrikaRequests } from "./analytics-counter";
+import { acceptAnalyticsCookies, captureGoals, captureMetrikaRequests } from "./analytics-counter";
 
 test("QA URL makes zero Metrika requests on its page and subsequent navigations", async ({ page, context }) => {
   const requests = await captureMetrikaRequests(context);
@@ -28,7 +28,10 @@ test("query-only explicit reset starts the normal counter once", async ({ page, 
   await page.goto("/articles?analytics_test=1");
   await page.waitForFunction(() => typeof window.__wlLoadMetrika === "function");
   await expect(page.locator('script[src*="mc.yandex"]')).toHaveCount(0);
-  await page.evaluate(() => window.history.pushState(null, "", "?analytics_test=0"));
+  await page.evaluate(() => {
+    window.history.pushState(null, "", "?analytics_test=0");
+    window.__wlLoadMetrika?.();
+  });
   await page.waitForFunction(() => window.__wlMetrikaReady === true);
   await expect(page.locator('script[src*="mc.yandex"]')).toHaveCount(1);
   expect(await page.evaluate(() => window.__wlAnalyticsTestTraffic)).toBe(false);
@@ -46,13 +49,17 @@ test("query-only explicit reset starts the normal counter once", async ({ page, 
   expect(await page.evaluate(() => window.sessionStorage.getItem("wl_metrika_queue_112836417"))).toBeNull();
   expect(await page.evaluate(() => window.__wlMetrikaStarted)).toBe(false);
   expect(await page.evaluate(() => window.__wlMetrikaReady)).toBe(false);
-  await page.evaluate(() => window.history.replaceState(null, "", "?analytics_test=0"));
+  await page.evaluate(() => {
+    window.history.replaceState(null, "", "?analytics_test=0");
+    window.__wlLoadMetrika?.();
+  });
   await page.waitForFunction(() => window.__wlMetrikaReady === true);
   await expect(page.locator('script[src*="mc.yandex"]')).toHaveCount(1);
 });
 
 test("QA remains isolated through query changes when session storage is blocked", async ({ page, context }) => {
   const requests = await captureMetrikaRequests(context);
+  await acceptAnalyticsCookies(context);
   await context.addInitScript(() => {
     Object.defineProperty(window, "sessionStorage", { configurable: true, get() { throw new Error("blocked"); } });
   });

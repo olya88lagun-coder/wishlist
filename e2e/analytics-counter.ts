@@ -4,8 +4,15 @@ export type GoalCall = { event: string; params?: Record<string, string | number 
 const METRIKA_HOST = /^https:\/\/(?:mc\.yandex\.(?:ru|com)|mc\.webvisor\.org)\//;
 
 // Локальные тесты перехватывают счётчик: ни цели, ни просмотры не уходят в настоящую Метрику.
+export async function acceptAnalyticsCookies(context: BrowserContext) {
+  await context.addInitScript(() => {
+    try { localStorage.setItem("wl_cookie_consent", "accepted"); } catch { /* приватный режим в e2e не используем */ }
+  });
+}
+
 export async function captureGoals(context: BrowserContext, ready?: Promise<void>) {
   const calls: GoalCall[] = [];
+  await acceptAnalyticsCookies(context);
   await context.route("**/__analytics-test", async (route) => {
     calls.push(route.request().postDataJSON());
     await route.fulfill({ status: 204 });
@@ -28,6 +35,7 @@ export async function captureGoals(context: BrowserContext, ready?: Promise<void
 }
 
 export async function blockMetrika(context: BrowserContext) {
+  await acceptAnalyticsCookies(context);
   await context.route(METRIKA_HOST, (route) => route.abort());
 }
 
