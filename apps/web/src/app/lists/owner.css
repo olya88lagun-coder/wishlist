@@ -1,7 +1,7 @@
 .owner-shell {
   /* Кремовый кабинет сохраняет светлую палитру и при тёмной теме устройства. */
-  --paper: #f6f1e7;
-  --paper-deep: #ede7da;
+  --paper: #f8eee6;
+  --paper-deep: #efe0d4;
   --ink: #2c2c2a;
   --ink-soft: #5f5e5a;
   --ink-faint: #62615b;

@@ -1,6 +1,8 @@
 :root {
-  --paper: #f6f1e7;
-  --paper-deep: #ede7da;
+  /* Blush linen — warmer than old cream #f6f1e7, distinct from sage-cream */
+  --paper: #f8eee6;
+  --paper-deep: #efe0d4;
+  --font-body: var(--font-source-sans), system-ui, sans-serif;
   --ink: #2c2c2a;
   --ink-soft: #5f5e5a;
   --ink-faint: #62615b;
@@ -36,7 +38,7 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--paper); color: var(--ink); }
-body { font-family: var(--font-manrope), system-ui, sans-serif; font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font-body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
 
 .page { max-width: 560px; margin: 0 auto; padding: 28px 18px 120px; }
@@ -554,15 +556,15 @@ body { background-image: radial-gradient(60vmax 40vmax at 10% -5%, rgb(255 190 1
   align-items: center;
   justify-content: center;
   padding: 0 28px;
-  border-radius: 999px;
+  border-radius: 12px;
   color: #fffaf1;
   background: #272522;
   text-decoration: none;
 }
 
 .editorial-shell {
-  --paper: #f6f1e7;
-  --paper-deep: #ede7da;
+  --paper: #f8eee6;
+  --paper-deep: #efe0d4;
   --ink: #2c2c2a;
   --ink-soft: #5f5e5a;
   --ink-faint: #62615b;
@@ -577,7 +579,7 @@ body { background-image: radial-gradient(60vmax 40vmax at 10% -5%, rgb(255 190 1
   min-height: 100vh;
   background:
     radial-gradient(circle at 75% 8%, rgb(255 255 255 / .75), transparent 25%),
-    linear-gradient(135deg, #f8f1e6, #eee0cf);
+    linear-gradient(135deg, #f8eee6, #efe0d4);
 }
 
 .editorial-header {
@@ -617,7 +619,7 @@ body { background-image: radial-gradient(60vmax 40vmax at 10% -5%, rgb(255 190 1
 .editorial-create {
   padding: 11px 18px;
   border: 1px solid #70675c;
-  border-radius: 999px;
+  border-radius: 12px;
   text-decoration: none;
 }
 

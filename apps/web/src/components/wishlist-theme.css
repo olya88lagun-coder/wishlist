@@ -63,9 +63,9 @@ body:has(.wishlist-theme[data-theme="march-8"] > .wishlist-page) {
 body:has(> .wishlist-theme[data-theme^="children"]) { background: #fff; }
 .wishlist-theme[data-theme^="children"]:has(> .wishlist-page) { min-height: 100vh; }
 .wishlist-theme[data-theme^="children"] .wishlist-page { padding-top: 180px; }
-.wishlist-theme[data-theme^="children"] .display { font-family: var(--font-manrope), system-ui, sans-serif; font-size: 40px; font-weight: 750; line-height: 1.15; overflow-wrap: anywhere; }
+.wishlist-theme[data-theme^="children"] .display { font-family: var(--font-source-sans), system-ui, sans-serif; font-size: 40px; font-weight: 750; line-height: 1.15; overflow-wrap: anywhere; }
 .wishlist-theme[data-theme^="children"] .card { padding: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: none; }
-.wishlist-theme[data-theme^="children"] .card__title { font-family: var(--font-manrope), system-ui, sans-serif; font-weight: 700; }
+.wishlist-theme[data-theme^="children"] .card__title { font-family: var(--font-source-sans), system-ui, sans-serif; font-weight: 700; }
 .wishlist-theme[data-theme^="children"] .button { border-radius: 8px; }
 .wishlist-theme[data-theme^="children"] .sticker { transform: none; animation: none; }
 .wishlist-theme[data-theme^="children"] .tile { background: var(--paper-deep); }
@@ -81,7 +81,7 @@ body:has(.design-page) { background: #fff; }
 .design-swatches label { display: flex; gap: 8px; align-items: center; cursor: pointer; padding-block: 6px; }
 .design-swatches input { accent-color: var(--ink); }
 .design-swatch { width: 24px; height: 24px; border: 1px solid #81949a; border-radius: 50%; display: inline-block; }
-.design-swatch--journal { background: #f6f1e7; }
+.design-swatch--journal { background: #f8eee6; }
 .design-swatch--blue { background: #bfe3f5; }
 .design-swatch--pink { background: #f3c6d8; }
 .design-swatch--new-year { background: #14533d; border-color: #a42739; }
@@ -278,10 +278,10 @@ body:has(> .wishlist-theme[data-theme="celebration"]) { background: #f7f0df; }
 .design-theme-card--active { border-color: var(--ink); box-shadow: 0 0 0 3px rgb(23 63 74 / .14); }
 .design-theme-card:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-.design-theme-card__thumb { display: block; height: 84px; background-color: #f6f1e7; background-position: center 18%; background-repeat: no-repeat; background-size: 72% auto; }
+.design-theme-card__thumb { display: block; height: 84px; background-color: #f8eee6; background-position: center 18%; background-repeat: no-repeat; background-size: 72% auto; }
 
 /* Миниатюры используют те же декор-ассеты, что и сами темы, — превью всегда совпадает с результатом. */
-.design-theme-card__thumb[data-theme="journal"] { background-color: #f6f1e7; background-image: none; position: relative; }
+.design-theme-card__thumb[data-theme="journal"] { background-color: #f8eee6; background-image: none; position: relative; }
 .design-theme-card__thumb[data-theme="journal"]::after { content: "W"; position: absolute; inset: 0; display: grid; place-items: center; font: 500 34px var(--font-playfair, Georgia, serif); color: #b3a58d; }
 .design-theme-card__thumb[data-theme="children"] { background-color: #eaf5fb; background-image: url('/themes/children-balloons.webp'); }
 .design-theme-card__thumb[data-theme="children-pink"] { background-color: #fdeef4; background-image: url('/themes/children-balloons-pink.webp'); }

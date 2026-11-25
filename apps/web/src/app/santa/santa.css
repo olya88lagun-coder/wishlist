@@ -220,7 +220,7 @@
 .santa-management { display: grid; gap: 15px; justify-items: start; }
 .santa-management > .field { width: min(100%, 630px); }
 .santa-management > .button { margin-top: 0; }
-.santa-participants h2 span { color: var(--santa-muted); font: 650 .95rem var(--font-manrope), system-ui, sans-serif; }
+.santa-participants h2 span { color: var(--santa-muted); font: 650 .95rem var(--font-source-sans), system-ui, sans-serif; }
 .santa-people, .santa-list ul { margin: 12px 0 0; padding: 0; list-style: none; }
 .santa-person {
   display: flex;
